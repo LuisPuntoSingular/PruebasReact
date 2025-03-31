@@ -12,6 +12,7 @@ import ShowPrice from "./OpenWindowComponents/ShowPrice";
 
 import { Box } from "@mui/material";
 import ShowMeasures from "./OpenWindowComponents/ShowMeasures";
+import ShowUtil from "./OpenWindowComponents/ShowUtil";
 /// Estilo para la ventana flotante
 /// @param theme Tema de Material-UI
 const FloatingContainer = styled(Paper)(({ theme }) => ({
@@ -64,10 +65,10 @@ type Row = {
 };
 
 interface CustomFormData {
-  cantidad: number | "";
-  largo: number | "";
-  ancho: number | "";
-  alto: number | "";
+  cantidad:  "1";
+  largo:  "";
+  ancho:  "";
+  alto:  "";
 }
 
 /// Componente de ventana flotante
@@ -87,7 +88,7 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
     { part: "A", largo: "", ancho: "", cantidad: "1" },
   ]);
   const [formData, setFormData] = useState<CustomFormData>({
-    cantidad: "",
+    cantidad: "1",
     largo: "",
     ancho: "",
     alto: ""
@@ -164,7 +165,7 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
     setTotal(total);
   };
 
-    console.log(formData.alto);
+    
   return (
     <FloatingContainer
       style={{
@@ -203,6 +204,7 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
           selectedDerivative={selectedDerivative} // Pasar el estado elevado
           handleDerivativeChange={handleDerivativeChange}/>
         </Box>
+        <ShowUtil/>
       </Section>
 
       {/* Sección 3 */}
@@ -212,8 +214,8 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
         rows={rows}
         handleInputChangeRejilla={handleInputChangeRejilla}
         onTotalChange={handleTotalChange}
-        formData={formData}
-        handleInputChange={handleInputChange}
+ 
+  
       />
       </Section>
     </FloatingContainer>

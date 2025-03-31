@@ -3,6 +3,8 @@ import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import { useCalculos } from "@/context"; // Importar el hook para cálculos
+
 
 const CalculatorContainer = styled(Paper)(({ theme }) => ({
   width: "100%",
@@ -57,30 +59,27 @@ const ValueText = styled(Typography)(({ theme }) => ({
 }));
 
 export default function ShowPrice() {
-  const prices = {
-    cost: 100.0,
-    sale: 150.0,
-    minimum: 90.0,
-  };
+  const { precioventa, preciocosto, minimo  } = useCalculos();
+
 
   return (
     <CalculatorContainer > 
       {/* Precio costo */}
       <Display >
         <TitleText > Costo</TitleText>
-        <ValueText>${prices.cost.toFixed(2)}</ValueText>
+        <ValueText>${preciocosto.toFixed(4)}</ValueText>
       </Display>
 
       {/* Precio venta */}
       <Display>
         <TitleText> Venta</TitleText>
-        <ValueText>${prices.sale.toFixed(2)}</ValueText>
+        <ValueText>${precioventa.toFixed(4)}</ValueText>
       </Display>
 
       {/* Precio mínimo */}
       <Display>
         <TitleText> Mínimo</TitleText>
-        <ValueText>${prices.minimum.toFixed(2)}</ValueText>
+        <ValueText>${minimo.toFixed(2)}</ValueText>
       </Display>
     </CalculatorContainer>
   );

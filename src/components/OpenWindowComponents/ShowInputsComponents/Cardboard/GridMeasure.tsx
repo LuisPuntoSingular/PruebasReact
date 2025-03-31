@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -11,6 +11,7 @@ import {
   TextField,
   Box,
 } from "@mui/material";
+import { useMeasures } from "@/context/MeasuresContext";
 
 type Row = {
   part: string;
@@ -20,17 +21,13 @@ type Row = {
 };
 
 interface TableMeasuresProps {
-  rows: Row[];
-  handleInputChangeRejilla: (index: number, field: keyof Row, value: string) => void;
-  onTotalChange: (total: number) => void;
+  
 }
 
 const TableMeasures: React.FC<TableMeasuresProps> = ({
-  rows,
-  handleInputChangeRejilla,
-  onTotalChange,
+ 
 }) => {
-  const [localRows, setLocalRows] = useState<Row[]>(rows);
+  const { rejillaRows, setRejillaRows, setRejillaTotal, setTotalCantidad } = useMeasures();
 
   const handleInputChangeInternal = (
     index: number,
@@ -38,30 +35,30 @@ const TableMeasures: React.FC<TableMeasuresProps> = ({
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const value = event.target.value;
-    const updatedRows = [...localRows];
+    const updatedRows = [...rejillaRows];
     updatedRows[index][field] = value;
-    setLocalRows(updatedRows);
-    handleInputChangeRejilla(index, field, value);
+    setRejillaRows(updatedRows);
   };
 
   const handleAddRow = () => {
-    if (localRows.length < 5) {
-      const nextLetter = String.fromCharCode(65 + localRows.length);
-      setLocalRows([...localRows, {part: nextLetter, largo: "", ancho: "", cantidad: "1" }]);
+    if (rejillaRows.length < 5) {
+      const nextLetter = String.fromCharCode(65 + rejillaRows.length);
+      setRejillaRows([...rejillaRows, { part: nextLetter, largo: "", ancho: "", cantidad: "1" }]);
     }
   };
 
   const handleDeleteRow = (index: number) => {
-    const newRows = localRows.filter((_, i) => i !== index);
+    const newRows = rejillaRows.filter((_, i) => i !== index);
     const updatedRows = newRows.map((row, i) => ({
       ...row,
       part: String.fromCharCode(65 + i),
     }));
-    setLocalRows(updatedRows);
+    setRejillaRows(updatedRows);
   };
 
   useEffect(() => {
-    const total = localRows.reduce((sum, row) => {
+    // Calcular el total en m²
+    const total = rejillaRows.reduce((sum, row) => {
       const largo = parseFloat(row.largo) || 0;
       const ancho = parseFloat(row.ancho) || 0;
       const cantidad = parseFloat(row.cantidad) || 0;
@@ -69,15 +66,21 @@ const TableMeasures: React.FC<TableMeasuresProps> = ({
       return sum + (largo / 1000) * (ancho / 1000) * cantidad;
     }, 0);
 
-    onTotalChange(total);
-  }, [localRows, onTotalChange]);
+    // Calcular la sumatoria de las cantidades
+    const totalCantidad = rejillaRows.reduce((sum, row) => {
+      const cantidad = parseFloat(row.cantidad) || 0;
+      return sum + cantidad;
+    }, 0);
+
+    setRejillaTotal(total); // Actualizar el total en el contexto
+    setTotalCantidad(totalCantidad); // Actualizar la cantidad total en el contexto
+  }, [rejillaRows, setRejillaTotal, setTotalCantidad]);
 
   return (
     <Box sx={{ width: "100%", overflowX: "auto" }}>
       <TableContainer
         component={Paper}
         sx={{
-       
           maxWidth: "100%",
           margin: "auto",
           borderRadius: 2,
@@ -90,7 +93,6 @@ const TableMeasures: React.FC<TableMeasuresProps> = ({
             <TableRow>
               <TableCell
                 sx={{
-                  
                   padding: "8px",
                   fontSize: "1rem",
                   fontWeight: "bold",
@@ -148,9 +150,9 @@ const TableMeasures: React.FC<TableMeasuresProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {localRows.map((row, index) => (
+            {rejillaRows.map((row, index) => (
               <TableRow key={row.part}>
-                <TableCell sx={{ padding: "0px",pl:2, color: "#FFFFFF" }}>{row.part}</TableCell>
+                <TableCell sx={{ padding: "0px", pl: 2, color: "#FFFFFF" }}>{row.part}</TableCell>
                 {["largo", "ancho", "cantidad"].map((field) => (
                   <TableCell key={field} sx={{ padding: "1px" }}>
                     <TextField
@@ -194,7 +196,7 @@ const TableMeasures: React.FC<TableMeasuresProps> = ({
                     variant="outlined"
                     color="error"
                     onClick={() => handleDeleteRow(index)}
-                    disabled={localRows.length <= 1}
+                    disabled={rejillaRows.length <= 1}
                     sx={{
                       minWidth: "100px",
                       padding: "6px 16px",
@@ -232,7 +234,7 @@ const TableMeasures: React.FC<TableMeasuresProps> = ({
             minWidth: "150px",
           }}
           onClick={handleAddRow}
-          disabled={localRows.length >= 5}
+          disabled={rejillaRows.length >= 5}
         >
           Agregar Fila
         </Button>

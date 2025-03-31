@@ -1,23 +1,35 @@
 import React from "react";
 import { Card, CardContent, Box, TextField } from "@mui/material";
+import { useMeasures } from "@/context/MeasuresContext"; // Importar el contexto de medidas
 
-interface MeasuresProps {
-  formData: {
-    cantidad: number | "";
-    largo: number | "";
-    ancho: number | "";
-    alto: number | "";
-  
+const CardboardMeasures: React.FC = () => {
+  const { largo, setLargo, ancho, setAncho, alto, setAlto, cantidad, setCantidad } = useMeasures();
+
+  // Manejar cambios en los campos de entrada
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    switch (name) {
+      case "largo":
+        setLargo(value === "" ? "" : parseFloat(value));
+        break;
+      case "ancho":
+        setAncho(value === "" ? "" : parseFloat(value));
+        break;
+      case "alto":
+        setAlto(value === "" ? "" : parseFloat(value));
+        break;
+      case "cantidad":
+        setCantidad(value === "" ? "" : parseInt(value));
+        break;
+      default:
+        break;
+    }
   };
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-}
 
-const InputCard: React.FC<MeasuresProps> = ({ formData, handleInputChange }) => {
   return (
     <Card
       sx={{
         width: "100%",
-        
         borderRadius: 2,
         boxShadow: 3,
         backgroundColor: "#1E293B", // Fondo oscuro
@@ -32,6 +44,7 @@ const InputCard: React.FC<MeasuresProps> = ({ formData, handleInputChange }) => 
             gap: 2, // Espaciado entre elementos
           }}
         >
+          {/* Campo para Largo */}
           <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
             <TextField
               label="Largo (mm)"
@@ -39,7 +52,7 @@ const InputCard: React.FC<MeasuresProps> = ({ formData, handleInputChange }) => 
               fullWidth
               size="small"
               name="largo"
-              value={formData.largo}
+              value={largo || ""}
               onChange={handleInputChange}
               InputLabelProps={{
                 style: { color: "#FFFFFF" }, // Color del texto del label
@@ -63,6 +76,8 @@ const InputCard: React.FC<MeasuresProps> = ({ formData, handleInputChange }) => 
               }}
             />
           </Box>
+
+          {/* Campo para Ancho */}
           <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
             <TextField
               label="Ancho (mm)"
@@ -70,7 +85,7 @@ const InputCard: React.FC<MeasuresProps> = ({ formData, handleInputChange }) => 
               fullWidth
               size="small"
               name="ancho"
-              value={formData.ancho}
+              value={ancho || ""}
               onChange={handleInputChange}
               InputLabelProps={{
                 style: { color: "#FFFFFF" },
@@ -94,6 +109,8 @@ const InputCard: React.FC<MeasuresProps> = ({ formData, handleInputChange }) => 
               }}
             />
           </Box>
+
+          {/* Campo para Alto */}
           <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
             <TextField
               label="Alto (mm)"
@@ -101,7 +118,7 @@ const InputCard: React.FC<MeasuresProps> = ({ formData, handleInputChange }) => 
               fullWidth
               size="small"
               name="alto"
-              value={formData.alto}
+              value={alto || ""}
               onChange={handleInputChange}
               InputLabelProps={{
                 style: { color: "#FFFFFF" },
@@ -125,6 +142,8 @@ const InputCard: React.FC<MeasuresProps> = ({ formData, handleInputChange }) => 
               }}
             />
           </Box>
+
+          {/* Campo para Cantidad */}
           <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
             <TextField
               label="Cantidad"
@@ -132,7 +151,7 @@ const InputCard: React.FC<MeasuresProps> = ({ formData, handleInputChange }) => 
               fullWidth
               size="small"
               name="cantidad"
-              value={formData.cantidad}
+              value={cantidad || ""}
               onChange={handleInputChange}
               InputLabelProps={{
                 style: { color: "#FFFFFF" },
@@ -162,4 +181,4 @@ const InputCard: React.FC<MeasuresProps> = ({ formData, handleInputChange }) => 
   );
 };
 
-export default InputCard;
+export default CardboardMeasures;

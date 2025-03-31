@@ -147,3 +147,6 @@ export const calcularCRRSencillo = (largo: number, ancho: number, alto:number): 
     let resultado = (largocompuesto/1000) * (anchocompuesto/1000) 
     return resultado;  // Ejemplo de cálculo doble
   };
+
+
+  

@@ -10,10 +10,10 @@ type Row = {
 };
 
 interface CustomFormData {
-  cantidad: number | "";
-  largo: number | "";
-  ancho: number | "";
-  alto: number | "";
+  cantidad:  "";
+  largo:  "";
+  ancho:  "";
+  alto:  "";
 
 }
 
@@ -22,8 +22,8 @@ interface ShowMeasuresProps {
   rows: Row[]; // Filas para GridMeasure
   handleInputChangeRejilla: (index: number, field: keyof Row, value: string) => void; // Manejar cambios en GridMeasure
   onTotalChange: (total: number) => void; // Manejar el total en GridMeasure
-  formData: CustomFormData; // Datos del formulario para CardboardMeasure
-  handleInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; // Manejar cambios en CardboardMeasure
+
+ 
 }
 
 const ShowMeasures: React.FC<ShowMeasuresProps> = ({
@@ -31,22 +31,18 @@ const ShowMeasures: React.FC<ShowMeasuresProps> = ({
   rows,
   handleInputChangeRejilla,
   onTotalChange,
-  formData,
-  handleInputChange,
+  
 }) => {
   return (
     <div>
       {/* Renderizar condicionalmente los componentes */}
       {selectedDerivative === "Rejilla" ? (
         <GridMeasure
-          rows={rows}
-          handleInputChangeRejilla={handleInputChangeRejilla}
-          onTotalChange={onTotalChange}
+   
         />
       ) : (
         <CardboardMeasure
-          formData={formData}
-          handleInputChange={handleInputChange}
+         
         />
       )}
     </div>

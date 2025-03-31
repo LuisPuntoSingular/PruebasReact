@@ -4,6 +4,9 @@ import Layout from "../layouts/Layout";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../Theme/theme";
 import { ApiProvider } from "@/context/ApiContext";
+import { SelectedValuesProvider } from "@/context/SelectedValuesContext";
+import { MeasuresProvider } from "@/context/MeasuresContext";
+
 export default function App({ Component, pageProps }: AppProps) {
 
  // NEXT_PUBLIC_API_URL_MATERIALS=https://backnode-production.up.railway.app/api/materials
@@ -13,11 +16,15 @@ export default function App({ Component, pageProps }: AppProps) {
 return (
   <ThemeProvider theme={theme}>
     {/* Proveedor de tema para Material-UI */}
+    <MeasuresProvider>
+    <SelectedValuesProvider>
     <ApiProvider>
     <Layout>
       <Component {...pageProps} />
     </Layout>
     </ApiProvider>
+    </SelectedValuesProvider>
+    </MeasuresProvider>
     {/* Componente principal de la página */}
   </ThemeProvider>
   // Proveedor de tema para Material-UI

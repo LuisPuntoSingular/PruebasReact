@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FormControl, TextField, MenuItem, Box } from "@mui/material";
 import { useApi } from "@/context/ApiContext";
+import { useSelectedValues } from "@/context/SelectedValuesContext";
 
 interface CardboardInputProps {
   selectedDerivado: string;
@@ -19,8 +20,18 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
   selectedResistencia,
   handleResistenciaChange,
 }) => {
+  const { corrugated, derivatives, resistances, loading, error } = useApi();
+  const {
+    selectedCorrugado: savedCorrugado,
+    setSelectedCorrugado,
+    selectedDerivado: savedDerivado,
+    setSelectedDerivado,
+    selectedPriceM2,
+    setSelectedPriceM2,
+    resistanceMinimum,
+    setResistanceMinimum, // Nuevo setter
+  } = useSelectedValues();
 
-  const { corrugated,derivatives, resistances, loading, error } = useApi(); // Obtén los datos desde el contexto
   if (loading) return <p>Cargando datos...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -34,36 +45,55 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
     (resistencia: any) => resistencia.categoryid === selectedCategory?.categoryid
   );
 
+  // Encontrar la resistencia seleccionada
+  const selectedResistance = resistances.find(
+    (resistencia: any) => resistencia.resistances === selectedResistencia
+  );
+
+  // Obtener el valor de pricem2 de la resistencia seleccionada
+  const ContextresistancePriceM2 = selectedResistance?.pricem2;
+  const ContextresistanceMinimum = selectedResistance?.minimum;
+
+  // Guardar automáticamente los valores seleccionados cuando cambien
+  useEffect(() => {
+    setSelectedCorrugado(selectedCorrugado);
+    setSelectedDerivado(selectedDerivado);
+    setSelectedPriceM2(ContextresistancePriceM2 || null);
+    setResistanceMinimum(ContextresistanceMinimum || null);
+
+    // Guardar el valor de pricem2 en el contexto
+  }, [selectedCorrugado, selectedDerivado, ContextresistancePriceM2,ContextresistanceMinimum , setSelectedCorrugado, setSelectedDerivado, setSelectedPriceM2]);
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* Select para Derivados */}
       <FormControl fullWidth>
         <TextField
-         size="small"
+          size="small"
           select
           label="Seleccionar Derivado"
           value={selectedDerivado || ""}
           onChange={handleDerivadoChange}
           sx={{
-            background: "rgba(194, 176, 176, 0.34)", // Fondo del campo
-            color: "#ffffff", // Color del texto
-            borderRadius: "8px", // Bordes redondeados
+            background: "rgba(194, 176, 176, 0.34)",
+            color: "#ffffff",
+            borderRadius: "8px",
             "& .MuiOutlinedInput-root": {
               "& fieldset": {
-                borderColor: "rgba(255, 255, 255, 0.5)", // Color del borde
+                borderColor: "rgba(255, 255, 255, 0.5)",
               },
               "&:hover fieldset": {
-                borderColor: "#ffffff", // Color del borde al pasar el mouse
+                borderColor: "#ffffff",
               },
               "&.Mui-focused fieldset": {
-                borderColor: "#ffffff", // Color del borde cuando está enfocado
+                borderColor: "#ffffff",
               },
             },
             "& .MuiInputLabel-root": {
-              color: "rgba(255, 255, 255, 0.7)", // Color inicial del label
+              color: "rgba(255, 255, 255, 0.7)",
             },
             "& .MuiInputLabel-root.Mui-focused": {
-              color: "#ffffff", // Color del label cuando está enfocado
+              color: "#ffffff",
             },
           }}
         >
@@ -78,38 +108,39 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
       {/* Select para Corrugados */}
       <FormControl fullWidth>
         <TextField
-         size="small"
+          size="small"
           select
           label="Seleccionar Corrugado"
           value={selectedCorrugado || ""}
           onChange={handleCorrugadoChange}
           sx={{
-            background: "rgba(194, 176, 176, 0.34)", // Fondo del campo
-            color: "#ffffff", // Color del texto
-            borderRadius: "8px", // Bordes redondeados
+            background: "rgba(194, 176, 176, 0.34)",
+            color: "#ffffff",
+            borderRadius: "8px",
             "& .MuiOutlinedInput-root": {
               "& fieldset": {
-                borderColor: "rgba(255, 255, 255, 0.5)", // Color del borde
+                borderColor: "rgba(255, 255, 255, 0.5)",
               },
               "&:hover fieldset": {
-                borderColor: "#ffffff", // Color del borde al pasar el mouse
+                borderColor: "#ffffff",
               },
               "&.Mui-focused fieldset": {
-                borderColor: "#ffffff", // Color del borde cuando está enfocado
+                borderColor: "#ffffff",
               },
             },
             "& .MuiInputLabel-root": {
-              color: "rgba(255, 255, 255, 0.7)", // Color inicial del label
+              color: "rgba(255, 255, 255, 0.7)",
             },
             "& .MuiInputLabel-root.Mui-focused": {
-              color: "#ffffff", // Color del label cuando está enfocado
+              color: "#ffffff",
             },
           }}
-        >{corrugated.map((corrugado: any) => (
-          <MenuItem key={corrugado.categoryid} value={corrugado.categoryname}>
-            {corrugado.categoryname}
-          </MenuItem>
-        ))}
+        >
+          {corrugated.map((corrugado: any) => (
+            <MenuItem key={corrugado.categoryid} value={corrugado.categoryname}>
+              {corrugado.categoryname}
+            </MenuItem>
+          ))}
         </TextField>
       </FormControl>
 
@@ -122,40 +153,33 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
           value={selectedResistencia || ""}
           onChange={handleResistenciaChange}
           sx={{
-            
-            background: "rgba(194, 176, 176, 0.34)", // Fondo del campo
-            color: "#ffffff", // Color del texto
-            borderRadius: "8px", // Bordes redondeados
+            background: "rgba(194, 176, 176, 0.34)",
+            color: "#ffffff",
+            borderRadius: "8px",
             "& .MuiOutlinedInput-root": {
               "& fieldset": {
-                borderColor: "rgba(255, 255, 255, 0.5)", // Color del borde
+                borderColor: "rgba(255, 255, 255, 0.5)",
               },
               "&:hover fieldset": {
-                borderColor: "#ffffff", // Color del borde al pasar el mouse
+                borderColor: "#ffffff",
               },
               "&.Mui-focused fieldset": {
-                borderColor: "#ffffff", // Color del borde cuando está enfocado
+                borderColor: "#ffffff",
               },
             },
             "& .MuiInputLabel-root": {
-              color: "rgba(255, 255, 255, 0.7)", // Color inicial del label
+              color: "rgba(255, 255, 255, 0.7)",
             },
             "& .MuiInputLabel-root.Mui-focused": {
-              color: "#ffffff", // Color del label cuando está enfocado
+              color: "#ffffff",
             },
           }}
         >
-       {filteredResistances.length > 0 ? (
-  filteredResistances.map((resistencia: any) => (
-    <MenuItem key={resistencia.resistanceid} value={resistencia.resistances}>
-      {resistencia.resistances}
-    </MenuItem>
-  ))
-) : (
-  <MenuItem disabled value="">
-    No hay resistencias disponibles
-  </MenuItem>
-)}
+          {filteredResistances.map((resistencia: any) => (
+            <MenuItem key={resistencia.resistanceid} value={resistencia.resistances}>
+              {resistencia.resistances}
+            </MenuItem>
+          ))}
         </TextField>
       </FormControl>
     </Box>

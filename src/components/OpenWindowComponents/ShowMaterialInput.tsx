@@ -15,7 +15,7 @@ const MaterialInput: React.FC<MaterialInputProps> = ({ selectedMaterial, handleM
   const { materials, loading, error } = useApi(); // Hook para obtener los materiales desde la API
   if (loading) return <div>Cargando materiales...</div>; // Mensaje de carga
   if (error) return <p>Error: {error}</p>;
- 
+    
  
   
   return (
