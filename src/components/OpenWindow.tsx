@@ -5,11 +5,15 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Button from "@mui/material/Button";
-import ShowInputs from "./OpenWindowComponents/ShowInputs";
-import MaterialInput from "./OpenWindowComponents/MaterialInput";
-import ShowPrice from "./OpenWindowComponents/ShowPrice";
-import { Box } from "@mui/material";
 
+import ShowInputs from "./OpenWindowComponents/ShowInputs";
+import MaterialInput from "./OpenWindowComponents/ShowMaterialInput";
+import ShowPrice from "./OpenWindowComponents/ShowPrice";
+
+import { Box } from "@mui/material";
+import ShowMeasures from "./OpenWindowComponents/ShowMeasures";
+/// Estilo para la ventana flotante
+/// @param theme Tema de Material-UI
 const FloatingContainer = styled(Paper)(({ theme }) => ({
   position: "fixed",
   background: "#1e1e2f",
@@ -20,7 +24,7 @@ const FloatingContainer = styled(Paper)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
-  zIndex: 1300,
+  zIndex: 1100,
   overflowY: "auto", // Permite desplazamiento si el contenido excede la altura
   maxHeight: "90vh", // Limita la altura máxima al 90% de la pantalla
   [theme.breakpoints.down("sm")]: {
@@ -29,7 +33,8 @@ const FloatingContainer = styled(Paper)(({ theme }) => ({
     padding: "12px",
   },
 }));
-
+/// Estilo para las secciones dentro de la ventana flotante
+/// @param theme Tema de Material-UI
 const Section = styled("div")(({ theme }) => ({
   flex: 1,
   padding: "8px",
@@ -46,16 +51,57 @@ const Section = styled("div")(({ theme }) => ({
     marginBottom: "6px",
   },
 }));
-
 interface FloatingWindowProps {
   onClose: () => void;
 }
 
+
+type Row = {
+  part: string;
+  largo: string;
+  ancho: string;
+  cantidad: string;
+};
+
+interface CustomFormData {
+  cantidad: number | "";
+  largo: number | "";
+  ancho: number | "";
+  alto: number | "";
+}
+
+/// Componente de ventana flotante
+/// @param onClose Función para cerrar la ventana
+/// @returns Componente de ventana flotante
+/// @description Este componente representa una ventana flotante que se puede arrastrar y soltar en la pantalla. Contiene varias secciones con diferentes funcionalidades.
 export default function FloatingWindow({ onClose }: FloatingWindowProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+  /// Estado para el material seleccionado
+  /// @param selectedMaterial Material seleccionado
   const [selectedMaterial, setSelectedMaterial] = useState("");
+  const [selectedDerivative, setSelectedDerivative] = useState<string>(""); // Estado para el derivado seleccionado
+
+ const [rows, setRows] = useState<Row[]>([
+    { part: "A", largo: "", ancho: "", cantidad: "1" },
+  ]);
+  const [formData, setFormData] = useState<CustomFormData>({
+    cantidad: "",
+    largo: "",
+    ancho: "",
+    alto: ""
+   
+  });
+  const [total, setTotal] = useState<number>(0);
+
+  const handleMaterialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedMaterial(event.target.value);
+  };
+
+  const handleDerivativeChange = (value: string) => {
+    setSelectedDerivative(value);
+  };
 
   // Centrar la ventana solo al cargar
   useEffect(() => {
@@ -71,7 +117,8 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
+/// Manejar el evento de arrastre y soltar
+  /// @param e Evento de mouse
   const handleDragStart = () => {
     if (!isDesktop) return;
     setIsDragging(true);
@@ -81,7 +128,8 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
     if (!isDesktop) return;
     setIsDragging(false);
   };
-
+/// Manejar el movimiento del mouse
+  /// @param e Evento de mouse
   const handleDrag = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDesktop || !isDragging) return;
     const newX = position.x + e.movementX;
@@ -92,7 +140,31 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
   const handleMouseLeave = () => {
     setIsDragging(false);
   };
+/// Manejar el cambio de material seleccionado
+  /// @param event Evento de cambio
 
+  /// @param value Valor del material seleccionado
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value || "",
+    }));
+  };
+/// Manejar el cambio de filas en la rejilla
+  /// @param index Índice de la fila
+  const handleInputChangeRejilla = (index: number, field: keyof Row, value: string) => {
+    const newRows = [...rows];
+    newRows[index] = { ...newRows[index], [field]: value };
+    setRows(newRows);
+  };
+/// Manejar el cambio de total
+  /// @param total Total calculado
+  const handleTotalChange = (total: number) => {
+    setTotal(total);
+  };
+
+    console.log(formData.alto);
   return (
     <FloatingContainer
       style={{
@@ -124,21 +196,25 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
       <Section>
         <MaterialInput
           selectedMaterial={selectedMaterial}
-          handleMaterialChange={(event) => setSelectedMaterial(event.target.value)}
-        />
+          handleMaterialChange={handleMaterialChange} />
         <Box  sx={{ width: "100%", maxWidth: "400px" }}>
-          <ShowInputs  selectedMaterial={selectedMaterial} />
+          <ShowInputs  
+          selectedMaterial={selectedMaterial}
+          selectedDerivative={selectedDerivative} // Pasar el estado elevado
+          handleDerivativeChange={handleDerivativeChange}/>
         </Box>
       </Section>
 
       {/* Sección 3 */}
       <Section>
-        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-          Componente 3
-        </Typography>
-        <Button variant="outlined" color="success">
-          Acción 3
-        </Button>
+      <ShowMeasures
+        selectedDerivative={selectedDerivative}
+        rows={rows}
+        handleInputChangeRejilla={handleInputChangeRejilla}
+        onTotalChange={handleTotalChange}
+        formData={formData}
+        handleInputChange={handleInputChange}
+      />
       </Section>
     </FloatingContainer>
   );

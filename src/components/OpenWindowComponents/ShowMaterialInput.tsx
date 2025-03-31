@@ -1,12 +1,23 @@
 import React from "react";
 import { FormControl, TextField, MenuItem } from "@mui/material";
+import { useApi } from "@/context/ApiContext";
 
+// Componente de entrada de material
+// Este componente permite al usuario seleccionar un material de una lista desplegable
 interface MaterialInputProps {
+  /// Propiedades del componente
+  /// selectedMaterial: Material seleccionado actualmente
   selectedMaterial: string;
   handleMaterialChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const MaterialInput: React.FC<MaterialInputProps> = ({ selectedMaterial, handleMaterialChange }) => {
+  const { materials, loading, error } = useApi(); // Hook para obtener los materiales desde la API
+  if (loading) return <div>Cargando materiales...</div>; // Mensaje de carga
+  if (error) return <p>Error: {error}</p>;
+ 
+ 
+  
   return (
     <FormControl fullWidth sx={{ marginBottom: "16px" }}>
       <TextField
@@ -39,10 +50,12 @@ const MaterialInput: React.FC<MaterialInputProps> = ({ selectedMaterial, handleM
           },
         }}
       >
-        <MenuItem value="Carbon">Carbon</MenuItem>
-        <MenuItem value="Epe">Epe</MenuItem>
-        <MenuItem value="Material 3">Material 3</MenuItem>
-      </TextField>
+       {/* Renderiza las opciones dinámicamente */}
+       {materials.map((material: any) => (
+          <MenuItem key={material.id} value={material.name}>
+            {material.name}
+          </MenuItem>
+        ))}</TextField>
     </FormControl>
   );
 };

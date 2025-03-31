@@ -1,5 +1,6 @@
 import React from "react";
 import { FormControl, TextField, MenuItem, Box } from "@mui/material";
+import { useApi } from "@/context/ApiContext";
 
 interface CardboardInputProps {
   selectedDerivado: string;
@@ -18,6 +19,21 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
   selectedResistencia,
   handleResistenciaChange,
 }) => {
+
+  const { corrugated,derivatives, resistances, loading, error } = useApi(); // Obtén los datos desde el contexto
+  if (loading) return <p>Cargando datos...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  // Encontrar el categoryid del corrugado seleccionado
+  const selectedCategory = corrugated.find(
+    (corrugado: any) => corrugado.categoryname === selectedCorrugado
+  );
+
+  // Filtrar resistencias según el categoryid del corrugado seleccionado
+  const filteredResistances = resistances.filter(
+    (resistencia: any) => resistencia.categoryid === selectedCategory?.categoryid
+  );
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       {/* Select para Derivados */}
@@ -26,7 +42,7 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
          size="small"
           select
           label="Seleccionar Derivado"
-          value={selectedDerivado}
+          value={selectedDerivado || ""}
           onChange={handleDerivadoChange}
           sx={{
             background: "rgba(194, 176, 176, 0.34)", // Fondo del campo
@@ -51,9 +67,11 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
             },
           }}
         >
-          <MenuItem value="Derivado 1">Derivado 1</MenuItem>
-          <MenuItem value="Derivado 2">Derivado 2</MenuItem>
-          <MenuItem value="Derivado 3">Derivado 3</MenuItem>
+          {derivatives.map((derivado: any) => (
+            <MenuItem key={derivado.id} value={derivado.name}>
+              {derivado.name}
+            </MenuItem>
+          ))}
         </TextField>
       </FormControl>
 
@@ -63,7 +81,7 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
          size="small"
           select
           label="Seleccionar Corrugado"
-          value={selectedCorrugado}
+          value={selectedCorrugado || ""}
           onChange={handleCorrugadoChange}
           sx={{
             background: "rgba(194, 176, 176, 0.34)", // Fondo del campo
@@ -87,10 +105,11 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
               color: "#ffffff", // Color del label cuando está enfocado
             },
           }}
-        >
-          <MenuItem value="Corrugado 1">Corrugado 1</MenuItem>
-          <MenuItem value="Corrugado 2">Corrugado 2</MenuItem>
-          <MenuItem value="Corrugado 3">Corrugado 3</MenuItem>
+        >{corrugated.map((corrugado: any) => (
+          <MenuItem key={corrugado.categoryid} value={corrugado.categoryname}>
+            {corrugado.categoryname}
+          </MenuItem>
+        ))}
         </TextField>
       </FormControl>
 
@@ -100,7 +119,7 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
           size="small"
           select
           label="Seleccionar Resistencia"
-          value={selectedResistencia}
+          value={selectedResistencia || ""}
           onChange={handleResistenciaChange}
           sx={{
             
@@ -126,9 +145,17 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
             },
           }}
         >
-          <MenuItem   value="Resistencia 1">Resistencia 1</MenuItem>
-          <MenuItem value="Resistencia 2">Resistencia 2</MenuItem>
-          <MenuItem value="Resistencia 3">Resistencia 3</MenuItem>
+       {filteredResistances.length > 0 ? (
+  filteredResistances.map((resistencia: any) => (
+    <MenuItem key={resistencia.resistanceid} value={resistencia.resistances}>
+      {resistencia.resistances}
+    </MenuItem>
+  ))
+) : (
+  <MenuItem disabled value="">
+    No hay resistencias disponibles
+  </MenuItem>
+)}
         </TextField>
       </FormControl>
     </Box>

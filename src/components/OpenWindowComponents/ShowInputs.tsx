@@ -1,23 +1,23 @@
 import React, { useState } from "react";
-import MaterialInput from "./MaterialInput";
-import CardboardInput from "./ShowInputsComponents/CardboardInput";
-import EpeInput from "./ShowInputsComponents/EpeInput";
+
+import CardboardInput from "./ShowInputsComponents/Cardboard/CardboardInput";
+import EpeInput from "./ShowInputsComponents/Epe/EpeInput";
 
 interface ShowInputsProps {
-    selectedMaterial: string; // Recibimos el valor seleccionado como prop
+    selectedMaterial: string;
+    selectedDerivative: string; 
+    handleDerivativeChange: (value: string) => void; 
+
   }
 
 
-const ShowInputs: React.FC<ShowInputsProps> = ({ selectedMaterial }) => {
-    const [selectedDerivado, setSelectedDerivado] = useState<string>(""); // Estado para derivados
-    const [selectedCorrugado, setSelectedCorrugado] = useState<string>(""); // Estado para corrugados
-    const [selectedResistencia, setSelectedResistencia] = useState<string>(""); // Estado para resistencias
+const ShowInputs: React.FC<ShowInputsProps> = ({ selectedMaterial,  selectedDerivative,  handleDerivativeChange }) => {
+    const [selectedCorrugated, setSelectedCorrugado] = useState<string>(""); // Estado para corrugados
+    const [selectedResistances, setSelectedResistencia] = useState<string>(""); // Estado para resistencias
     const [medidas, setMedidas] = useState<string>(""); // Estado para medidas
   
 
-  const handleDerivadoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedDerivado(event.target.value);
-  };
+
 
   const handleCorrugadoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedCorrugado(event.target.value);
@@ -30,27 +30,33 @@ const ShowInputs: React.FC<ShowInputsProps> = ({ selectedMaterial }) => {
   const handleMedidasChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMedidas(event.target.value);
   };
-
+  
   return (
+
+    //este es el contenedor principal de la seccion 2 que contiene los inputs
+  
     <div>
      
 
       {/* Mostrar CardboardInput si el material seleccionado es "Cartón" */}
-      {selectedMaterial === "Carbon" && (
+      {selectedMaterial === "Carton" && (
         <CardboardInput
-          selectedDerivado={selectedDerivado}
-          handleDerivadoChange={handleDerivadoChange}
-          selectedCorrugado={selectedCorrugado}
+          selectedDerivado={selectedDerivative}
+          handleDerivadoChange={(event) => handleDerivativeChange(event.target.value)}
+          selectedCorrugado={selectedCorrugated}
           handleCorrugadoChange={handleCorrugadoChange}
-          selectedResistencia={selectedResistencia}
+          selectedResistencia={selectedResistances}
           handleResistenciaChange={handleResistenciaChange}
         />
       )}
 
       {/* Mostrar EpeInput si el material seleccionado es "EPE" */}
-      {selectedMaterial === "Epe" && (
+      {selectedMaterial === "EPE" && (
         <EpeInput medidas={medidas} handleMedidasChange={handleMedidasChange} />
       )}
+
+
+
     </div>
   );
 };
