@@ -9,13 +9,8 @@ type Row = {
   cantidad: string;
 };
 
-interface CustomFormData {
-  cantidad:  "";
-  largo:  "";
-  ancho:  "";
-  alto:  "";
 
-}
+
 
 interface ShowMeasuresProps {
   selectedDerivative: string; // Derivado seleccionado
@@ -28,9 +23,7 @@ interface ShowMeasuresProps {
 
 const ShowMeasures: React.FC<ShowMeasuresProps> = ({
   selectedDerivative,
-  rows,
-  handleInputChangeRejilla,
-  onTotalChange,
+
   
 }) => {
   return (

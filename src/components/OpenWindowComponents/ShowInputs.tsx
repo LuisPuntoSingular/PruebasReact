@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { SelectChangeEvent } from "@mui/material";
 
 import CardboardInput from "./ShowInputsComponents/Cardboard/CardboardInput";
 import EpeInput from "./ShowInputsComponents/Epe/EpeInput";
@@ -27,7 +28,7 @@ const ShowInputs: React.FC<ShowInputsProps> = ({ selectedMaterial,  selectedDeri
     setSelectedResistencia(event.target.value);
   };
 
-  const handleMedidasChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMedidasChange = (event: SelectChangeEvent<string>) => {
     setMedidas(event.target.value);
   };
   
@@ -52,7 +53,7 @@ const ShowInputs: React.FC<ShowInputsProps> = ({ selectedMaterial,  selectedDeri
 
       {/* Mostrar EpeInput si el material seleccionado es "EPE" */}
       {selectedMaterial === "EPE" && (
-        <EpeInput medidas={medidas} handleMedidasChange={handleMedidasChange} />
+        <EpeInput  />
       )}
 
 

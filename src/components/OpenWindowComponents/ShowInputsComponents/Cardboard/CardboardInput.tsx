@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { FormControl, TextField, MenuItem, Box } from "@mui/material";
 import { useApi } from "@/context/ApiContext";
-import { useSelectedValues } from "@/context/SelectedValuesContext";
+import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext";
 
 interface CardboardInputProps {
   selectedDerivado: string;

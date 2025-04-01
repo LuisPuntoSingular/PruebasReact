@@ -1,6 +1,6 @@
 import React from "react";
 import { TextField, Box } from "@mui/material";
-import { useSelectedValues } from "@/context/SelectedValuesContext";
+import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext";
 
 const ShowUtil: React.FC = () => {
   const { utilidad, setUtilidad } = useSelectedValues();

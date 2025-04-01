@@ -11,7 +11,7 @@ import {
   TextField,
   Box,
 } from "@mui/material";
-import { useMeasures } from "@/context/MeasuresContext";
+import { useMeasures } from "@/context/CardBoardContext/CardboardMeasuresContext";
 
 type Row = {
   part: string;

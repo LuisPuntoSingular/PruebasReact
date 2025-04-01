@@ -1,6 +1,6 @@
-import { useMeasures } from "@/context/MeasuresContext";
-import { useSelectedValues } from "@/context/SelectedValuesContext";
-import {
+import { useMeasures } from "@/context/CardBoardContext/CardboardMeasuresContext";
+import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext";
+import { 
   calcularCRRSencillo,
   calcularCRRDoble,
   calcularCinturonSencillo,

@@ -190,7 +190,7 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
 
       {/* Sección 1: Mostrar el componente ShowPrice */}
       <Section>
-        <ShowPrice />
+        <ShowPrice selectedMaterial={selectedMaterial} />
       </Section>
 
       {/* Sección 2: Lista desplegable */}

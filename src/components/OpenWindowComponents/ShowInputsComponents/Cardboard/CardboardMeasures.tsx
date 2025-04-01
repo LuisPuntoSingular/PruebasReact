@@ -1,19 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, Box, TextField } from "@mui/material";
-import { useMeasures } from "@/context/MeasuresContext"; // Importar el contexto de medidas
+import { useMeasures } from "@/context/CardBoardContext/CardboardMeasuresContext"; // Importar el contexto de medidas
 
 const CardboardMeasures: React.FC = () => {
   const { largo, setLargo, ancho, setAncho, alto, setAlto, cantidad, setCantidad } = useMeasures();
 
+
+
+  useEffect(() => {
+    if (cantidad == null) { // Solo establece 1 si cantidad es null o undefined
+      setCantidad(1);
+    }
+  }, [cantidad, setCantidad]);
   // Manejar cambios en los campos de entrada
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     switch (name) {
       case "largo":
-        setLargo(value === "" ? "" : parseFloat(value));
+        const newLargo = value === "" ? "" : parseFloat(value);
+        if (newLargo !== "" && ancho !== undefined && typeof newLargo === "number" && typeof ancho === "number" && newLargo < ancho) {
+          alert("El largo no puede ser menor que el ancho.");
+          return; // Evita actualizar el valor si no cumple la validación
+        }
+        setLargo(newLargo);
         break;
       case "ancho":
-        setAncho(value === "" ? "" : parseFloat(value));
+        const newAncho = value === "" ? "" : parseFloat(value);
+        if (newAncho !== "" && largo !== undefined && typeof largo === "number" && largo < newAncho) {
+          alert("El largo no puede ser menor que el ancho.");
+          return; // Evita actualizar el valor si no cumple la validación
+        }
+        setAncho(newAncho);
         break;
       case "alto":
         setAlto(value === "" ? "" : parseFloat(value));

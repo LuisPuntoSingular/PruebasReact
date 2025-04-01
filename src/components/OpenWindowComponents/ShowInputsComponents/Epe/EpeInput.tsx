@@ -1,23 +1,28 @@
 import React from "react";
-import { TextField, Box } from "@mui/material";
+import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
+import { useApi } from "@/context/ApiContext";
+import { useFEEP } from "@/context/FEEPContext/FEEPContext";
 
-interface EpeInputProps {
-  medidas: string;
-  handleMedidasChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}
+const EpeInput: React.FC = () => {
+  const { epe } = useApi(); // Obtener epeData del contexto ApiContext
+  const { selectedEpe, setSelectedEpe, epeSizeLength,epeSizeWitdh } = useFEEP(); // Obtener lógica de FEEPContext
 
-const EpeInput: React.FC<EpeInputProps> = ({ medidas, handleMedidasChange }) => {
+  const handleMedidasChange = (event: SelectChangeEvent<string>) => {
+    const selectedMedida = event.target.value;
+    const selectedItem = epe?.find((item: { medidas: string }) => item.medidas === selectedMedida);
+
+    if (selectedItem) {
+      setSelectedEpe({ medida: selectedItem.medidas, precio: selectedItem.precio });
+    }
+  };
+
   return (
     <Box sx={{ width: "100%" }}>
-      <TextField
+      <FormControl
         fullWidth
-        label="Medidas"
-        value={medidas}
-        onChange={handleMedidasChange}
         variant="outlined"
         sx={{
           background: "rgba(194, 176, 176, 0.34)", // Fondo del campo
-          color: "#ffffff", // Color del texto
           borderRadius: "8px", // Bordes redondeados
           "& .MuiOutlinedInput-root": {
             "& fieldset": {
@@ -30,14 +35,48 @@ const EpeInput: React.FC<EpeInputProps> = ({ medidas, handleMedidasChange }) => 
               borderColor: "#ffffff", // Color del borde cuando está enfocado
             },
           },
-          "& .MuiInputLabel-root": {
-            color: "rgba(255, 255, 255, 0.7)", // Color inicial del label
-          },
-          "& .MuiInputLabel-root.Mui-focused": {
-            color: "#ffffff", // Color del label cuando está enfocado
-          },
         }}
-      />
+      >
+        <InputLabel
+          sx={{
+            color: "#ffffff", // Color inicial del label
+            "&.Mui-focused": {
+              color: "#ffffff", // Color del label cuando está enfocado
+            },
+          }}
+        >
+          Medidas
+        </InputLabel>
+        <Select
+          size="small"
+          value={selectedEpe?.medida || ""}
+          onChange={handleMedidasChange}
+          label="Medidas"
+          sx={{
+            color: "#ffffff", // Color del texto
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: "rgba(255, 255, 255, 0.5)", // Color del borde
+            },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#ffffff", // Color del borde al pasar el mouse
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#ffffff", // Color del borde cuando está enfocado
+            },
+          }}
+        >
+          {epe && Array.isArray(epe) ? (
+            epe.map((item: { id: number; medidas: string; precio: number }) => (
+              <MenuItem key={item.id} value={item.medidas}>
+                {item.medidas} - ${item.precio}
+              </MenuItem>
+            ))
+          ) : (
+            <MenuItem disabled>Cargando...</MenuItem>
+          )}
+        </Select>
+      </FormControl>
+     
     </Box>
   );
 };
