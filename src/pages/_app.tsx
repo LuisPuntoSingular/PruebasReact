@@ -7,16 +7,24 @@ import { ApiProvider } from "@/context/ApiContext";
 import { SelectedValuesProvider } from "@/context/CardBoardContext/SelectedValuesContext";
 import { MeasuresProvider } from "@/context/CardBoardContext/CardboardMeasuresContext";
 import { FEEPProvider } from "@/context/FEEPContext/FEEPContext";
+import { PalletsProvider } from "@/context/PalletsContext/PalletsContext";
+import { FoamColorsProvider } from "@/context/Foam/FoamColorsContext";
+import { FoamProvider } from "@/context/Foam/FoamContext";
+import { PolybubbleProvider } from "@/context/PolybubbleContext/PolybubbleContext";
+
 
 export default function App({ Component, pageProps }: AppProps) {
 
- // NEXT_PUBLIC_API_URL_MATERIALS=https://backnode-production.up.railway.app/api/materials
-  //NEXT_PUBLIC_API_URL_DERIVATIVES=https://backnode-production.up.railway.app/api/derivatives
-  //NEXT_PUBLIC_API_URL_RESISTANCES=https://backnode-production.up.railway.app/api/resistances
-  //NEXT_PUBLIC_API_URL_CATEGORIES=https://backnode-production.up.railway.app/api/resistancescategories
-return (
+
+
+
+ return (
   <ThemeProvider theme={theme}>
     {/* Proveedor de tema para Material-UI */}
+    <PolybubbleProvider>
+    <FoamProvider>
+    <FoamColorsProvider>
+    <PalletsProvider>
     <FEEPProvider>
     <MeasuresProvider>
     <SelectedValuesProvider>
@@ -30,6 +38,10 @@ return (
     </SelectedValuesProvider>
     </MeasuresProvider>
     </FEEPProvider>
+    </PalletsProvider>
+    </FoamColorsProvider>
+    </FoamProvider>
+    </PolybubbleProvider>
     {/* Componente principal de la página */}
   </ThemeProvider>
   // Proveedor de tema para Material-UI

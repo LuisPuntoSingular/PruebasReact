@@ -5,12 +5,14 @@ import { useFEEP } from "@/context/FEEPContext/FEEPContext";
 
 const EpeInput: React.FC = () => {
   const { epe } = useApi(); // Obtener epeData del contexto ApiContext
-  const { selectedEpe, setSelectedEpe, epeSizeLength,epeSizeWitdh } = useFEEP(); // Obtener lógica de FEEPContext
+  const { selectedEpe, setSelectedEpe,} = useFEEP(); // Obtener lógica de FEEPContext
 
   const handleMedidasChange = (event: SelectChangeEvent<string>) => {
+    // Obtener el valor seleccionado
     const selectedMedida = event.target.value;
+    // Actualizar el estado de selectedEpe con el valor seleccionado
     const selectedItem = epe?.find((item: { medidas: string }) => item.medidas === selectedMedida);
-
+    // Actualizar el estado de selectedEpe con el precio correspondiente
     if (selectedItem) {
       setSelectedEpe({ medida: selectedItem.medidas, precio: selectedItem.precio });
     }

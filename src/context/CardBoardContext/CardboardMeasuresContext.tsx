@@ -28,10 +28,19 @@ interface MeasuresContextType {
 const MeasuresContext = createContext<MeasuresContextType | undefined>(undefined);
 
 export const MeasuresProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+ 
+ 
+ 
+ // Definir los estados para las medidas
+  // y la cantidad de cartones
   const [largo, setLargo] = useState<number | "">("");
   const [ancho, setAncho] = useState<number | "">("");
   const [alto, setAlto] = useState<number | "">("");
   const [cantidad, setCantidad] = useState<number | "">("");
+
+
+
+
   const [rejillaRows, setRejillaRows] = useState<Row[]>([]); // Inicializar filas
   const [rejillaTotal, setRejillaTotal] = useState<number>(0); // Inicializar total
   const [totalCantidad, setTotalCantidad] = useState<number>(0); // Inicializar cantidad total

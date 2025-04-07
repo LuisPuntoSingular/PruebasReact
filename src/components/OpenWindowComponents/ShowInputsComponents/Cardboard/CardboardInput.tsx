@@ -3,33 +3,18 @@ import { FormControl, TextField, MenuItem, Box } from "@mui/material";
 import { useApi } from "@/context/ApiContext";
 import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext";
 
-interface CardboardInputProps {
-  selectedDerivado: string;
-  handleDerivadoChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  selectedCorrugado: string;
-  handleCorrugadoChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  selectedResistencia: string;
-  handleResistenciaChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}
-
-const CardboardInput: React.FC<CardboardInputProps> = ({
-  selectedDerivado,
-  handleDerivadoChange,
-  selectedCorrugado,
-  handleCorrugadoChange,
-  selectedResistencia,
-  handleResistenciaChange,
-}) => {
+const CardboardInput: React.FC = () => {
   const { corrugated, derivatives, resistances, loading, error } = useApi();
+
   const {
-    selectedCorrugado: savedCorrugado,
+    selectedCorrugado,
     setSelectedCorrugado,
-    selectedDerivado: savedDerivado,
+    selectedDerivado,
     setSelectedDerivado,
-    selectedPriceM2,
+    selectedResistencia,
+    setSelectedResistencia,
     setSelectedPriceM2,
-    resistanceMinimum,
-    setResistanceMinimum, // Nuevo setter
+    setResistanceMinimum,
   } = useSelectedValues();
 
   if (loading) return <p>Cargando datos...</p>;
@@ -56,13 +41,19 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
 
   // Guardar automáticamente los valores seleccionados cuando cambien
   useEffect(() => {
-    setSelectedCorrugado(selectedCorrugado);
-    setSelectedDerivado(selectedDerivado);
     setSelectedPriceM2(ContextresistancePriceM2 || null);
     setResistanceMinimum(ContextresistanceMinimum || null);
+  }, [selectedCorrugado, selectedDerivado, ContextresistancePriceM2, ContextresistanceMinimum]);
 
-    // Guardar el valor de pricem2 en el contexto
-  }, [selectedCorrugado, selectedDerivado, ContextresistancePriceM2,ContextresistanceMinimum , setSelectedCorrugado, setSelectedDerivado, setSelectedPriceM2]);
+
+  const handleChange = (setter: React.Dispatch<React.SetStateAction<any>>) => 
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+    };
+
+
+
+
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -73,7 +64,7 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
           select
           label="Seleccionar Derivado"
           value={selectedDerivado || ""}
-          onChange={handleDerivadoChange}
+          onChange={handleChange(setSelectedDerivado)}
           sx={{
             background: "rgba(194, 176, 176, 0.34)",
             color: "#ffffff",
@@ -112,7 +103,7 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
           select
           label="Seleccionar Corrugado"
           value={selectedCorrugado || ""}
-          onChange={handleCorrugadoChange}
+          onChange={handleChange(setSelectedCorrugado)}
           sx={{
             background: "rgba(194, 176, 176, 0.34)",
             color: "#ffffff",
@@ -151,7 +142,7 @@ const CardboardInput: React.FC<CardboardInputProps> = ({
           select
           label="Seleccionar Resistencia"
           value={selectedResistencia || ""}
-          onChange={handleResistenciaChange}
+          onChange={handleChange(setSelectedResistencia)}
           sx={{
             background: "rgba(194, 176, 176, 0.34)",
             color: "#ffffff",

@@ -7,7 +7,7 @@ const FEEPindex = () => {
     const{utilidad}=useSelectedValues()
 
   if (!largo || !ancho || !cantidad || !epeSizeWitdh || !epeSizeLength) {
-    console.error("Faltan valores para realizar los cálculos.");
+    // Verifica si las medidas son válidas
     return { partA: 0, partB: 0, precioA: 0, precioB: 0 }; // Valores predeterminados
   }
 

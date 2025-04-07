@@ -64,12 +64,7 @@ type Row = {
   cantidad: string;
 };
 
-interface CustomFormData {
-  cantidad:  "1";
-  largo:  "";
-  ancho:  "";
-  alto:  "";
-}
+
 
 /// Componente de ventana flotante
 /// @param onClose Función para cerrar la ventana
@@ -87,14 +82,7 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
  const [rows, setRows] = useState<Row[]>([
     { part: "A", largo: "", ancho: "", cantidad: "1" },
   ]);
-  const [formData, setFormData] = useState<CustomFormData>({
-    cantidad: "1",
-    largo: "",
-    ancho: "",
-    alto: ""
-   
-  });
-  const [total, setTotal] = useState<number>(0);
+
 
   const handleMaterialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedMaterial(event.target.value);
@@ -141,17 +129,8 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
   const handleMouseLeave = () => {
     setIsDragging(false);
   };
-/// Manejar el cambio de material seleccionado
-  /// @param event Evento de cambio
 
-  /// @param value Valor del material seleccionado
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = event.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value || "",
-    }));
-  };
+ 
 /// Manejar el cambio de filas en la rejilla
   /// @param index Índice de la fila
   const handleInputChangeRejilla = (index: number, field: keyof Row, value: string) => {
@@ -160,10 +139,6 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
     setRows(newRows);
   };
 /// Manejar el cambio de total
-  /// @param total Total calculado
-  const handleTotalChange = (total: number) => {
-    setTotal(total);
-  };
 
     
   return (
@@ -181,7 +156,7 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
       {/* Encabezado */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Typography variant="h6" sx={{ color: "#ffffff" }}>
-          Ventana Flotante
+        
         </Typography>
         <IconButton onClick={onClose} size="small" sx={{ color: "#ffffff" }}>
           <CloseIcon />
@@ -190,19 +165,19 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
 
       {/* Sección 1: Mostrar el componente ShowPrice */}
       <Section>
-        <ShowPrice selectedMaterial={selectedMaterial} />
+        <ShowPrice />
       </Section>
 
       {/* Sección 2: Lista desplegable */}
       <Section>
         <MaterialInput
-          selectedMaterial={selectedMaterial}
-          handleMaterialChange={handleMaterialChange} />
+       
+           />
         <Box  sx={{ width: "100%", maxWidth: "400px" }}>
           <ShowInputs  
-          selectedMaterial={selectedMaterial}
-          selectedDerivative={selectedDerivative} // Pasar el estado elevado
-          handleDerivativeChange={handleDerivativeChange}/>
+         
+    
+          />
         </Box>
         <ShowUtil/>
       </Section>
@@ -210,10 +185,10 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
       {/* Sección 3 */}
       <Section>
       <ShowMeasures
-        selectedDerivative={selectedDerivative}
+       
         rows={rows}
         handleInputChangeRejilla={handleInputChangeRejilla}
-        onTotalChange={handleTotalChange}
+   
  
   
       />

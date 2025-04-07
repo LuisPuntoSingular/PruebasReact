@@ -1,22 +1,20 @@
 import React from "react";
 import { FormControl, TextField, MenuItem } from "@mui/material";
 import { useApi } from "@/context/ApiContext";
+import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext"; // Importar el contexto
 
-// Componente de entrada de material
-// Este componente permite al usuario seleccionar un material de una lista desplegable
-interface MaterialInputProps {
-  /// Propiedades del componente
-  /// selectedMaterial: Material seleccionado actualmente
-  selectedMaterial: string;
-  handleMaterialChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}
 
-const MaterialInput: React.FC<MaterialInputProps> = ({ selectedMaterial, handleMaterialChange }) => {
+
+const MaterialInput: React.FC = () => {
   const { materials, loading, error } = useApi(); // Hook para obtener los materiales desde la API
+  const { selectedMaterial, setSelectedMaterial } = useSelectedValues(); // Usar el contexto para manejar el material seleccionado
+
   if (loading) return <div>Cargando materiales...</div>; // Mensaje de carga
   if (error) return <p>Error: {error}</p>;
     
- 
+  const handleMaterialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedMaterial(event.target.value); // Actualizar el material seleccionado en el contexto
+  };
   
   return (
     <FormControl fullWidth sx={{ marginBottom: "16px" }}>

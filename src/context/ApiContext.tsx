@@ -7,6 +7,7 @@ interface ApiContextType {
   corrugated: any;
   epe: any;
   foam: any;
+  foamprecio:any
   coloresFoam: any;
   coloresPrecio: any;
   poliburbuja: any;
@@ -24,6 +25,7 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [corrugated, setCategories] = useState<any>(null);
   const [epe, setEpe] = useState<any>(null);
   const [foam, setFoam] = useState<any>(null);
+  const [foamprecio, setFoamprecio] = useState<any>(null);
   const [coloresFoam, setColoresFoam] = useState<any>(null);
   const [coloresPrecio, setColoresPrecio] = useState<any>(null);
   const [poliburbuja, setPoliburbuja] = useState<any>(null);
@@ -43,9 +45,16 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const corrugatedData = await fetch(process.env.NEXT_PUBLIC_API_URL_CATEGORIES || "").then((res) => res.json());
 
         const epeData = await fetch(process.env.NEXT_PUBLIC_API_URL_EPE || "").then((res) => res.json());
+        
         const foamData = await fetch(process.env.NEXT_PUBLIC_API_URL_FOAM || "").then((res) => res.json());
+        const foamPrecioData = await fetch(process.env.NEXT_PUBLIC_API_URL_FOAMPRECIO || "").then((res) => res.json());
+        
         const coloresFoamData = await fetch(process.env.NEXT_PUBLIC_API_URL_COLORESFOAM || "").then((res) => res.json());
         const coloresPrecioData = await fetch(process.env.NEXT_PUBLIC_API_URL_COLORESPRECIO || "").then((res) => res.json());
+       
+       
+       
+       
         const poliburbujaData = await fetch(process.env.NEXT_PUBLIC_API_URL_POLIBURBUJA || "").then((res) => res.json());
         const poliburbujapreciosData = await fetch(process.env.NEXT_PUBLIC_API_URL_POLIBURBUJAPRECIOS || "").then((res) => res.json());
 
@@ -55,6 +64,7 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setCategories(corrugatedData);
         setEpe(epeData);
         setFoam(foamData);
+        setFoamprecio(foamPrecioData);
         setColoresFoam(coloresFoamData);
         setColoresPrecio(coloresPrecioData);
         setPoliburbuja(poliburbujaData);
@@ -78,6 +88,7 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         corrugated,
         epe,
         foam,
+        foamprecio,
         coloresFoam,
         coloresPrecio,
         poliburbuja,

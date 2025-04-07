@@ -29,14 +29,7 @@ export const useCalculos = () => {
 
   const calculatePrice = () => {
     // Validar si faltan valores esenciales
-    if (
-      !selectedDerivado ||
-      !selectedCorrugado ||
-      !largo ||
-      !ancho ||
-      !cantidad
-      
-    ) {
+    if (!selectedDerivado ||!selectedCorrugado ) {
       return { precioventa: 0, preciocosto: 0, minimo: 0 }; // Retornar valores por defecto
     }
 
@@ -47,50 +40,48 @@ export const useCalculos = () => {
       case "CRR":
         resultado =
           selectedCorrugado === "Simple"
-            ? calcularCRRSencillo(largo, ancho,Number(alto) )
-            : calcularCRRDoble(largo, ancho, Number(alto));
+            ? calcularCRRSencillo(largo|| 0, ancho|| 0, Number(alto) )
+            : calcularCRRDoble(largo|| 0, ancho|| 0, Number(alto) );
         break;
       case "Cinturon":
         resultado =
           selectedCorrugado === "Simple"
-            ? calcularCinturonSencillo(largo, ancho, Number(alto))
-            : calcularCinturonDoble(largo, ancho, Number(alto));
+            ? calcularCinturonSencillo(largo|| 0, ancho|| 0, Number(alto) )
+            : calcularCinturonDoble(largo|| 0, ancho|| 0, Number(alto) );
         break;
       case "1/2 Caja":
         resultado =
           selectedCorrugado === "Simple"
-            ? calcularMediaCajaSencillo(largo, ancho, Number(alto))
-            : calcularMediaCajaDoble(largo, ancho, Number(alto));
+            ? calcularMediaCajaSencillo(largo|| 0, ancho|| 0, Number(alto) )
+            : calcularMediaCajaDoble(largo|| 0, ancho|| 0, Number(alto) );
         break;
         case "Rejilla":
-        resultado =
-          selectedCorrugado === "Simple"
-            ? rejillaTotal
-            : rejillaTotal
+        resultado = rejillaTotal; // Usar el total de rejilla directamente
+          
         break;
       case "Tapa Base":
         resultado =
           selectedCorrugado === "Simple"
-            ? calcularTapaBaseSencillo(largo, ancho, Number(alto))
-            : calcularTapaBaseDoble(largo, ancho, Number(alto));
+            ? calcularTapaBaseSencillo(largo|| 0, ancho|| 0, Number(alto) )
+            : calcularTapaBaseDoble(largo|| 0, ancho|| 0, Number(alto) );
         break;
       case "Separador":
         resultado =
           selectedCorrugado === "Simple"
-            ? calcularSeparadorSencillo(largo, ancho)
-            : calcularSeparadorDoble(largo, ancho);
+            ? calcularSeparadorSencillo(largo|| 0, ancho|| 0)
+            : calcularSeparadorDoble(largo|| 0, ancho|| 0);
         break;
       case "Area":
         resultado =
           selectedCorrugado === "Simple"
-            ? calcularAreaSencillo(largo, ancho)
-            : calcularAreaDoble(largo, ancho);
+            ? calcularAreaSencillo(largo|| 0, ancho|| 0)
+            : calcularAreaDoble(largo|| 0, ancho|| 0);
         break;
       case "Esquinero":
         resultado =
           selectedCorrugado === "Simple"
-            ? calcularEsquineroSencillo(largo, ancho, Number(alto))
-            : calcularEsquineroDoble(largo, ancho, Number(alto));
+            ? calcularEsquineroSencillo(largo|| 0, ancho|| 0, Number(alto) )
+            : calcularEsquineroDoble(largo|| 0, ancho|| 0, Number(alto) );
         break;
       default:
         return { precioventa: 0, preciocosto: 0, minimo: 0 }; // Retornar valores por defecto
@@ -107,12 +98,12 @@ if (selectedDerivado !== "Rejilla") {
   // Cálculos para derivados que no son "Rejilla"
   preciocosto = resultado * (Number(selectedPriceM2) || 0); // Precio de costo por m2
   precioventa = preciocosto / ganancia; // Aplicar margen de ganancia
-  minimo = Math.ceil(((resistanceMinimum || 0) * cantidad) / resultado); // Calcular mínimo
+  minimo = Math.ceil(((resistanceMinimum || 0) * Number(cantidad)) / resultado); // Calcular mínimo
 
 
 } else {
   // Cálculos específicos para "Rejilla"
-  preciocosto = rejillaTotal * (Number(selectedPriceM2) || 0); // Precio de costo por m2
+  preciocosto = rejillaTotal  * (Number(selectedPriceM2) || 0); // Precio de costo por m2
   precioventa = preciocosto / ganancia; // Aplicar margen de ganancia
   minimo = Math.ceil(((resistanceMinimum || 0) * totalCantidad) / rejillaTotal); // Calcular mínimo
   console.log(minimo, "minimo rejilla")

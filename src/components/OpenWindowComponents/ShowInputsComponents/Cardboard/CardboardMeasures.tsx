@@ -1,17 +1,17 @@
 import React, { useEffect } from "react";
-import { Card, CardContent, Box, TextField } from "@mui/material";
-import { useMeasures } from "@/context/CardBoardContext/CardboardMeasuresContext"; // Importar el contexto de medidas
+import { Card, CardContent, Box, TextField, Button } from "@mui/material";
+import { useMeasures } from "@/context/CardBoardContext/CardboardMeasuresContext";
 
 const CardboardMeasures: React.FC = () => {
   const { largo, setLargo, ancho, setAncho, alto, setAlto, cantidad, setCantidad } = useMeasures();
 
-
-
+  // Establecer cantidad predeterminada en 1 al renderizar el componente (solo una vez)
   useEffect(() => {
-    if (cantidad == null) { // Solo establece 1 si cantidad es null o undefined
+    if (cantidad === "" || cantidad === null) {
       setCantidad(1);
     }
-  }, [cantidad, setCantidad]);
+  }, [setCantidad]);
+
   // Manejar cambios en los campos de entrada
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -36,7 +36,7 @@ const CardboardMeasures: React.FC = () => {
         setAlto(value === "" ? "" : parseFloat(value));
         break;
       case "cantidad":
-        setCantidad(value === "" ? "" : parseInt(value));
+        setCantidad(value === "" ? "" : parseInt(value)); // Permite que el usuario borre el valor temporalmente
         break;
       default:
         break;
@@ -61,10 +61,11 @@ const CardboardMeasures: React.FC = () => {
             gap: 2, // Espaciado entre elementos
           }}
         >
-          {/* Campo para Largo */}
-          <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+          {/* Largo, Ancho y Alto en una misma fila */}
+          <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
+            {/* Campo para Largo */}
             <TextField
-              label="Largo (mm)"
+              label="Largo"
               type="number"
               fullWidth
               size="small"
@@ -72,7 +73,7 @@ const CardboardMeasures: React.FC = () => {
               value={largo || ""}
               onChange={handleInputChange}
               InputLabelProps={{
-                style: { color: "#FFFFFF" }, // Color del texto del label
+                style: { color: "#FFFFFF" },
               }}
               sx={{
                 "& .MuiInputBase-root": {
@@ -92,12 +93,10 @@ const CardboardMeasures: React.FC = () => {
                 },
               }}
             />
-          </Box>
 
-          {/* Campo para Ancho */}
-          <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+            {/* Campo para Ancho */}
             <TextField
-              label="Ancho (mm)"
+              label="Ancho"
               type="number"
               fullWidth
               size="small"
@@ -125,12 +124,10 @@ const CardboardMeasures: React.FC = () => {
                 },
               }}
             />
-          </Box>
 
-          {/* Campo para Alto */}
-          <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+            {/* Campo para Alto */}
             <TextField
-              label="Alto (mm)"
+              label="Alto"
               type="number"
               fullWidth
               size="small"
@@ -160,12 +157,11 @@ const CardboardMeasures: React.FC = () => {
             />
           </Box>
 
-          {/* Campo para Cantidad */}
-          <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+          {/* Cantidad y Botón en la misma fila */}
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center", width: "100%" }}>
             <TextField
               label="Cantidad"
               type="number"
-              fullWidth
               size="small"
               name="cantidad"
               value={cantidad || ""}
@@ -174,6 +170,7 @@ const CardboardMeasures: React.FC = () => {
                 style: { color: "#FFFFFF" },
               }}
               sx={{
+                flex: 1, // Ocupa el espacio disponible
                 "& .MuiInputBase-root": {
                   backgroundColor: "#334155",
                   color: "#FFFFFF",
@@ -191,6 +188,22 @@ const CardboardMeasures: React.FC = () => {
                 },
               }}
             />
+            <Button
+              variant="contained"
+              onClick={() => {setCantidad(1),setAlto(0),setAncho(0),setLargo(0)}} // Ejemplo para limpiar el campo de cantidad
+              sx={{
+                backgroundColor: "#1E3A8A",
+                color: "white",
+                "&:hover": { backgroundColor: "#172554" },
+                borderRadius: "8px",
+                padding: "8px 20px",
+                fontSize: "1rem",
+                textTransform: "none",
+                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              Limpiar
+            </Button>
           </Box>
         </Box>
       </CardContent>
