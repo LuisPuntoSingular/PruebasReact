@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState } from "react";
 // Interfaces para tipar los datos
 interface SelectedPoliburbujaPrecio {
   medida: string;
-  precio: string;
+  precio: number;
   ancho: number;
   largo: number;
 }

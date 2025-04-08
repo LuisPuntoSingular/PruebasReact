@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
 interface ApiContextType {
   materials: any;
@@ -7,7 +8,7 @@ interface ApiContextType {
   corrugated: any;
   epe: any;
   foam: any;
-  foamprecio:any
+  foamprecio: any;
   coloresFoam: any;
   coloresPrecio: any;
   poliburbuja: any;
@@ -33,30 +34,37 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Configurar Axios para incluir el token JWT en las solicitudes
+  const axiosInstance = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000", // URL base del backend
+  });
+
+  axiosInstance.interceptors.request.use((config) => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+
+  // Cargar datos protegidos desde el backend
   useEffect(() => {
     async function fetchAllData() {
       setLoading(true);
       setError(null);
 
       try {
-        const materialsData = await fetch(process.env.NEXT_PUBLIC_API_URL_MATERIALS || "").then((res) => res.json());
-        const derivativesData = await fetch(process.env.NEXT_PUBLIC_API_URL_DERIVATIVES || "").then((res) => res.json());
-        const resistancesData = await fetch(process.env.NEXT_PUBLIC_API_URL_RESISTANCES || "").then((res) => res.json());
-        const corrugatedData = await fetch(process.env.NEXT_PUBLIC_API_URL_CATEGORIES || "").then((res) => res.json());
-
-        const epeData = await fetch(process.env.NEXT_PUBLIC_API_URL_EPE || "").then((res) => res.json());
-        
-        const foamData = await fetch(process.env.NEXT_PUBLIC_API_URL_FOAM || "").then((res) => res.json());
-        const foamPrecioData = await fetch(process.env.NEXT_PUBLIC_API_URL_FOAMPRECIO || "").then((res) => res.json());
-        
-        const coloresFoamData = await fetch(process.env.NEXT_PUBLIC_API_URL_COLORESFOAM || "").then((res) => res.json());
-        const coloresPrecioData = await fetch(process.env.NEXT_PUBLIC_API_URL_COLORESPRECIO || "").then((res) => res.json());
-       
-       
-       
-       
-        const poliburbujaData = await fetch(process.env.NEXT_PUBLIC_API_URL_POLIBURBUJA || "").then((res) => res.json());
-        const poliburbujapreciosData = await fetch(process.env.NEXT_PUBLIC_API_URL_POLIBURBUJAPRECIOS || "").then((res) => res.json());
+        const materialsData = await axios.get(process.env.NEXT_PUBLIC_API_URL_MATERIALS!).then((res) => res.data);
+        const derivativesData = await axios.get(process.env.NEXT_PUBLIC_API_URL_DERIVATIVES!).then((res) => res.data);
+        const resistancesData = await axios.get(process.env.NEXT_PUBLIC_API_URL_RESISTANCES!).then((res) => res.data);
+        const corrugatedData = await axios.get(process.env.NEXT_PUBLIC_API_URL_CATEGORIES!).then((res) => res.data);
+        const epeData = await axios.get(process.env.NEXT_PUBLIC_API_URL_EPE!).then((res) => res.data);
+        const foamData = await axios.get(process.env.NEXT_PUBLIC_API_URL_FOAM!).then((res) => res.data);
+        const foamPrecioData = await axios.get(process.env.NEXT_PUBLIC_API_URL_FOAMPRECIO!).then((res) => res.data);
+        const coloresFoamData = await axios.get(process.env.NEXT_PUBLIC_API_URL_COLORESFOAM!).then((res) => res.data);
+        const coloresPrecioData = await axios.get(process.env.NEXT_PUBLIC_API_URL_COLORESPRECIO!).then((res) => res.data);
+        const poliburbujaData = await axios.get(process.env.NEXT_PUBLIC_API_URL_POLIBURBUJA!).then((res) => res.data);
+        const poliburbujapreciosData = await axios.get(process.env.NEXT_PUBLIC_API_URL_POLIBURBUJAPRECIOS!).then((res) => res.data);
 
         setMaterials(materialsData);
         setDerivatives(derivativesData);

@@ -51,19 +51,19 @@ const ValueText = styled(Typography)(({ theme }) => ({
 export default function ShowFoamPrice() {
  // Obtener los valores de FoamIndex
   // Aquí puedes usar los valores de partA, partB, precioA y precioB para mostrarlos en el componente
-const {}= PolybubbleIndex()
+const {partA,partB,precioA,precioB}= PolybubbleIndex()
   return (
     <CalculatorContainer>
       {/* Contenedor para las piezas */}
-      Poly
+
       <SectionContainer>
         <Display>
           <TitleText>Piezas Parte A</TitleText>
-          <ValueText>1</ValueText>
+          <ValueText>{(partA).toFixed(0)}</ValueText>
         </Display>
         <Display>
           <TitleText>Piezas Parte B</TitleText>
-          <ValueText>1</ValueText>
+          <ValueText>{(partB).toFixed(0)}</ValueText>
         </Display>
       </SectionContainer>
 
@@ -71,11 +71,11 @@ const {}= PolybubbleIndex()
       <SectionContainer>
         <Display>
           <TitleText>Precio por Pieza A</TitleText>
-          <ValueText>$1</ValueText>
+          <ValueText>${(precioA).toFixed(2)}</ValueText>
         </Display>
         <Display>
           <TitleText>Precio por Pieza B</TitleText>
-          <ValueText>$1</ValueText>
+          <ValueText>${(precioB).toFixed(2)}</ValueText>
         </Display>
       </SectionContainer>
     </CalculatorContainer>

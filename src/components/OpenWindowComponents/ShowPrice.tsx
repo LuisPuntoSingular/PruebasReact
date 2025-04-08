@@ -1,14 +1,30 @@
 import React from "react";
 import ShowCardboardPrice from "./ShowInputsComponents/Cardboard/ShowCardboardPrice";
 import ShowFEEPPrice from "./ShowInputsComponents/Epe/ShowFEEPPrice";
-import ShowPalletsPrice from "./ShowInputsComponents/Pallets/ShowPalletsPrice"; // Importar el nuevo componente
-import ShowFoamPrice from "./ShowInputsComponents/Foam/ShowFoamPrice"; // Importar el nuevo componente
-import ShowPolybubblePrice from "./ShowInputsComponents/Polybubble/ShowPolybubblePrice"; // Importar el nuevo componente
+import ShowPalletsPrice from "./ShowInputsComponents/Pallets/ShowPalletsPrice";
+import ShowFoamPrice from "./ShowInputsComponents/Foam/ShowFoamPrice";
+import ShowPolybubblePrice from "./ShowInputsComponents/Polybubble/ShowPolybubblePrice";
 import { Box } from "@mui/system";
-import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext"; // Importar el contexto
+import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext";
 
 const ShowPrice: React.FC = () => {
   const { selectedMaterial } = useSelectedValues(); // Obtener el material seleccionado desde el contexto
+
+  // Renderizar el componente correspondiente según el material seleccionado
+  const renderSelectedComponent = () => {
+    switch (selectedMaterial) {
+      case "Carton":
+        return <ShowCardboardPrice />;
+      case "Madera":
+        return <ShowPalletsPrice />;
+      case "EPE":
+        return <ShowFEEPPrice />;
+      case "Foam":
+        return <ShowFoamPrice />;
+      default:
+        return <ShowPolybubblePrice />;
+    }
+  };
 
   return (
     <Box
@@ -19,15 +35,7 @@ const ShowPrice: React.FC = () => {
         alignItems: "center", // Centra el contenido verticalmente
       }}
     >
-      {selectedMaterial === "Carton" ? (
-        <ShowCardboardPrice />
-      ) : selectedMaterial === "Madera" ? (
-        <ShowPalletsPrice />
-      ) : selectedMaterial === "EPE" ? (
-        <ShowFEEPPrice />
-      ): selectedMaterial === "Foam"? (
-        <ShowFoamPrice /> 
-        ):<ShowPolybubblePrice /> }
+      {renderSelectedComponent()}
     </Box>
   );
 };

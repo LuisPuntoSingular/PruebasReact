@@ -13,7 +13,7 @@ interface Poliburbuja {
 interface PoliburbujaPrecio {
   id: number; // Identificador único del precio
   medidas: string; // Medida del producto (por ejemplo, "1/2")
-  precio: string; // Precio del producto
+  precio: number; // Precio del producto
   idpoliburbuja: number; // Relación con el id de Poliburbuja
   "ancho rollo": number; // Ancho del rollo
   "largo rollo": number; // Largo del rollo
