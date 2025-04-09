@@ -2,22 +2,8 @@ import React from "react";
 import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import { useApi } from "@/context/ApiContext"; // Hook personalizado para las APIs
 import { usePolybubbleContext } from "@/context/PolybubbleContext/PolybubbleContext"; // Contexto de Polybubble
+import { Polybubble, PolybubblePrecio } from "@/context/Interfaces/interfaces"; // Interfaces para los datos
 
-// Representa los datos del endpoint poliburbuja
-interface Poliburbuja {
-  id: number; // Identificador único del derivado
-  derivados: string; // Nombre del derivado (por ejemplo, "Rollo")
-}
-
-// Representa los datos del endpoint poliburbujaprecios
-interface PoliburbujaPrecio {
-  id: number; // Identificador único del precio
-  medidas: string; // Medida del producto (por ejemplo, "1/2")
-  precio: number; // Precio del producto
-  idpoliburbuja: number; // Relación con el id de Poliburbuja
-  "ancho rollo": number; // Ancho del rollo
-  "largo rollo": number; // Largo del rollo
-}
 
 const PolybubbleInputs: React.FC = () => {
   const { poliburbuja, poliburbujaprecios } = useApi(); // Obtener datos desde el hook personalizado
@@ -38,23 +24,33 @@ const PolybubbleInputs: React.FC = () => {
   // Manejar el cambio de medida/precio seleccionada
   const handleMedidasChange = (event: SelectChangeEvent<string>) => {
     const selectedMedida = event.target.value;
+  
+    // Encuentra el elemento seleccionado basado en la medida y el idpoliburbuja
     const selectedItem = poliburbujaprecios.find(
-      (item: PoliburbujaPrecio) => item.medidas === selectedMedida && item.idpoliburbuja === selectedPoliburbuja
+      (item: PolybubblePrecio) =>
+        item.medidas === selectedMedida && item.idpoliburbuja === selectedPoliburbuja
     );
+
     if (selectedItem) {
       setSelectedPoliburbujaPrecio({
         medida: selectedItem.medidas,
-        precio: selectedItem.precio,
-        ancho: selectedItem["ancho rollo"],
-        largo: selectedItem["largo rollo"],
+        precio: Number(selectedItem.precio),
+        ancho: selectedItem.ancho_rollo, // Acceso correcto a la propiedad
+        largo: selectedItem.largo_rollo, // Acceso correcto a la propiedad
       });
     }
-  };
 
+    console.log("Selected Item:", selectedItem);
+  };
+  
   // Filtrar precios relacionados con el Poliburbuja seleccionado
   const filteredPoliburbujaPrecios = poliburbujaprecios.filter(
-    (item: PoliburbujaPrecio) => item.idpoliburbuja === selectedPoliburbuja
+    (item: PolybubblePrecio) => item.idpoliburbuja === selectedPoliburbuja
   );
+  
+  // Depuración: Verifica los datos
+  console.log("Poliburbujaprecios:", poliburbujaprecios);
+  console.log("Filtered Poliburbujaprecios:", filteredPoliburbujaPrecios);
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -107,7 +103,7 @@ const PolybubbleInputs: React.FC = () => {
             },
           }}
         >
-          {poliburbuja.map((item: Poliburbuja) => (
+          {poliburbuja.map((item: Polybubble) => (
             <MenuItem key={item.id} value={item.id.toString()}>
               {item.derivados}
             </MenuItem>
@@ -164,8 +160,8 @@ const PolybubbleInputs: React.FC = () => {
           }}
         >
           {filteredPoliburbujaPrecios.length > 0 ? (
-            filteredPoliburbujaPrecios.map((item: PoliburbujaPrecio) => (
-              <MenuItem key={item.id} value={item.medidas}>
+            filteredPoliburbujaPrecios.map((item: PolybubblePrecio ) => (
+              <MenuItem key={item.idpoliburbuja} value={item.medidas}>
                 {item.medidas} - ${item.precio}
               </MenuItem>
             ))

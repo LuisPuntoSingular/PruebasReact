@@ -10,7 +10,7 @@ const CardboardMeasures: React.FC = () => {
     if (cantidad === "" || cantidad === null) {
       setCantidad(1);
     }
-  }, [setCantidad]);
+  }, [cantidad, setCantidad]);
 
   // Manejar cambios en los campos de entrada
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -41,6 +41,14 @@ const CardboardMeasures: React.FC = () => {
       default:
         break;
     }
+  };
+
+  // Función para limpiar los campos
+  const handleClearFields = () => {
+    setCantidad(1);
+    setAlto(0);
+    setAncho(0);
+    setLargo(0);
   };
 
   return (
@@ -190,7 +198,7 @@ const CardboardMeasures: React.FC = () => {
             />
             <Button
               variant="contained"
-              onClick={() => {setCantidad(1),setAlto(0),setAncho(0),setLargo(0)}} // Ejemplo para limpiar el campo de cantidad
+              onClick={handleClearFields}
               sx={{
                 backgroundColor: "#1E3A8A",
                 color: "white",

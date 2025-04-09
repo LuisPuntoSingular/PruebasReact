@@ -11,10 +11,10 @@ const EpeInput: React.FC = () => {
     // Obtener el valor seleccionado
     const selectedMedida = event.target.value;
     // Actualizar el estado de selectedEpe con el valor seleccionado
-    const selectedItem = epe?.find((item: { medidas: string }) => item.medidas === selectedMedida);
+    const selectedItem = epe?.find((item: { medidas: string; precio: string }) => item.medidas === selectedMedida);
     // Actualizar el estado de selectedEpe con el precio correspondiente
     if (selectedItem) {
-      setSelectedEpe({ medida: selectedItem.medidas, precio: selectedItem.precio });
+      setSelectedEpe({ medida: selectedItem.medidas, precio: Number(selectedItem.precio) });
     }
   };
 
@@ -68,11 +68,11 @@ const EpeInput: React.FC = () => {
           }}
         >
           {epe && Array.isArray(epe) ? (
-            epe.map((item: { id: number; medidas: string; precio: number }) => (
-              <MenuItem key={item.id} value={item.medidas}>
-                {item.medidas} - ${item.precio}
-              </MenuItem>
-            ))
+            epe.map((item: { id: number; medidas: string; precio: string }) => (
+                          <MenuItem key={item.id} value={item.medidas}>
+                            {item.medidas} - ${Number(item.precio)}
+                          </MenuItem>
+                        ))
           ) : (
             <MenuItem disabled>Cargando...</MenuItem>
           )}

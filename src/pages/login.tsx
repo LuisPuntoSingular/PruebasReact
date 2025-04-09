@@ -33,20 +33,24 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         },
         body: JSON.stringify({ email, password }),
       });
-
+  
       if (!response.ok) {
         throw new Error("Credenciales inválidas");
       }
-
+  
       const { token } = await response.json();
-
+  
       // Llama a la función onLogin para manejar el token
       onLogin(token);
-
+  
       // Redirige al dashboard
       router.push("/dashboard");
-    } catch (err: any) {
-      setLocalError(err.message || "Error al iniciar sesión");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setLocalError(err.message || "Error al iniciar sesión");
+      } else {
+        setLocalError("Ocurrió un error desconocido");
+      }
     }
   };
 

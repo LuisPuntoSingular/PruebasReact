@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -20,13 +20,7 @@ type Row = {
   cantidad: string;
 };
 
-interface TableMeasuresProps {
-  
-}
-
-const TableMeasures: React.FC<TableMeasuresProps> = ({
- 
-}) => {
+const TableMeasures: React.FC = () => {
   const { rejillaRows, setRejillaRows, setRejillaTotal, setTotalCantidad } = useMeasures();
 
   const handleInputChangeInternal = (

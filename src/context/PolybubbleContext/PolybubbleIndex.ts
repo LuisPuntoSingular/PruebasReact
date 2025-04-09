@@ -1,30 +1,26 @@
 import { usePolybubbleContext } from './PolybubbleContext'; // Importar el contexto de Polybubble
 import { useSelectedValues } from '../CardBoardContext/SelectedValuesContext';
 import { useMeasures } from '../CardBoardContext/CardboardMeasuresContext';
-import { useState } from 'react';
+
 
 const PolybubbleIndex = () => {
     
-    const { selectedPoliburbuja, selectedPoliburbujaPrecio } = usePolybubbleContext(); // Obtener los valores del contexto
+    const {  selectedPoliburbujaPrecio } = usePolybubbleContext(); // Obtener los valores del contexto
    const {utilidad } = useSelectedValues();
     const { largo, ancho } = useMeasures(); // Obtener las medidas del contexto de CardboardMeasuresContext
     
   
    
    // Obtener los valores seleccionados del contexto de SelectedValuesContext
-   const anchoPoly = selectedPoliburbujaPrecio?.ancho || 0; // Obtener el ancho del precio seleccionado
+   const anchoPoly = selectedPoliburbujaPrecio?.ancho|| 0; // Obtener el ancho del precio seleccionado
     const largoPoly = selectedPoliburbujaPrecio?.largo || 0; // Obtener el largo del precio seleccionado
     const precio = selectedPoliburbujaPrecio?.precio || 0; // Obtener el precio del precio seleccionado
 
     const ganancia = Math.max((100 - Number(utilidad)) / 100, 0.01); // Valor mínimo de 0.01 para evitar división por 0
 
-    if( !largo || !ancho || !anchoPoly || !largoPoly || !precio) {
-    
-        return { partA: 0, partB: 0, precioA: 0, precioB: 0 }; // Valores predeterminados si faltan medidas o precios
-    }
+  
 
-    
-        
+  
 
 
     let partA =
@@ -35,8 +31,7 @@ const PolybubbleIndex = () => {
     Math.floor(Number(anchoPoly) / Number(largo)) *
     Math.floor(Number(largoPoly) / Number(ancho));
 
-    console.log("partA", partA)
-    console.log("partB", partB)
+    
 
     let precioA = precio / partA;
     let precioB = precio / partB;

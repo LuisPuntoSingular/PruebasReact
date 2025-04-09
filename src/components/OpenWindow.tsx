@@ -4,7 +4,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import Button from "@mui/material/Button";
+
 
 import ShowInputs from "./OpenWindowComponents/ShowInputs";
 import MaterialInput from "./OpenWindowComponents/ShowMaterialInput";
@@ -76,21 +76,11 @@ export default function FloatingWindow({ onClose }: FloatingWindowProps) {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
   /// Estado para el material seleccionado
   /// @param selectedMaterial Material seleccionado
-  const [selectedMaterial, setSelectedMaterial] = useState("");
-  const [selectedDerivative, setSelectedDerivative] = useState<string>(""); // Estado para el derivado seleccionado
 
  const [rows, setRows] = useState<Row[]>([
     { part: "A", largo: "", ancho: "", cantidad: "1" },
   ]);
 
-
-  const handleMaterialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedMaterial(event.target.value);
-  };
-
-  const handleDerivativeChange = (value: string) => {
-    setSelectedDerivative(value);
-  };
 
   // Centrar la ventana solo al cargar
   useEffect(() => {

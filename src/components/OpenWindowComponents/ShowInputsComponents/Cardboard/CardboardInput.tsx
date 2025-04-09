@@ -2,6 +2,14 @@ import React, { useEffect } from "react";
 import { FormControl, TextField, MenuItem, Box } from "@mui/material";
 import { useApi } from "@/context/ApiContext";
 import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext";
+import {
+
+  Derivative,
+  Resistance,
+  Category,
+} from "@/context/Interfaces/interfaces";
+
+
 
 const CardboardInput: React.FC = () => {
   const { corrugated, derivatives, resistances, loading, error } = useApi();
@@ -17,23 +25,27 @@ const CardboardInput: React.FC = () => {
     setResistanceMinimum,
   } = useSelectedValues();
 
-  if (loading) return <p>Cargando datos...</p>;
-  if (error) return <p>Error: {error}</p>;
+ 
 
   // Encontrar el categoryid del corrugado seleccionado
   const selectedCategory = corrugated.find(
-    (corrugado: any) => corrugado.categoryname === selectedCorrugado
+    (corrugado: Category) => corrugado.categoryname === selectedCorrugado
   );
 
   // Filtrar resistencias según el categoryid del corrugado seleccionado
   const filteredResistances = resistances.filter(
-    (resistencia: any) => resistencia.categoryid === selectedCategory?.categoryid
+    (resistencia: Resistance) => resistencia.categoryid === selectedCategory?.categoryid
   );
+
+
+
 
   // Encontrar la resistencia seleccionada
   const selectedResistance = resistances.find(
-    (resistencia: any) => resistencia.resistances === selectedResistencia
+    (resistencia: Resistance) => resistencia.resistances === selectedResistencia
   );
+
+
 
   // Obtener el valor de pricem2 de la resistencia seleccionada
   const ContextresistancePriceM2 = selectedResistance?.pricem2;
@@ -42,11 +54,20 @@ const CardboardInput: React.FC = () => {
   // Guardar automáticamente los valores seleccionados cuando cambien
   useEffect(() => {
     setSelectedPriceM2(ContextresistancePriceM2 || null);
-    setResistanceMinimum(ContextresistanceMinimum || null);
-  }, [selectedCorrugado, selectedDerivado, ContextresistancePriceM2, ContextresistanceMinimum]);
+    setResistanceMinimum(ContextresistanceMinimum ? parseFloat(ContextresistanceMinimum) : null);
+  }, [
+    selectedCorrugado,
+    selectedDerivado,
+    ContextresistancePriceM2,
+    ContextresistanceMinimum,
+    setResistanceMinimum,
+    setSelectedPriceM2,
+  ]);
 
+  if (loading) return <p>Cargando datos...</p>;
+  if (error) return <p>Error: {error}</p>;
 
-  const handleChange = (setter: React.Dispatch<React.SetStateAction<any>>) => 
+  const handleChange = (setter: React.Dispatch<React.SetStateAction<string>>) => 
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setter(e.target.value);
     };
@@ -88,7 +109,7 @@ const CardboardInput: React.FC = () => {
             },
           }}
         >
-          {derivatives.map((derivado: any) => (
+          {derivatives.map((derivado: Derivative) => (
             <MenuItem key={derivado.id} value={derivado.name}>
               {derivado.name}
             </MenuItem>
@@ -127,7 +148,7 @@ const CardboardInput: React.FC = () => {
             },
           }}
         >
-          {corrugated.map((corrugado: any) => (
+          {corrugated.map((corrugado: Category) => (
             <MenuItem key={corrugado.categoryid} value={corrugado.categoryname}>
               {corrugado.categoryname}
             </MenuItem>
@@ -166,11 +187,11 @@ const CardboardInput: React.FC = () => {
             },
           }}
         >
-          {filteredResistances.map((resistencia: any) => (
-            <MenuItem key={resistencia.resistanceid} value={resistencia.resistances}>
-              {resistencia.resistances}
-            </MenuItem>
-          ))}
+ {filteredResistances.map((resistance: Resistance) => (
+  <MenuItem key={resistance.resistanceid} value={resistance.resistances}>
+    {resistance.resistances}
+  </MenuItem>
+))}
         </TextField>
       </FormControl>
     </Box>

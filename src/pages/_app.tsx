@@ -13,6 +13,7 @@ import { PolybubbleProvider } from "@/context/PolybubbleContext/PolybubbleContex
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { ApiProvider } from "@/context/ApiContext";
+import {EvaProvider} from "@/context/EvaContext/EvaContext"; // Importar el contexto de Eva
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado de autenticación
@@ -20,7 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
  // Función para manejar el inicio de sesión
  const handleLogin = (token: string) => {
-  const expirationTime = Date.now() + 20 * 60 * 1000; // 3 minutos en milisegundos
+  const expirationTime = Date.now() + 20 * 60 * 1000; // 20 minutos en milisegundos
   localStorage.setItem("authToken", token); // Almacena el token en localStorage
   localStorage.setItem("authTokenExpiration", expirationTime.toString()); // Almacena el tiempo de expiración
   setIsAuthenticated(true);
@@ -62,6 +63,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <ThemeProvider theme={theme}>
+      <EvaProvider>
       <PolybubbleProvider>
         <FoamProvider>
           <FoamColorsProvider>
@@ -98,6 +100,7 @@ export default function App({ Component, pageProps }: AppProps) {
           </FoamColorsProvider>
         </FoamProvider>
       </PolybubbleProvider>
+      </EvaProvider>
     </ThemeProvider>
   );
 }

@@ -3,19 +3,10 @@ import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } fro
 import FoamInputColors from "./FoamImputColors";
 import { useFoamContext } from "@/context/Foam/FoamContext";
 import { useApi } from "@/context/ApiContext";
-interface Derivado {
-  id: number;
-  derivado: string;
-}
+import { Foam,FoamPrecio } from "@/context/Interfaces/interfaces";
 
-interface MedidaPrecio {
-  id: number;
-  medidas: string;
-  precio: string;
-  idfoam: number;
-  "ancho rollo": string;
-  "largo rollo": string;
-}
+
+
 
 const FoamInput: React.FC = () => {
   const { foam, foamprecio } = useApi();
@@ -40,22 +31,42 @@ const FoamInput: React.FC = () => {
   const handleMedidaPrecioRollosChange = (event: SelectChangeEvent<string>) => {
     const selectmedidaRollo = event.target.value;
 
-    const selectedItem = foamprecio.find((item: MedidaPrecio) => item.medidas === selectmedidaRollo);
+    const selectedItem = foamprecio.find((item: FoamPrecio) => item.medidas === selectmedidaRollo);
 
    
         if(selectedItem) {
           setSelectedMedidaPrecioRollos({
-            medida: selectedItem.medidas,precio: selectedItem.precio,
-            anchorollo: selectedItem["ancho rollo"],largorollo: selectedItem["largo rollo"]})}; // Enviar al contexto};
+            medida: selectedItem.medidas,precio: Number(selectedItem.precio),
+            anchorollo: Number(selectedItem.ancho_rollo),largorollo: Number(selectedItem.largo_rollo)})}; // Enviar al contexto};
      // Enviar al contexto
      
   };
 
+  
   // Manejar el cambio de medida/precio para Rollos Laminados
-  const handleMedidaPrecioRollosLaminadosChange = (event: SelectChangeEvent<string>) => {
-    const value = event.target.value;
-    setSelectedMedidaPrecioRollosLaminados(value); // Enviar al contexto
-  };
+const handleMedidaPrecioRollosLaminadosChange = (event: SelectChangeEvent<string>) => {
+  const selectmedidaRollo = event.target.value;
+
+  // Filtrar elementos que sean de tipo "Rollos Laminados"
+  const filteredItems = foamprecio.filter(
+    (item: FoamPrecio) => foam.find((f: Foam) => f.id === item.idfoam)?.derivado === "Rollos Laminados"
+  );
+
+  // Buscar el elemento seleccionado dentro de los elementos filtrados
+  const selectedItem = filteredItems.find((item: FoamPrecio) => item.medidas === selectmedidaRollo);
+
+  if (selectedItem) {
+    setSelectedMedidaPrecioRollosLaminados({
+      medida: selectedItem.medidas,
+      precio: Number(selectedItem.precio),
+      anchorollo: Number(selectedItem["ancho rollo"]),
+      largorollo: Number(selectedItem["largo rollo"]),
+    });
+  }
+
+  // Depuración: Verifica el elemento seleccionado
+  console.log("Selected Item (Rollos Laminados):", selectedItem);
+};
 
   // Manejar el cambio de tipo de Rollo
   const handleRolloTypeChange = (event: SelectChangeEvent<string>) => {
@@ -71,12 +82,12 @@ const FoamInput: React.FC = () => {
 
   // Filtrar medidas/precios para Rollos según el foam seleccionado por nombre
   const filteredMedidasPrecioRollos = foamprecio.filter(
-    (item: MedidaPrecio) => foam.find((f:Derivado) => f.id === item.idfoam)?.derivado === "Rollo"
+    (item: FoamPrecio) => foam.find((f:Foam) => f.id === item.idfoam)?.derivado === "Rollo"
   );
 
   // Filtrar medidas/precios para Rollos Laminados según el foam seleccionado por nombre
   const filteredMedidasPrecioRollosLaminados = foamprecio.filter(
-    (item: MedidaPrecio) => foam.find((f:Derivado) => f.id === item.idfoam)?.derivado === "Rollos Laminados"
+    (item: FoamPrecio) => foam.find((f:Foam) => f.id === item.idfoam)?.derivado === "Rollos Laminados"
   );
 
   return (
@@ -128,7 +139,7 @@ const FoamInput: React.FC = () => {
             },
           }}
         >
-          {foam.map((item: Derivado) => (
+          {foam.map((item: Foam) => (
             <MenuItem key={item.id} value={item.derivado}>
               {item.derivado}
             </MenuItem>
@@ -243,7 +254,7 @@ const FoamInput: React.FC = () => {
               },
             }}
           >
-            {filteredMedidasPrecioRollos.map((item: MedidaPrecio) => (
+            {filteredMedidasPrecioRollos.map((item: FoamPrecio) => (
               <MenuItem key={item.id} value={item.medidas}>
                 {item.medidas} - ${item.precio}
               </MenuItem>
@@ -301,7 +312,7 @@ const FoamInput: React.FC = () => {
               },
             }}
           >
-            {filteredMedidasPrecioRollosLaminados.map((item: MedidaPrecio) => (
+            {filteredMedidasPrecioRollosLaminados.map((item: FoamPrecio) => (
               <MenuItem key={item.id} value={item.medidas}>
                 {item.medidas} - ${item.precio}
               </MenuItem>

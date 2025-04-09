@@ -1,54 +1,31 @@
-import React, { useState } from "react";
-import { SelectChangeEvent } from "@mui/material";
+import React from "react";
 
 import CardboardInput from "./ShowInputsComponents/Cardboard/CardboardInput";
 import EpeInput from "./ShowInputsComponents/Epe/EpeInput";
 import FoamInput from "./ShowInputsComponents/Foam/FoamInput";
 import PolybubbleInputs from "./ShowInputsComponents/Polybubble/PolybubbleInputs";
 import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext";
+import EvaInputs from "./ShowInputsComponents/Eva/EvaInputs";
 
-interface ShowInputsProps {
-    
-    
-
-  }
-
-
-const ShowInputs: React.FC<ShowInputsProps> = ({ }) => {
-   
+const ShowInputs: React.FC = () => {
   const { selectedMaterial } = useSelectedValues();
 
-
- 
-
-  
-  
   return (
-
-    //este es el contenedor principal de la seccion 2 que contiene los inputs
-  
     <div>
-     
-
       {/* Mostrar CardboardInput si el material seleccionado es "Cartón" */}
-      {selectedMaterial === "Carton" && (
-        <CardboardInput/>
-     )}
+      {selectedMaterial === "Carton" && <CardboardInput />}
 
       {/* Mostrar EpeInput si el material seleccionado es "EPE" */}
-      {selectedMaterial === "EPE" && (
-        <EpeInput  />
-      )}
+      {selectedMaterial === "EPE" && <EpeInput />}
 
-  {/* Mostrar EpeInput si el material seleccionado es "EPE" */}
-  {selectedMaterial === "Foam" && (
-        <FoamInput  />
-      )}
+      {/* Mostrar FoamInput si el material seleccionado es "Foam" */}
+      {selectedMaterial === "Foam" && <FoamInput />}
 
-{selectedMaterial === "Poliburbuja" && (
-        <PolybubbleInputs  />
-      )}
+      {/* Mostrar PolybubbleInputs si el material seleccionado es "Poliburbuja" */}
+      {selectedMaterial === "Poliburbuja" && <PolybubbleInputs />}
 
+      {/* Mostrar evaInput si el material seleccionado es "Eva" */}
+      {selectedMaterial === "EVA" && <EvaInputs />}
 
     </div>
   );

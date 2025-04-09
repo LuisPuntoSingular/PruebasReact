@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import FoamIndex from "@/context/Foam/FoamIndex";
 
-const CalculatorContainer = styled(Paper)(({ theme }) => ({
+const CalculatorContainer = styled(Paper)(() => ({
   width: "100%",
   maxWidth: "400px", // Ancho máximo para mantener el diseño compacto
   background: "rgba(255, 255, 255, 0.08)", // Fondo más claro para contraste
@@ -18,7 +18,7 @@ const CalculatorContainer = styled(Paper)(({ theme }) => ({
   gap: "16px", // Espaciado entre los contenedores
 }));
 
-const SectionContainer = styled(Box)(({ theme }) => ({
+const SectionContainer = styled(Box)(() => ({
   display: "flex",
   flexDirection: "row", // Mantiene los elementos en fila dentro de cada sección
   justifyContent: "space-between",
@@ -26,7 +26,7 @@ const SectionContainer = styled(Box)(({ theme }) => ({
   gap: "8px", // Espaciado entre los elementos
 }));
 
-const Display = styled(Box)(({ theme }) => ({
+const Display = styled(Box)(() => ({
   flex: 1, // Cada display ocupa el mismo espacio
   background: "rgba(0, 0, 0, 0.2)", // Fondo oscuro para contraste
   borderRadius: "8px",
@@ -35,14 +35,14 @@ const Display = styled(Box)(({ theme }) => ({
   padding: "8px",
 }));
 
-const TitleText = styled(Typography)(({ theme }) => ({
+const TitleText = styled(Typography)(() => ({
   fontSize: "0.85rem",
   fontWeight: "500",
   color: "rgba(255, 255, 255, 0.7)",
   marginBottom: "4px",
 }));
 
-const ValueText = styled(Typography)(({ theme }) => ({
+const ValueText = styled(Typography)(() => ({
   fontSize: "1.1rem",
   fontWeight: "bold",
   color: "#ffffff",

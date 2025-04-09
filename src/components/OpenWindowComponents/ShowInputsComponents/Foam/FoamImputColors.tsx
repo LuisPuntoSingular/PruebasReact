@@ -1,23 +1,12 @@
 import React from "react";
-import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, Color } from "@mui/material";
+import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import { useApi } from "@/context/ApiContext"; // Obtener datos desde ApiContext
 import { useFoamColorsContext } from "@/context/Foam/FoamColorsContext"; // Manejar lógica de selección
+import { FoamColor,ColorPrecio } from "@/context/Interfaces/interfaces"; // Definir la interfaz Colors si no está importada
+
 
 // Define the ColorPrecio type if not imported
-interface ColorPrecio {
-  id: number;
-  idcoloresfoam: number;
-  medida: string;
-  precio: number;
- 
-  
-}
-interface Colors {
-  id: number;
-  color: string;
-  anchoplaca: number;
-  largoplaca: number;
-}
+
 
 
 const FoamInputColors: React.FC = () => {
@@ -29,7 +18,7 @@ const FoamInputColors: React.FC = () => {
     
     const selectedId = event.target.value;
 
-    const SelectedItem = coloresFoam.find((item:Colors) => item.id.toString() === selectedId);
+    const SelectedItem = coloresFoam.find((item:FoamColor) => item.id.toString() === selectedId);
     if (SelectedItem) {
     
       setSelectedColor({

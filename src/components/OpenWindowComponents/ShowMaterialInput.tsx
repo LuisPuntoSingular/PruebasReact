@@ -2,7 +2,7 @@ import React from "react";
 import { FormControl, TextField, MenuItem } from "@mui/material";
 import { useApi } from "@/context/ApiContext";
 import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext"; // Importar el contexto
-
+import { Material } from "@/context/Interfaces/interfaces";
 
 
 const MaterialInput: React.FC = () => {
@@ -49,7 +49,7 @@ const MaterialInput: React.FC = () => {
         }}
       >
        {/* Renderiza las opciones dinámicamente */}
-       {materials.map((material: any) => (
+       {materials.map((material: Material) => (
           <MenuItem key={material.id} value={material.name}>
             {material.name}
           </MenuItem>

@@ -1,18 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
+import { Foam, FoamPrecio } from "../Interfaces/interfaces"; // Asegúrate de que la ruta sea correcta
 
-interface Foam {
-  id: number;
-  derivado: string;
-}
-
-interface FoamPrecio {
-  id: number;
-  medidas: string;
-  precio: string;
-  idfoam: number;
-  "ancho rollo": string;
-  "largo rollo": string;
-}
 
 interface FoamContextProps {
   foam: Foam[];
@@ -23,8 +11,8 @@ interface FoamContextProps {
   setSelectedFoam: React.Dispatch<React.SetStateAction<string>>;
   selectedMedidaPrecioRollos: {medida: string; precio: number; anchorollo:number;largorollo:number} | null;
   setSelectedMedidaPrecioRollos: React.Dispatch<React.SetStateAction<{medida: string; precio: number; anchorollo:number;largorollo:number} | null>>;
-  selectedMedidaPrecioRollosLaminados: string;
-  setSelectedMedidaPrecioRollosLaminados: React.Dispatch<React.SetStateAction<string>>;
+  selectedMedidaPrecioRollosLaminados: {medida: string; precio: number; anchorollo:number;largorollo:number};
+  setSelectedMedidaPrecioRollosLaminados: React.Dispatch<React.SetStateAction<{medida: string; precio: number; anchorollo:number;largorollo:number}>>;
   selectedRolloType: string;
   setSelectedRolloType: React.Dispatch<React.SetStateAction<string>>;
   selectedRolloTypeLaminado: string;
@@ -42,7 +30,7 @@ export const FoamProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [selectedFoam, setSelectedFoam] = useState<string>(""); // Foam seleccionado
   const [selectedMedidaPrecioRollos, setSelectedMedidaPrecioRollos] = useState<{ medida: string; precio: number; anchorollo:number; largorollo:number } | null>(null);
   // Medida/Precio para Rollos
-  const [selectedMedidaPrecioRollosLaminados, setSelectedMedidaPrecioRollosLaminados] = useState<string>(""); // Medida/Precio para Rollos Laminados
+  const [selectedMedidaPrecioRollosLaminados, setSelectedMedidaPrecioRollosLaminados] = useState<{ medida: string; precio: number; anchorollo:number; largorollo:number } | null>(null); // Medida/Precio para Rollos Laminados
   const [selectedRolloType, setSelectedRolloType] = useState<string>(""); // Tipo de Rollo seleccionado
   const [selectedRolloTypeLaminado, setSelectedRolloTypeLaminado] = useState<string>(""); // Tipo de Rollo Laminado seleccionado
   return (

@@ -6,6 +6,7 @@ import ShowFoamPrice from "./ShowInputsComponents/Foam/ShowFoamPrice";
 import ShowPolybubblePrice from "./ShowInputsComponents/Polybubble/ShowPolybubblePrice";
 import { Box } from "@mui/system";
 import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext";
+import ShowEvaPrice from "./ShowInputsComponents/Eva/ShowEvaPrice";
 
 const ShowPrice: React.FC = () => {
   const { selectedMaterial } = useSelectedValues(); // Obtener el material seleccionado desde el contexto
@@ -13,16 +14,18 @@ const ShowPrice: React.FC = () => {
   // Renderizar el componente correspondiente según el material seleccionado
   const renderSelectedComponent = () => {
     switch (selectedMaterial) {
-      case "Carton":
-        return <ShowCardboardPrice />;
+      case "EVA":
+        return <ShowEvaPrice />;
       case "Madera":
         return <ShowPalletsPrice />;
       case "EPE":
         return <ShowFEEPPrice />;
       case "Foam":
         return <ShowFoamPrice />;
-      default:
+      case "Poliburbuja":
         return <ShowPolybubblePrice />;
+      default:
+        return <ShowCardboardPrice />;
     }
   };
 
