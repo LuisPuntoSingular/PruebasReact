@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           throw new Error("Token inválido o expirado");
         }
   
-        const data = await response.json();
+      
       
         setIsAuthenticated(true);
       } catch (err) {
