@@ -23,7 +23,7 @@ const MaterialInput: React.FC = () => {
         fullWidth // Asegura que el campo ocupe todo el ancho disponible
         select
         label="Seleccionar Material"
-        value={selectedMaterial}
+        value={selectedMaterial || ""}
         onChange={handleMaterialChange}
         sx={{
           background: "rgba(194, 176, 176, 0.34)", // Fondo del campo
@@ -53,7 +53,8 @@ const MaterialInput: React.FC = () => {
           <MenuItem key={material.id} value={material.name}>
             {material.name}
           </MenuItem>
-        ))}</TextField>
+        ))}
+        </TextField>
     </FormControl>
   );
 };

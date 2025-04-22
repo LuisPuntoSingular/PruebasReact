@@ -11,21 +11,18 @@ import {
 } from "@mui/material";
 import BusinessIcon from "@mui/icons-material/Business";
 import { useRouter } from "next/router";
+import { useAuth } from "@/context/AuthContext"; // Importa el AuthContext
 
-interface LoginProps {
-  onLogin: (token: string) => void; // Función para manejar el inicio de sesión
-}
-
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [localError, setLocalError] = useState<string | null>(null);
+  const { handleLogin } = useAuth(); // Usa el AuthContext
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Realiza la solicitud al backend para iniciar sesión
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
@@ -33,17 +30,18 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         },
         body: JSON.stringify({ email, password }),
       });
-  
+
       if (!response.ok) {
         throw new Error("Credenciales inválidas");
       }
-  
+
       const { token } = await response.json();
-  
-      // Llama a la función onLogin para manejar el token
-      onLogin(token);
-  
-      // Redirige al dashboard
+     
+
+      // Llama a handleLogin desde el AuthContext
+      handleLogin(token);
+
+      // Redirige al dashboard después del login
       router.push("/dashboard");
     } catch (err: unknown) {
       if (err instanceof Error) {

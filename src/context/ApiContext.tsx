@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "@/context/AuthContext"; // Importa el AuthContext
 import {
   Material,
   Derivative,
@@ -28,7 +29,6 @@ interface ApiContextType {
   coloresPrecio: ColorPrecio[] | null;
   poliburbuja: Polybubble[] | null;
   poliburbujaprecios: PolybubblePrecio[] | null;
-
   loading: boolean;
   error: string | null;
 }
@@ -36,6 +36,7 @@ interface ApiContextType {
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
 
 export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth(); // Usa el estado de autenticación
   const [materials, setMaterials] = useState<Material[] | null>(null);
   const [derivatives, setDerivatives] = useState<Derivative[] | null>(null);
   const [resistances, setResistances] = useState<Resistance[] | null>(null);
@@ -64,48 +65,48 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return config;
   });
 
-  // Cargar datos protegidos desde el backend
+  // Cargar datos automáticamente al montar el componente si el usuario está autenticado
   useEffect(() => {
-    async function fetchAllData() {
+    const fetchAllData = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const materialsData = await axios
-          .get<Material[]>(process.env.NEXT_PUBLIC_API_URL_MATERIALS!)
+        const materialsData = await axiosInstance
+          .get<Material[]>("/api/materials")
           .then((res) => res.data);
-        const derivativesData = await axios
-          .get<Derivative[]>(process.env.NEXT_PUBLIC_API_URL_DERIVATIVES!)
+        const derivativesData = await axiosInstance
+          .get<Derivative[]>("/api/derivatives")
           .then((res) => res.data);
-        const resistancesData = await axios
-          .get<Resistance[]>(process.env.NEXT_PUBLIC_API_URL_RESISTANCES!)
+        const resistancesData = await axiosInstance
+          .get<Resistance[]>("/api/resistances")
           .then((res) => res.data);
-        const corrugatedData = await axios
-          .get<Category[]>(process.env.NEXT_PUBLIC_API_URL_CATEGORIES!)
+        const corrugatedData = await axiosInstance
+          .get<Category[]>("/api/resistancescategories")
           .then((res) => res.data);
-        const epeData = await axios
-          .get<Epe[]>(process.env.NEXT_PUBLIC_API_URL_EPE!)
+        const epeData = await axiosInstance
+          .get<Epe[]>("/api/epe")
           .then((res) => res.data);
-          const evaData = await axios
-          .get<Eva[]>(process.env.NEXT_PUBLIC_API_URL_EVA!)
+        const evaData = await axiosInstance
+          .get<Eva[]>("/api/eva")
           .then((res) => res.data);
-        const foamData = await axios
-          .get<Foam[]>(process.env.NEXT_PUBLIC_API_URL_FOAM!)
+        const foamData = await axiosInstance
+          .get<Foam[]>("/api/foam")
           .then((res) => res.data);
-        const foamPrecioData = await axios
-          .get<FoamPrecio[]>(process.env.NEXT_PUBLIC_API_URL_FOAMPRECIO!)
+        const foamPrecioData = await axiosInstance
+          .get<FoamPrecio[]>("/api/preciosfoam")
           .then((res) => res.data);
-        const coloresFoamData = await axios
-          .get<FoamColor[]>(process.env.NEXT_PUBLIC_API_URL_COLORESFOAM!)
+        const coloresFoamData = await axiosInstance
+          .get<FoamColor[]>("/api/coloresfoam")
           .then((res) => res.data);
-        const coloresPrecioData = await axios
-          .get<ColorPrecio[]>(process.env.NEXT_PUBLIC_API_URL_COLORESPRECIO!)
+        const coloresPrecioData = await axiosInstance
+          .get<ColorPrecio[]>("/api/coloresprecio")
           .then((res) => res.data);
-        const poliburbujaData = await axios
-          .get<Polybubble[]>(process.env.NEXT_PUBLIC_API_URL_POLIBURBUJA!)
+        const poliburbujaData = await axiosInstance
+          .get<Polybubble[]>("/api/poliburbuja")
           .then((res) => res.data);
-        const poliburbujapreciosData = await axios
-          .get<PolybubblePrecio[]>(process.env.NEXT_PUBLIC_API_URL_POLIBURBUJAPRECIOS!)
+        const poliburbujapreciosData = await axiosInstance
+          .get<PolybubblePrecio[]>("/api/poliburbujaprecios")
           .then((res) => res.data);
 
         setMaterials(materialsData);
@@ -131,10 +132,12 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } finally {
         setLoading(false);
       }
+    };
+
+    if (isAuthenticated) {
+      fetchAllData(); // Solo carga los datos si el usuario está autenticado
     }
-  
-    fetchAllData();
-  }, []);
+  }, [isAuthenticated]); // Ejecuta el efecto cuando cambia isAuthenticated
 
   return (
     <ApiContext.Provider

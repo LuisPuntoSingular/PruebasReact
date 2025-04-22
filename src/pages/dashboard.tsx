@@ -1,12 +1,9 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import { useAuth } from "@/context/AuthContext"; // Conecta con el AuthContext
 
-interface DashboardProps {
-  isAuthenticated: boolean;
-  onLogout: () => void;
-}
-
-const Dashboard: React.FC<DashboardProps> = ({ isAuthenticated, onLogout }) => {
+const Dashboard: React.FC = () => {
+  const { isAuthenticated, handleLogout } = useAuth(); // Usa el AuthContext
   const router = useRouter();
 
   useEffect(() => {
@@ -23,7 +20,7 @@ const Dashboard: React.FC<DashboardProps> = ({ isAuthenticated, onLogout }) => {
     <div>
       <h1>Bienvenido al Dashboard</h1>
       <button
-        onClick={onLogout}
+        onClick={handleLogout} // Usa handleLogout del AuthContext
         style={{
           padding: "10px 15px",
           backgroundColor: "#FF0000",

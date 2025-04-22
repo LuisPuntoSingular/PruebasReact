@@ -10,97 +10,68 @@ import { PalletsProvider } from "@/context/PalletsContext/PalletsContext";
 import { FoamColorsProvider } from "@/context/Foam/FoamColorsContext";
 import { FoamProvider } from "@/context/Foam/FoamContext";
 import { PolybubbleProvider } from "@/context/PolybubbleContext/PolybubbleContext";
-import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
 import { ApiProvider } from "@/context/ApiContext";
-import {EvaProvider} from "@/context/EvaContext/EvaContext"; // Importar el contexto de Eva
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { EvaProvider } from "@/context/EvaContext/EvaContext";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
-export default function App({ Component, pageProps }: AppProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado de autenticación
-  const router = useRouter();
+const publicRoutes = ["/login"]; // Define rutas públicas aquí
 
- // Función para manejar el inicio de sesión
- const handleLogin = (token: string) => {
-  const expirationTime = Date.now() + 20 * 60 * 1000; // 20 minutos en milisegundos
-  localStorage.setItem("authToken", token); // Almacena el token en localStorage
-  localStorage.setItem("authTokenExpiration", expirationTime.toString()); // Almacena el tiempo de expiración
-  setIsAuthenticated(true);
-  router.push("/dashboard"); // Redirige al dashboard después de iniciar sesión
-};
-  
-  
+function AppContent({ Component, pageProps }: AppProps) {
+  const { isAuthenticated } = useAuth(); // Usa el AuthContext para verificar autenticación
+  const nextRouter = useRouter();
+  const isPublicRoute = publicRoutes.includes(nextRouter.pathname);
 
-    // Función para manejar el cierre de sesión
-    const handleLogout = () => {
-      localStorage.removeItem("authToken"); // Elimina el token de localStorage
-      localStorage.removeItem("authTokenExpiration"); // Elimina el tiempo de expiración
-      setIsAuthenticated(false);
-      router.push("/login"); // Redirige al login después de cerrar sesión
-    };
-
-  // Lista de rutas públicas
-  const publicRoutes = ["/login"];
-
-  // Redirige al login si no está autenticado y no está en una ruta pública
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const expiration = localStorage.getItem("authTokenExpiration");
-
-    if (token && expiration) {
-      if (Date.now() > parseInt(expiration)) {
-        // Si el token ha expirado, cierra sesión
-        handleLogout();
-      } else {
-        setIsAuthenticated(true); // Si el token es válido, marca al usuario como autenticado
-      }
-    } else if (!publicRoutes.includes(router.pathname)) {
-      router.push("/login"); // Redirige al login si no está autenticado y no está en una ruta pública
+    if (isAuthenticated === false && !isPublicRoute) {
+      console.log("Usuario no autenticado, redirigiendo al login");
+      nextRouter.push("/login");
     }
-  }, [router.pathname]);
+  }, [isAuthenticated, isPublicRoute, nextRouter]);
 
-  // Oculta el Layout en las rutas públicas
-  const isPublicRoute = publicRoutes.includes(router.pathname);
+  if (isAuthenticated === false && !isPublicRoute) {
+    // Evita renderizar mientras redirige
+    return null;
+  }
 
   return (
     <ThemeProvider theme={theme}>
       <EvaProvider>
-      <PolybubbleProvider>
-        <FoamProvider>
-          <FoamColorsProvider>
-            <PalletsProvider>
-              <FEEPProvider>
-                <MeasuresProvider>
-                  <SelectedValuesProvider>
-                    <ApiProvider>
-                      {/* Proveedor de API para manejar datos y autenticación */}
-                    {isPublicRoute ? (
-                      // Renderiza solo el componente (sin Layout) en rutas públicas
-                      <Component
-                        {...pageProps}
-                        isAuthenticated={isAuthenticated}
-                        onLogin={handleLogin}
-                        onLogout={handleLogout}
-                      />
-                    ) : (
-                      // Renderiza el Layout en rutas protegidas
-                      <Layout>
-                        <Component
-                          {...pageProps}
-                          isAuthenticated={isAuthenticated}
-                          onLogin={handleLogin}
-                          onLogout={handleLogout}
-                        />
-                      </Layout>
-                    )}
-                    </ApiProvider>
-                  </SelectedValuesProvider>
-                </MeasuresProvider>
-              </FEEPProvider>
-            </PalletsProvider>
-          </FoamColorsProvider>
-        </FoamProvider>
-      </PolybubbleProvider>
+        <PolybubbleProvider>
+          <FoamProvider>
+            <FoamColorsProvider>
+              <PalletsProvider>
+                <FEEPProvider>
+                  <MeasuresProvider>
+                    <SelectedValuesProvider>
+                      <ApiProvider>
+                        {isPublicRoute ? (
+                          <Component {...pageProps} />
+                        ) : (
+                          <Layout>
+                            <Component {...pageProps} />
+                          </Layout>
+                        )}
+                      </ApiProvider>
+                    </SelectedValuesProvider>
+                  </MeasuresProvider>
+                </FEEPProvider>
+              </PalletsProvider>
+            </FoamColorsProvider>
+          </FoamProvider>
+        </PolybubbleProvider>
       </EvaProvider>
     </ThemeProvider>
   );
 }
+
+function MyApp(props: AppProps) {
+  return (
+    <AuthProvider>
+      <AppContent {...props} />
+    </AuthProvider>
+  );
+}
+
+export default MyApp;

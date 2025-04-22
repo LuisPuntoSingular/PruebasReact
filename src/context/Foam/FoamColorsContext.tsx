@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 
 interface Color {
@@ -38,42 +38,7 @@ export const FoamColorsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
 
 
-
-  // Cargar datos de colores desde la API
-  useEffect(() => {
-    const fetchColors = async () => {
-      try {
-        const response = await fetch(process.env.NEXT_PUBLIC_API_URL_COLORESFOAM || "");
-        if (!response.ok) {
-          throw new Error("Error al cargar los datos de colores desde la API");
-        }
-        const data: Color[] = await response.json();
-        setColores(data); // Guardar los colores en el estado
-      } catch (error) {
-        console.error("Error al cargar los colores:", error);
-      }
-    };
-
-    fetchColors();
-  }, []);
-
-  // Cargar datos de colores con precios desde la API
-  useEffect(() => {
-    const fetchColorsWithPrices = async () => {
-      try {
-        const response = await fetch(process.env.NEXT_PUBLIC_API_URL_COLORESFOAM || "");
-        if (!response.ok) {
-          throw new Error("Error al cargar los datos de colores con precios desde la API");
-        }
-        const data: ColorPrecio[] = await response.json();
-        setColoresPrecio(data); // Guardar los colores con precios en el estado
-      } catch (error) {
-        console.error("Error al cargar los colores con precios:", error);
-      }
-    };
-
-    fetchColorsWithPrices();
-  }, []);
+ 
 
   return (
     <FoamColorsContext.Provider
