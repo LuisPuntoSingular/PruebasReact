@@ -88,9 +88,10 @@ const CardboardInput: React.FC = () => {
           onChange={handleChange(setSelectedDerivado)}
           sx={{
             background: "rgba(194, 176, 176, 0.34)",
-            color: "#ffffff",
+            
             borderRadius: "8px",
             "& .MuiOutlinedInput-root": {
+              color: "#ffffff",
               "& fieldset": {
                 borderColor: "rgba(255, 255, 255, 0.5)",
               },
@@ -127,9 +128,10 @@ const CardboardInput: React.FC = () => {
           onChange={handleChange(setSelectedCorrugado)}
           sx={{
             background: "rgba(194, 176, 176, 0.34)",
-            color: "#ffffff",
+            
             borderRadius: "8px",
             "& .MuiOutlinedInput-root": {
+              color: "#ffffff",
               "& fieldset": {
                 borderColor: "rgba(255, 255, 255, 0.5)",
               },
@@ -166,9 +168,10 @@ const CardboardInput: React.FC = () => {
           onChange={handleChange(setSelectedResistencia)}
           sx={{
             background: "rgba(194, 176, 176, 0.34)",
-            color: "#ffffff",
+       
             borderRadius: "8px",
             "& .MuiOutlinedInput-root": {
+              color: "#ffffff",
               "& fieldset": {
                 borderColor: "rgba(255, 255, 255, 0.5)",
               },

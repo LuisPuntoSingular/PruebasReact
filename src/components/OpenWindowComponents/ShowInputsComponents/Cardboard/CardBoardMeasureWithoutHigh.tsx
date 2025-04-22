@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, Box, TextField, Button, Snackbar, Alert } from "@mui/material";
 import { useMeasures } from "@/context/CardBoardContext/CardboardMeasuresContext";
 
-const CardboardMeasures: React.FC = () => {
-  const { largo, setLargo, ancho, setAncho, alto, setAlto, cantidad, setCantidad } = useMeasures();
+const CardBoardMeasureWithoutHigh: React.FC = () => {
+  const { largo, setLargo, ancho, setAncho, cantidad, setCantidad } = useMeasures();
 
   // Estado para manejar el mensaje de error
   const [error, setError] = useState<string | null>(null);
@@ -38,9 +38,6 @@ const CardboardMeasures: React.FC = () => {
         }
         setAncho(newAncho);
         break;
-      case "alto":
-        setAlto(value === "" ? "" : parseFloat(value));
-        break;
       case "cantidad":
         // Permite que el campo quede vacío temporalmente
         if (value === "" || /^[0-9]*$/.test(value)) {
@@ -54,8 +51,7 @@ const CardboardMeasures: React.FC = () => {
 
   // Función para limpiar los campos
   const handleClearFields = () => {
-    setCantidad("");
-    setAlto(0);
+    setCantidad(0);
     setAncho(0);
     setLargo(0);
   };
@@ -84,7 +80,7 @@ const CardboardMeasures: React.FC = () => {
             gap: 2, // Espaciado entre elementos
           }}
         >
-          {/* Largo, Ancho y Alto en una misma fila */}
+          {/* Largo y Ancho en una misma fila */}
           <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
             {/* Campo para Largo */}
             <TextField
@@ -125,37 +121,6 @@ const CardboardMeasures: React.FC = () => {
               size="small"
               name="ancho"
               value={ancho || ""}
-              onChange={handleInputChange}
-              InputLabelProps={{
-                style: { color: "#FFFFFF" },
-              }}
-              sx={{
-                "& .MuiInputBase-root": {
-                  backgroundColor: "#334155",
-                  color: "#FFFFFF",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "#64748B",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#FFFFFF",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#3B82F6",
-                  },
-                },
-              }}
-            />
-
-            {/* Campo para Alto */}
-            <TextField
-              label="Alto"
-              type="number"
-              fullWidth
-              size="small"
-              name="alto"
-              value={alto || ""}
               onChange={handleInputChange}
               InputLabelProps={{
                 style: { color: "#FFFFFF" },
@@ -246,4 +211,4 @@ const CardboardMeasures: React.FC = () => {
   );
 };
 
-export default CardboardMeasures;
+export default CardBoardMeasureWithoutHigh;

@@ -23,9 +23,10 @@ const ShowUtil: React.FC = () => {
         sx={{
             mt: 2,
           background: "rgba(194, 176, 176, 0.34)", // Fondo del campo
-          color: "#ffffff", // Color del texto
+          
           borderRadius: "8px", // Bordes redondeados
           "& .MuiOutlinedInput-root": {
+            color: "#ffffff", // Color del texto
             "& fieldset": {
               borderColor: "rgba(255, 255, 255, 0.5)", // Color del borde
             },

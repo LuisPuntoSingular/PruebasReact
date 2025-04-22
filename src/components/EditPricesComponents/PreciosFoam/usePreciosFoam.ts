@@ -3,24 +3,25 @@ import axios from "axios";
 
 const API_URL = "https://backnode-production.up.railway.app/api/preciosfoam";
 
+// Define la interfaz para los datos
 interface PreciosFoam {
   id?: number; // Opcional porque no estará presente al crear un nuevo registro
   medidas: string;
-  precio: number;
-  idfoam: number;
-  ancho_rollo: number;
-  largo_rollo: number;
+  precio: string;
+  idfoam: string;
+  ancho_rollo: string;
+  largo_rollo: string;
 }
 
 export const usePreciosFoam = () => {
-  const [columns, setColumns] = useState<(keyof PreciosFoam)[]>([]); // Cambiar `any` a `(keyof PreciosFoam)[]`
+  const [columns, setColumns] = useState<string[]>([]);
   const [data, setData] = useState<PreciosFoam[]>([]); // Cambiar `any[]` a `PreciosFoam[]`
   const [formData, setFormData] = useState<PreciosFoam>({
     medidas: "",
-    precio: 0,
-    idfoam: 0,
-    ancho_rollo: 0,
-    largo_rollo: 0,
+    precio: "",
+    idfoam: "",
+    ancho_rollo: "",
+    largo_rollo: "",
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
@@ -35,6 +36,7 @@ export const usePreciosFoam = () => {
           },
         });
         if (response.data.length > 0) {
+          // Convierte las claves a (keyof PreciosFoam)[]
           setColumns(Object.keys(response.data[0]) as (keyof PreciosFoam)[]);
           setData(response.data);
         }
@@ -42,7 +44,7 @@ export const usePreciosFoam = () => {
         console.error("Error al cargar los datos:", error);
       }
     };
-
+  
     fetchData();
   }, []);
 
@@ -67,7 +69,7 @@ export const usePreciosFoam = () => {
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.put<PreciosFoam>(
-        `${API_URL}/${updatedRecord.id}`,
+        `${API_URL}/${updatedRecord.id}`, // Asegúrate de que el ID esté presente en la URL
         updatedRecord,
         {
           headers: {
@@ -75,6 +77,7 @@ export const usePreciosFoam = () => {
           },
         }
       );
+
       setData(data.map((row) => (row.id === updatedRecord.id ? response.data : row))); // Actualiza el registro en los datos existentes
       resetForm();
     } catch (error) {
@@ -113,21 +116,15 @@ export const usePreciosFoam = () => {
       // Mapea las claves con espacios a nombres válidos
       const transformedRow = {
         ...row,
-        ancho_rollo: row.ancho_rollo,
-        largo_rollo: row.largo_rollo,
+        ancho_rollo:  row["ancho rollo"], // Mapea "ancho rollo" a "ancho_rollo"
+        largo_rollo: row["largo rollo"], // Mapea "largo rollo" a "largo_rollo"
       };
 
       setIsEditing(true);
       setFormData(transformedRow); // Asigna los valores transformados a formData
     } else {
       setIsEditing(false);
-      setFormData({
-        medidas: "",
-        precio: 0,
-        idfoam: 0,
-        ancho_rollo: 0,
-        largo_rollo: 0,
-      }); // Resetea el formulario para un nuevo registro
+      resetForm(); // Resetea el formulario para un nuevo registro
     }
   };
 
@@ -135,10 +132,10 @@ export const usePreciosFoam = () => {
   const resetForm = () => {
     setFormData({
       medidas: "",
-      precio: 0,
-      idfoam: 0,
-      ancho_rollo: 0,
-      largo_rollo: 0,
+      precio: "",
+      idfoam: "",
+      ancho_rollo: "",
+      largo_rollo: "",
     });
     setIsEditing(false);
   };

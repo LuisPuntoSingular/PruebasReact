@@ -17,7 +17,7 @@ import {
   AttachMoney,
   Dashboard,
   People,
-  Group,
+ 
   PersonAdd,
 } from "@mui/icons-material"; // Importa íconos adicionales
 import { styled } from "@mui/material/styles";
@@ -84,9 +84,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     router.push("/dashboard"); // Redirige a la página Dashboard
   };
 
-  const handleGoToEmployeeList = () => {
-    router.push("/humanresources/employees"); // Redirige a la lista de empleados
-  };
+  
 
   const handleGoToAddEmployee = () => {
     router.push("/humanresources"); // Redirige a la página para agregar empleado
@@ -183,17 +181,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
   </StyledListItemButton>
   <Collapse in={openRecursosHumanos} timeout="auto" unmountOnExit>
     <List component="div" disablePadding>
-      <StyledListItemButton
-        sx={{
-          pl: 4,
-        }}
-        onClick={handleGoToEmployeeList}
-      >
-        <StyledListItemIcon>
-          <Group />
-        </StyledListItemIcon>
-        <ListItemText primary="Lista de Empleados" />
-      </StyledListItemButton>
+     
       <StyledListItemButton
         sx={{
           pl: 4,

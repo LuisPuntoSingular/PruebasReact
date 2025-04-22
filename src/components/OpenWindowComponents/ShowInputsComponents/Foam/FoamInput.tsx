@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
-import FoamInputColors from "./FoamImputColors";
+import FoamInputColors from "./FoamInputColors";
 import { useFoamContext } from "@/context/Foam/FoamContext";
 import { useApi } from "@/context/ApiContext";
 import { Foam,FoamPrecio } from "@/context/Interfaces/interfaces";
@@ -9,16 +9,20 @@ import { Foam,FoamPrecio } from "@/context/Interfaces/interfaces";
 
 
 const FoamInput: React.FC = () => {
+  
   const { foam, foamprecio } = useApi();
   const {
    
     setFoam,
-    selectedFoam,
+    selectedFoam="",
     setFoamprecio,
     setSelectedFoam,
+    selectedMedidaPrecioRollos,
     setSelectedMedidaPrecioRollos,
     setSelectedMedidaPrecioRollosLaminados,
     setSelectedRolloType,
+    selectedRolloType="",
+    
   } = useFoamContext(); // Usar el contexto para enviar las variables
 
   // Manejar el cambio del foam seleccionado
@@ -27,20 +31,24 @@ const FoamInput: React.FC = () => {
     setSelectedFoam(value); // Enviar al contexto
   };
 
-  // Manejar el cambio de medida/precio para Rollos
-  const handleMedidaPrecioRollosChange = (event: SelectChangeEvent<string>) => {
-    const selectmedidaRollo = event.target.value;
 
-    const selectedItem = foamprecio.find((item: FoamPrecio) => item.medidas === selectmedidaRollo);
+// Manejar el cambio de medida/precio para Rollos
+const handleMedidaPrecioRollosChange = (event: SelectChangeEvent<string>) => {
+  const selectmedidaRollo = event.target.value;
 
-   
-        if(selectedItem) {
-          setSelectedMedidaPrecioRollos({
-            medida: selectedItem.medidas,precio: Number(selectedItem.precio),
-            anchorollo: Number(selectedItem.ancho_rollo),largorollo: Number(selectedItem.largo_rollo)})}; // Enviar al contexto};
-     // Enviar al contexto
-     
-  };
+
+  // Buscar el elemento seleccionado en la lista de medidas/precios
+  const selectedItem = foamprecio.find((item: FoamPrecio) => item.medidas === selectmedidaRollo);
+
+  if (selectedItem) {
+    setSelectedMedidaPrecioRollos({
+      medida: selectedItem.medidas,
+      precio: Number(selectedItem.precio),
+      anchorollo: Number(selectedItem["ancho rollo"]),
+      largorollo: Number(selectedItem["largo rollo"]),
+    });
+  }
+};
 
   
   // Manejar el cambio de medida/precio para Rollos Laminados
@@ -54,18 +62,17 @@ const handleMedidaPrecioRollosLaminadosChange = (event: SelectChangeEvent<string
 
   // Buscar el elemento seleccionado dentro de los elementos filtrados
   const selectedItem = filteredItems.find((item: FoamPrecio) => item.medidas === selectmedidaRollo);
-
   if (selectedItem) {
-    setSelectedMedidaPrecioRollosLaminados({
+      setSelectedMedidaPrecioRollosLaminados({
       medida: selectedItem.medidas,
       precio: Number(selectedItem.precio),
       anchorollo: Number(selectedItem["ancho rollo"]),
       largorollo: Number(selectedItem["largo rollo"]),
+      
     });
   }
+    
 
-  // Depuración: Verifica el elemento seleccionado
-  console.log("Selected Item (Rollos Laminados):", selectedItem);
 };
 
   // Manejar el cambio de tipo de Rollo
@@ -124,6 +131,7 @@ const handleMedidaPrecioRollosLaminadosChange = (event: SelectChangeEvent<string
         </InputLabel>
         <Select
           size="small"
+          value={selectedFoam || ''}
           onChange={handleFoamChange}
           label="Derivado"
           sx={{
@@ -151,7 +159,8 @@ const handleMedidaPrecioRollosLaminadosChange = (event: SelectChangeEvent<string
       {selectedFoam === "Placa" && <FoamInputColors />}
 
       {/* Input para Tipo de Rollo */}
-      {selectedFoam === "Rollo" && (
+      {
+      selectedFoam === "Rollo" && (
         <FormControl
           fullWidth
           variant="outlined"
@@ -184,6 +193,7 @@ const handleMedidaPrecioRollosLaminadosChange = (event: SelectChangeEvent<string
           </InputLabel>
           <Select
             size="small"
+            value={selectedRolloType || ''}
             onChange={handleRolloTypeChange}
             label="Tipo de Rollo"
             sx={{
@@ -239,6 +249,8 @@ const handleMedidaPrecioRollosLaminadosChange = (event: SelectChangeEvent<string
           </InputLabel>
           <Select
             size="small"
+            
+             value={selectedMedidaPrecioRollos?.medida || ''}
             onChange={handleMedidaPrecioRollosChange}
             label="Medidas/Precio Rollos"
             sx={{

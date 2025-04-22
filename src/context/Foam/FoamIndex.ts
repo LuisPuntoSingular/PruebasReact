@@ -14,7 +14,7 @@ const FoamIndex = () => {
   const { largo, ancho} = useMeasures(); // Obtener las medidas de la hoja
   const { selectedColorPrecio,selectedColor } = useFoamColorsContext(); // Obtener el color seleccionado
 
-  
+ 
   const { utilidad } = useSelectedValues(); // Obtener el valor de utilidad
  
   const ganancia = (100 - Number(utilidad)) / 100; // Calcular la ganancia
@@ -24,6 +24,11 @@ const FoamIndex = () => {
   const precioRollo = selectedMedidaPrecioRollos?.precio  || 0; // Precio del foam seleccionado
   const anchoRollo = selectedMedidaPrecioRollos?.anchorollo
   const largoRollo = selectedMedidaPrecioRollos?.largorollo
+
+
+
+
+
 
   ///// Variables de la Placa //////
   const precioPlaca = selectedColorPrecio?.precio || 0; // Precio de la placa seleccionada
@@ -36,6 +41,7 @@ const FoamIndex = () => {
   const precioRolloLaminado = selectedMedidaPrecioRollosLaminados?.precio || 0; // Precio del rollo laminado seleccionado
   const anchoRolloLaminado = selectedMedidaPrecioRollosLaminados?.anchorollo || 0; // Ancho del rollo laminado seleccionado
   const largoRolloLaminado = selectedMedidaPrecioRollosLaminados?.largorollo || 0; // Largo del rollo laminado seleccionado
+
 
 
 

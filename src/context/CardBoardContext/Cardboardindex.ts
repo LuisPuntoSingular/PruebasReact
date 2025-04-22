@@ -39,19 +39,19 @@ export const useCalculos = () => {
     switch (selectedDerivado) {
       case "CRR":
         resultado =
-          selectedCorrugado === "Simple"
+          selectedCorrugado === "Sencillo"
             ? calcularCRRSencillo(largo|| 0, ancho|| 0, Number(alto) )
             : calcularCRRDoble(largo|| 0, ancho|| 0, Number(alto) );
         break;
       case "Cinturon":
         resultado =
-          selectedCorrugado === "Simple"
+          selectedCorrugado === "Sencillo"
             ? calcularCinturonSencillo(largo|| 0, ancho|| 0, Number(alto) )
             : calcularCinturonDoble(largo|| 0, ancho|| 0, Number(alto) );
         break;
       case "1/2 Caja":
         resultado =
-          selectedCorrugado === "Simple"
+          selectedCorrugado === "Sencillo"
             ? calcularMediaCajaSencillo(largo|| 0, ancho|| 0, Number(alto) )
             : calcularMediaCajaDoble(largo|| 0, ancho|| 0, Number(alto) );
         break;
@@ -61,25 +61,25 @@ export const useCalculos = () => {
         break;
       case "Tapa Base":
         resultado =
-          selectedCorrugado === "Simple"
+          selectedCorrugado === "Sencillo"
             ? calcularTapaBaseSencillo(largo|| 0, ancho|| 0, Number(alto) )
             : calcularTapaBaseDoble(largo|| 0, ancho|| 0, Number(alto) );
         break;
       case "Separador":
         resultado =
-          selectedCorrugado === "Simple"
+          selectedCorrugado === "Sencillo"
             ? calcularSeparadorSencillo(largo|| 0, ancho|| 0)
             : calcularSeparadorDoble(largo|| 0, ancho|| 0);
         break;
       case "Area":
         resultado =
-          selectedCorrugado === "Simple"
+          selectedCorrugado === "Sencillo"
             ? calcularAreaSencillo(largo|| 0, ancho|| 0)
             : calcularAreaDoble(largo|| 0, ancho|| 0);
         break;
       case "Esquinero":
         resultado =
-          selectedCorrugado === "Simple"
+          selectedCorrugado === "Sencillo"
             ? calcularEsquineroSencillo(largo|| 0, ancho|| 0, Number(alto) )
             : calcularEsquineroDoble(largo|| 0, ancho|| 0, Number(alto) );
         break;
@@ -97,8 +97,8 @@ let minimo = 0;
 if (selectedDerivado !== "Rejilla") {
   // Cálculos para derivados que no son "Rejilla"
   preciocosto = resultado * (Number(selectedPriceM2) || 0); // Precio de costo por m2
-  precioventa = preciocosto / ganancia; // Aplicar margen de ganancia
-  minimo = Math.ceil(((resistanceMinimum || 0) * Number(cantidad)) / resultado); // Calcular mínimo
+  precioventa = (preciocosto / ganancia)* Number(cantidad); // Aplicar margen de ganancia
+  minimo = Math.ceil(((resistanceMinimum || 0)) / resultado); // Calcular mínimo
 
 
 } else {
@@ -106,7 +106,6 @@ if (selectedDerivado !== "Rejilla") {
   preciocosto = rejillaTotal  * (Number(selectedPriceM2) || 0); // Precio de costo por m2
   precioventa = preciocosto / ganancia; // Aplicar margen de ganancia
   minimo = Math.ceil(((resistanceMinimum || 0) * totalCantidad) / rejillaTotal); // Calcular mínimo
-  console.log(minimo, "minimo rejilla")
 }
 
 // Retornar los valores calculados
