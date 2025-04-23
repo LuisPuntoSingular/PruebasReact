@@ -1,23 +1,41 @@
 import React, { useState } from "react";
 import BaseTable from "@/components/EditPricesComponents/BaseTable";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useColoresPrecio } from "./useColoresPrecio";
+import { usePreciosFoam } from "./usePreciosFoam";
+import { useFoam } from "../Foam/useFoam"; // Importar el hook de Foam
 
-interface ColoresPrecio {
+
+interface PreciosFoam {
   id?: number; // Opcional porque no estará presente al crear un nuevo registro
-  medida: string;
-  precio: number;
-  idcoloresfoam: number;
+  medidas: string;
+  precio: string;
+  idfoam: string | number;
+  ancho_rollo: string;
+  largo_rollo: string;
 }
 
-const ColoresPrecioTable: React.FC = () => {
+const PreciosFoamTable: React.FC = () => {
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [selectedRow, setSelectedRow] = useState<ColoresPrecio | null>(null);
+  const [selectedRow, setSelectedRow] = useState<PreciosFoam | null>(null);
+
   const {
     columns,
     data,
@@ -28,7 +46,12 @@ const ColoresPrecioTable: React.FC = () => {
     createRecord,
     updateRecord,
     deleteRecord,
-  } = useColoresPrecio();
+  } = usePreciosFoam();
+
+  const { data: foamData } = useFoam(); // Obtener los datos de Foam
+
+  // Filtrar los items de Foam para excluir "Placa"
+  const filteredFoamData = foamData.filter((foam) => foam.derivado !== "Placa");
 
   const handleCreate = () => {
     if (validateForm()) {
@@ -44,23 +67,23 @@ const ColoresPrecioTable: React.FC = () => {
     }
   };
 
-  const handleDelete = (row: ColoresPrecio) => {
+  const handleDelete = (row: PreciosFoam) => {
     setOpenConfirmDialog(true);
     setSelectedRow(row);
   };
 
   const confirmDelete = () => {
     if (selectedRow) {
-      deleteRecord(selectedRow);
+      deleteRecord({ ...selectedRow, idfoam: String(selectedRow.idfoam) });
       setOpenConfirmDialog(false);
     }
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.medida) newErrors.medida = "Campo obligatorio";
+    if (!formData.medidas) newErrors.medidas = "Campo obligatorio";
     if (!formData.precio) newErrors.precio = "Campo obligatorio";
-    if (!formData.idcoloresfoam) newErrors.idcoloresfoam = "Campo obligatorio";
+    if (!formData.idfoam) newErrors.idfoam = "Campo obligatorio";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -85,14 +108,14 @@ const ColoresPrecioTable: React.FC = () => {
           <AddIcon />
         </Button>
         <BaseTable
-          columns={columns}
+          columns={columns as (keyof PreciosFoam)[]}
           data={data}
           page={page}
           rowsPerPage={rowsPerPage}
           onPageChange={(event, newPage) => setPage(newPage)}
           onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
-          onEdit={(row: ColoresPrecio) => {
-            openDialog(row);
+          onEdit={(row) => {
+            openDialog({ ...row, idfoam: String(row.idfoam) });
             setOpenModal(true);
           }}
           onDelete={handleDelete}
@@ -105,12 +128,12 @@ const ColoresPrecioTable: React.FC = () => {
         <DialogContent>
           <TextField
             margin="dense"
-            label="Medida"
-            name="medida"
-            value={formData.medida || ""}
+            label="Medidas"
+            name="medidas"
+            value={formData.medidas || ""}
             onChange={handleInputChange}
-            error={!!errors.medida}
-            helperText={errors.medida}
+            error={!!errors.medidas}
+            helperText={errors.medidas}
             fullWidth
           />
           <TextField
@@ -123,14 +146,39 @@ const ColoresPrecioTable: React.FC = () => {
             helperText={errors.precio}
             fullWidth
           />
+          <FormControl fullWidth margin="dense" error={!!errors.idfoam}>
+            <InputLabel id="idfoam-label">Derivado</InputLabel>
+            <Select
+            label= "De"
+              labelId="idfoam-label"
+              name="idfoam"
+              value={formData.idfoam || ""}
+              onChange={handleInputChange}
+            >
+              {filteredFoamData.map((foam) => (
+                <MenuItem key={foam.id} value={foam.id}>
+                  {foam.derivado} {/* Mostrar el nombre del derivado */}
+                </MenuItem>
+              ))}
+            </Select>
+            <Typography variant="caption" color="error">
+              {errors.idfoam}
+            </Typography>
+          </FormControl>
           <TextField
             margin="dense"
-            label="ID Colores Foam"
-            name="idcoloresfoam"
-            value={formData.idcoloresfoam || ""}
+            label="Ancho Rollo"
+            name="ancho_rollo"
+            value={formData.ancho_rollo || ""}
             onChange={handleInputChange}
-            error={!!errors.idcoloresfoam}
-            helperText={errors.idcoloresfoam}
+            fullWidth
+          />
+          <TextField
+            margin="dense"
+            label="Largo Rollo"
+            name="largo_rollo"
+            value={formData.largo_rollo || ""}
+            onChange={handleInputChange}
             fullWidth
           />
         </DialogContent>
@@ -163,4 +211,4 @@ const ColoresPrecioTable: React.FC = () => {
   );
 };
 
-export default ColoresPrecioTable;
+export default PreciosFoamTable;

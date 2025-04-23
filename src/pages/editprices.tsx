@@ -1,16 +1,12 @@
 import React, { useState } from "react";
-import { Box, Select, MenuItem, Typography } from "@mui/material";
+import { Box, Select, MenuItem } from "@mui/material";
 import MaterialsTable from "../components/EditPricesComponents/Materials/MaterialsTable";
 import DerivativesTable from "../components/EditPricesComponents/Derivatives/DerivativesTable";
 import ResistancesTable from "../components/EditPricesComponents/Resistances/ResistancesTable";
 import ResistancesCategoriesTable from "../components/EditPricesComponents/ResistancesCategories/ResistancesCategoriesTable";
 import EpeTable from "../components/EditPricesComponents/Epe/EpeTable";
-import FoamTable from "../components/EditPricesComponents/Foam/FoamTable";
-import PreciosFoamTable from "../components/EditPricesComponents/PreciosFoam/PreciosFoamTable";
-import ColoresFoamTable from "../components/EditPricesComponents/ColoresFoam/ColoresFoamTable";
-import ColoresPrecioTable from "../components/EditPricesComponents/ColoresPrecio/ColoresPrecioTable";
-import PoliburbujaTable from "../components/EditPricesComponents/Poliburbuja/PoliburbujaTable";
-import PoliburbujapreciosTable from "../components/EditPricesComponents/PoliburbujaPrecios/PoliburbujaPreciosTable";
+import FoamTables from "../components/EditPricesComponents/FoamTables/FoamContainer";
+import PoliburbujaTables from "@/components/EditPricesComponents/PolybubbleTables/PolybubbleContainer";
 import EvaTable from "../components/EditPricesComponents/Eva/EvaTable";
 
 const EditPrices: React.FC = () => {
@@ -18,9 +14,7 @@ const EditPrices: React.FC = () => {
 
   return (
     <Box sx={{ padding: "24px", minHeight: "100vh", backgroundColor: "#f0f0f0" }}>
-      <Typography variant="h4" sx={{ marginBottom: "16px", color: "#333" }}>
-        Editar Precios
-      </Typography>
+     
 
       <Select
         value={selectedTable}
@@ -43,11 +37,9 @@ const EditPrices: React.FC = () => {
         <MenuItem value="resistancescategories">Corrugados</MenuItem>
         <MenuItem value="epe">EPE</MenuItem>
         <MenuItem value="foam">Foam</MenuItem>
-        <MenuItem value="preciosfoam">Precios/Medidas Foam</MenuItem>
-        <MenuItem value="coloresfoam">Color/Medida de la Placa Foam</MenuItem>
-        <MenuItem value="coloresprecio">Precios de Placa Foam </MenuItem>
+     
         <MenuItem value="poliburbuja">Poliburbuja</MenuItem>
-        <MenuItem value="poliburbujaprecios">Precios/Medidas de la Poliburbuja</MenuItem>
+
         <MenuItem value="eva">EVA</MenuItem>
       </Select>
 
@@ -57,12 +49,8 @@ const EditPrices: React.FC = () => {
       {selectedTable === "resistances" && <ResistancesTable />}
       {selectedTable === "resistancescategories" && <ResistancesCategoriesTable />}
       {selectedTable === "epe" && <EpeTable />}
-      {selectedTable === "foam" && <FoamTable />}
-      {selectedTable === "preciosfoam" && <PreciosFoamTable />}
-      {selectedTable === "coloresfoam" && <ColoresFoamTable />}
-      {selectedTable === "coloresprecio" && <ColoresPrecioTable />}
-      {selectedTable === "poliburbuja" && <PoliburbujaTable />}
-      {selectedTable === "poliburbujaprecios" && <PoliburbujapreciosTable />}
+      {selectedTable === "foam" && <FoamTables />}
+      {selectedTable === "poliburbuja" && <PoliburbujaTables/>}
       {selectedTable === "eva" && <EvaTable />}
     </Box>
   );

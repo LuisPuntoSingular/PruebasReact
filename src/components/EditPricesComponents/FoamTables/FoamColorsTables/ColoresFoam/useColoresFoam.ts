@@ -1,43 +1,40 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/preciosfoam";
+const API_URL = "https://backnode-production.up.railway.app/api/coloresfoam";
 
-// Define la interfaz para los datos
-interface PreciosFoam {
+// Definir la interfaz para los datos de la tabla
+interface ColoresFoam {
   id?: number; // Opcional porque no estará presente al crear un nuevo registro
-  medidas: string;
-  precio: string;
-  idfoam: string;
-  ancho_rollo: string;
-  largo_rollo: string;
+  color: string;
+  anchoplaca: string;
+  largoplaca: string;
 }
 
-export const usePreciosFoam = () => {
-  const [columns, setColumns] = useState<string[]>([]);
-  const [data, setData] = useState<PreciosFoam[]>([]); // Cambiar `any[]` a `PreciosFoam[]`
-  const [formData, setFormData] = useState<PreciosFoam>({
-    medidas: "",
-    precio: "",
-    idfoam: "",
-    ancho_rollo: "",
-    largo_rollo: "",
+export const useColoresFoam = () => {
+  const [columns, setColumns] = useState<(keyof ColoresFoam)[]>([]);
+
+  const [data, setData] = useState<ColoresFoam[]>([]);
+  const [formData, setFormData] = useState<ColoresFoam>({
+    color: "",
+    anchoplaca: "",
+    largoplaca: "",
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  // Obtener datos
+  // Obtener datos de la tabla
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await axios.get<PreciosFoam[]>(API_URL, {
+        const response = await axios.get<ColoresFoam[]>(API_URL, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         if (response.data.length > 0) {
-          // Convierte las claves a (keyof PreciosFoam)[]
-          setColumns(Object.keys(response.data[0]) as (keyof PreciosFoam)[]);
+          // Filtrar las claves para que coincidan con las propiedades de `ColoresFoam`
+          setColumns(Object.keys(response.data[0]) as (keyof ColoresFoam)[]);
           setData(response.data);
         }
       } catch (error) {
@@ -47,17 +44,17 @@ export const usePreciosFoam = () => {
   
     fetchData();
   }, []);
-
+  
   // Crear un nuevo registro
-  const createRecord = async (newRecord: PreciosFoam) => {
+  const createRecord = async (newRecord: ColoresFoam) => {
     try {
       const token = localStorage.getItem("authToken");
-      const response = await axios.post<PreciosFoam>(API_URL, newRecord, {
+      const response = await axios.post<ColoresFoam>(API_URL, newRecord, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setData([...data, response.data]); // Agrega el nuevo registro a los datos existentes
+      setData([...data, response.data]);
       resetForm();
     } catch (error) {
       console.error("Error al crear el registro:", error);
@@ -65,11 +62,11 @@ export const usePreciosFoam = () => {
   };
 
   // Actualizar un registro existente
-  const updateRecord = async (updatedRecord: PreciosFoam) => {
+  const updateRecord = async (updatedRecord: ColoresFoam) => {
     try {
       const token = localStorage.getItem("authToken");
-      const response = await axios.put<PreciosFoam>(
-        `${API_URL}/${updatedRecord.id}`, // Asegúrate de que el ID esté presente en la URL
+      const response = await axios.put<ColoresFoam>(
+        `${API_URL}/${updatedRecord.id}`,
         updatedRecord,
         {
           headers: {
@@ -77,8 +74,7 @@ export const usePreciosFoam = () => {
           },
         }
       );
-
-      setData(data.map((row) => (row.id === updatedRecord.id ? response.data : row))); // Actualiza el registro en los datos existentes
+      setData(data.map((row) => (row.id === updatedRecord.id ? response.data : row)));
       resetForm();
     } catch (error) {
       console.error("Error al actualizar el registro:", error);
@@ -86,7 +82,7 @@ export const usePreciosFoam = () => {
   };
 
   // Eliminar un registro
-  const deleteRecord = async (row: PreciosFoam) => {
+  const deleteRecord = async (row: ColoresFoam) => {
     try {
       const token = localStorage.getItem("authToken");
       await axios.delete(`${API_URL}/${row.id}`, {
@@ -106,36 +102,26 @@ export const usePreciosFoam = () => {
   };
 
   // Abrir el diálogo para crear o editar
-  const openDialog = (row?: PreciosFoam) => {
+  const openDialog = (row?: ColoresFoam) => {
     if (row) {
-      console.log("Datos de la fila seleccionada:");
-      Object.entries(row).forEach(([key, value]) => {
-        console.log(`Columna: ${key}, Valor: ${value}`);
-      });
-
-      // Mapea las claves con espacios a nombres válidos
-      const transformedRow = {
-        ...row,
-        ancho_rollo:  row["ancho rollo"], // Mapea "ancho rollo" a "ancho_rollo"
-        largo_rollo: row["largo rollo"], // Mapea "largo rollo" a "largo_rollo"
-      };
-
       setIsEditing(true);
-      setFormData(transformedRow); // Asigna los valores transformados a formData
+      setFormData(row);
     } else {
       setIsEditing(false);
-      resetForm(); // Resetea el formulario para un nuevo registro
+      setFormData({
+        color: "",
+        anchoplaca: "",
+        largoplaca: "",
+      });
     }
   };
 
   // Resetear el formulario
   const resetForm = () => {
     setFormData({
-      medidas: "",
-      precio: "",
-      idfoam: "",
-      ancho_rollo: "",
-      largo_rollo: "",
+      color: "",
+      anchoplaca: "",
+      largoplaca: "",
     });
     setIsEditing(false);
   };

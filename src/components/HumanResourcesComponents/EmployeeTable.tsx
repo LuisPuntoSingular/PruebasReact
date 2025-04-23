@@ -8,12 +8,14 @@ import {
   TableRow,
   TablePagination,
   IconButton,
+  Paper,
+  Avatar,
+  Typography,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
-import Image from "next/image"; // Importar el componente Image de Next.js
 
 interface Employee {
-  id?: number; // Opcional si no está presente al crear un nuevo empleado
+  id?: number;
   photo: string;
   name: string;
   last_name_paterno: string;
@@ -45,27 +47,80 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   onEmployeeSelect,
 }) => {
   return (
-    <>
+    <Paper
+      elevation={3}
+      sx={{
+        padding: "16px",
+        borderRadius: "12px", // Bordes suaves
+        backgroundColor: "#F1F5F9", // Fondo gris claro para el contenedor
+      }}
+    >
       <TableContainer>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell sx={{ color: "#ffffff", fontWeight: "bold", fontSize: { xs: "12px", sm: "14px" } }}>
+            <TableRow
+              sx={{
+                backgroundColor: "#1E293B", // Fondo azul marino para encabezados
+              }}
+            >
+              <TableCell
+                sx={{
+                  color: "#FFFFFF", // Texto blanco
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderBottom: "none",
+                }}
+              >
                 Foto
               </TableCell>
-              <TableCell sx={{ color: "#ffffff", fontWeight: "bold", fontSize: { xs: "12px", sm: "14px" } }}>
+              <TableCell
+                sx={{
+                  color: "#FFFFFF", // Texto blanco
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderBottom: "none",
+                }}
+              >
                 Nombre
               </TableCell>
-              <TableCell sx={{ color: "#ffffff", fontWeight: "bold", fontSize: { xs: "12px", sm: "14px" } }}>
+              <TableCell
+                sx={{
+                  color: "#FFFFFF", // Texto blanco
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderBottom: "none",
+                }}
+              >
                 Puesto
               </TableCell>
-              <TableCell sx={{ color: "#ffffff", fontWeight: "bold", fontSize: { xs: "12px", sm: "14px" } }}>
+              <TableCell
+                sx={{
+                  color: "#FFFFFF", // Texto blanco
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderBottom: "none",
+                }}
+              >
                 Salario
               </TableCell>
-              <TableCell sx={{ color: "#ffffff", fontWeight: "bold", fontSize: { xs: "12px", sm: "14px" } }}>
+              <TableCell
+                sx={{
+                  color: "#FFFFFF", // Texto blanco
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderBottom: "none",
+                }}
+              >
                 Estatus
               </TableCell>
-              <TableCell sx={{ color: "#ffffff", fontWeight: "bold", fontSize: { xs: "12px", sm: "14px" } }}>
+              <TableCell
+                sx={{
+                  color: "#FFFFFF", // Texto blanco
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderBottom: "none",
+                }}
+              >
                 Acciones
               </TableCell>
             </TableRow>
@@ -74,38 +129,58 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
             {filteredEmployees
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((employee) => (
-                <TableRow key={employee.id}>
+                <TableRow
+                  key={employee.id}
+                  sx={{
+                    backgroundColor: "#F8FAFC", // Fondo gris claro para filas
+                    "&:hover": {
+                      backgroundColor: "#E2E8F0", // Fondo más oscuro en hover
+                    },
+                  }}
+                >
                   <TableCell>
-                    <Image
-                      src={employee.photo}
+                    <Avatar
+                      src={
+                        employee.photo ||
+                        "https://via.placeholder.com/40?text=Avatar" // Avatar genérico
+                      }
                       alt={employee.name}
-                      width={40}
-                      height={40}
-                      style={{
-                        borderRadius: "50%",
+                      sx={{
+                        width: 40,
+                        height: 40,
                       }}
                     />
                   </TableCell>
-                  <TableCell sx={{ color: "#ffffff", fontSize: { xs: "12px", sm: "14px" } }}>
-                    {employee.name} {employee.last_name_paterno} {employee.last_name_materno}
+                  <TableCell>
+                    <Typography variant="body1" sx={{ fontWeight: "500" }}>
+                      {employee.name} {employee.last_name_paterno}{" "}
+                      {employee.last_name_materno}
+                    </Typography>
                   </TableCell>
-                  <TableCell sx={{ color: "#ffffff", fontSize: { xs: "12px", sm: "14px" } }}>
-                    {employee.position}
+                  <TableCell>
+                    <Typography variant="body2" sx={{ color: "#475569" }}>
+                      {employee.position}
+                    </Typography>
                   </TableCell>
-                  <TableCell sx={{ color: "#ffffff", fontSize: { xs: "12px", sm: "14px" } }}>
-                    {employee.salary}
+                  <TableCell>
+                    <Typography variant="body2" sx={{ color: "#475569" }}>
+                      ${employee.salary.toLocaleString()}
+                    </Typography>
                   </TableCell>
-                  <TableCell
-                    sx={{
-                      color: employee.status ? "#3B82F6" : "#EF4444",
-                      fontSize: { xs: "12px", sm: "14px" },
-                    }}
-                  >
-                    {employee.status ? "Activo" : "Inactivo"}
+                  <TableCell>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: employee.status ? "#10B981" : "#EF4444", // Verde para activo, rojo para inactivo
+                        fontWeight: "500",
+                      }}
+                    >
+                      {employee.status ? "Activo" : "Inactivo"}
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     <IconButton onClick={() => onEmployeeSelect(employee)}>
-                      <InfoIcon sx={{ color: "#ffffff" }} />
+                      <InfoIcon sx={{ color: "#1E3A8A" }} />
                     </IconButton>
                   </TableCell>
                 </TableRow>
@@ -122,13 +197,15 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         onPageChange={onPageChange}
         onRowsPerPageChange={onRowsPerPageChange}
         sx={{
-          color: "#ffffff",
           "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-            color: "#ffffff",
+            color: "#475569", // Texto gris oscuro
+          },
+          "& .MuiTablePagination-actions": {
+            color: "#475569", // Iconos gris oscuro
           },
         }}
       />
-    </>
+    </Paper>
   );
 };
 

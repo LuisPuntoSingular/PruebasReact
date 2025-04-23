@@ -1,46 +1,43 @@
 import React, { useState } from "react";
-import { Dialog, DialogTitle, DialogContent, TextField, Box, Button, MenuItem } from "@mui/material";
-import { createEmployee } from "./employeeApi"; // Importa la función de la API
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  Box,
+  Button,
+  MenuItem,
+} from "@mui/material";
 
-export interface AddEmployeeDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSave: () => Promise<void>; // Asegúrate de que sea una función asíncrona
-  refreshEmployees: () => void; 
-  newEmployee: {
-    
-    photo: string;
-    name: string;
-    last_name_paterno: string;
-    last_name_materno: string;
-    position: string;
-    salary: number;
-    hire_date: string;
-    phone_number?: string; // Opcional
-    emergency_contact?: string; // Opcional
-    nss: boolean;
-    status: boolean;
-  };
-  setNewEmployee: React.Dispatch<React.SetStateAction<{
-    photo: string;
-    name: string;
-    last_name_paterno: string;
-    last_name_materno: string;
-    position: string;
-    salary: number;
-    hire_date: string;
-    phone_number?: string; // Opcional
-    emergency_contact?: string; // Opcional
-    nss: boolean;
-    status: boolean;
-  }>>;
+interface Employee {
+  id?: number; // Opcional si no está presente al crear un nuevo empleado
+  photo: string;
+  name: string;
+  last_name_paterno: string;
+  last_name_materno: string;
+  position: string;
+  salary: number;
+  hire_date: string;
+  phone_number?: string;
+  emergency_contact?: string;
+  nss: boolean;
+  status: boolean;
 }
 
 
-
-
-
-const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({ open, onClose, refreshEmployees }) => {
+interface AddEmployeeDialogProps {
+  open: boolean;
+  onClose: () => void;
+  refreshEmployees: () => Promise<void>;
+  newEmployee: Employee; // Add this line to include the newEmployee property
+  setNewEmployee: React.Dispatch<React.SetStateAction<Employee>>;
+  onSave: () => Promise<void>;
+}
+const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
+  open,
+  onClose,
+  refreshEmployees,
+}) => {
   const [newEmployee, setNewEmployee] = useState({
     photo: "",
     name: "",
@@ -56,7 +53,6 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({ open, onClose, re
   });
 
   const handleSave = async () => {
-    // Validar campos obligatorios
     if (
       !newEmployee.name ||
       !newEmployee.last_name_paterno ||
@@ -68,11 +64,11 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({ open, onClose, re
       alert("Por favor, completa todos los campos obligatorios.");
       return;
     }
-  
+
     try {
-      await createEmployee({ ...newEmployee, salary: parseFloat(newEmployee.salary) }); // Llama a la API para crear el empleado
-      refreshEmployees(); // Recarga la lista de empleados
-      onClose(); // Cierra el diálogo
+      // Aquí iría la lógica para guardar el empleado
+      refreshEmployees();
+      onClose();
       setNewEmployee({
         photo: "",
         name: "",
@@ -85,7 +81,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({ open, onClose, re
         emergency_contact: "",
         nss: false,
         status: true,
-      }); // Reinicia el formulario
+      });
     } catch (error) {
       console.error("Error al guardar el empleado:", error);
     }
@@ -97,11 +93,11 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({ open, onClose, re
       onClose={onClose}
       PaperProps={{
         sx: {
-          backgroundColor: "#1E293B", // Fondo sólido oscuro
+          backgroundColor: "#1E293B", // Fondo oscuro
           color: "#ffffff", // Texto blanco
           borderRadius: "16px",
           padding: "16px",
-          maxWidth: "600px", // Aumenta el ancho máximo para mayor espacio
+          maxWidth: "600px",
           width: "100%",
         },
       }}
@@ -119,159 +115,196 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({ open, onClose, re
         Agregar Nuevo Empleado
       </DialogTitle>
       <DialogContent
-        dividers
-        sx={{
-          padding: "24px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "16px",
-          backgroundColor: "#2D3748", // Fondo sólido para los campos
-          borderRadius: "12px",
+  dividers
+  sx={{
+    padding: "24px",
+    backgroundColor: "#FFFFFF", // Fondo blanco
+    borderRadius: "12px",
+  }}
+>
+  <Box
+    sx={{
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "16px",
+    }}
+  >
+    {/* Foto */}
+    <Box sx={{ flex: "1 1 100%" }}>
+      <TextField
+        label="Foto (URL)"
+        value={newEmployee.photo}
+        onChange={(e) =>
+          setNewEmployee({ ...newEmployee, photo: e.target.value })
+        }
+        fullWidth
+        InputLabelProps={{
+          style: { color: "#6B7280" }, // Color del label
+        }}
+      />
+    </Box>
+
+    {/* Nombres y Apellidos */}
+    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+      <TextField
+        label="Nombre"
+        value={newEmployee.name}
+        onChange={(e) =>
+          setNewEmployee({ ...newEmployee, name: e.target.value })
+        }
+        fullWidth
+        InputLabelProps={{
+          style: { color: "#6B7280" },
+        }}
+      />
+    </Box>
+    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+      <TextField
+        label="Apellido Paterno"
+        value={newEmployee.last_name_paterno}
+        onChange={(e) =>
+          setNewEmployee({
+            ...newEmployee,
+            last_name_paterno: e.target.value,
+          })
+        }
+        fullWidth
+        InputLabelProps={{
+          style: { color: "#6B7280" },
+        }}
+      />
+    </Box>
+    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+      <TextField
+        label="Apellido Materno"
+        value={newEmployee.last_name_materno}
+        onChange={(e) =>
+          setNewEmployee({
+            ...newEmployee,
+            last_name_materno: e.target.value,
+          })
+        }
+        fullWidth
+        InputLabelProps={{
+          style: { color: "#6B7280" },
+        }}
+      />
+    </Box>
+
+    {/* Datos laborales */}
+    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+      <TextField
+        label="Puesto"
+        value={newEmployee.position}
+        onChange={(e) =>
+          setNewEmployee({ ...newEmployee, position: e.target.value })
+        }
+        fullWidth
+        InputLabelProps={{
+          style: { color: "#6B7280" },
+        }}
+      />
+    </Box>
+    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+      <TextField
+        label="Salario"
+        value={newEmployee.salary}
+        onChange={(e) =>
+          setNewEmployee({ ...newEmployee, salary: e.target.value })
+        }
+        fullWidth
+        InputLabelProps={{
+          style: { color: "#6B7280" },
+        }}
+      />
+    </Box>
+    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+      <TextField
+        label="Fecha de Ingreso"
+        type="date"
+        value={newEmployee.hire_date}
+        onChange={(e) =>
+          setNewEmployee({ ...newEmployee, hire_date: e.target.value })
+        }
+        fullWidth
+        InputLabelProps={{
+          shrink: true,
+          style: { color: "#6B7280" },
+        }}
+      />
+    </Box>
+
+    {/* Contactos */}
+    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+      <TextField
+        label="Teléfono"
+        value={newEmployee.phone_number}
+        onChange={(e) =>
+          setNewEmployee({ ...newEmployee, phone_number: e.target.value })
+        }
+        fullWidth
+        InputLabelProps={{
+          style: { color: "#6B7280" },
+        }}
+      />
+    </Box>
+    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+      <TextField
+        label="Contacto de Emergencia"
+        value={newEmployee.emergency_contact}
+        onChange={(e) =>
+          setNewEmployee({
+            ...newEmployee,
+            emergency_contact: e.target.value,
+          })
+        }
+        fullWidth
+        InputLabelProps={{
+          style: { color: "#6B7280" },
+        }}
+      />
+    </Box>
+
+    {/* NSS y Estatus */}
+    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+      <TextField
+        label="NSS"
+        value={newEmployee.nss ? "Sí" : "No"}
+        onChange={(e) =>
+          setNewEmployee({ ...newEmployee, nss: e.target.value === "Sí" })
+        }
+        select
+        fullWidth
+        InputLabelProps={{
+          style: { color: "#6B7280" },
         }}
       >
-        <TextField
-          label="Foto (URL)"
-          value={newEmployee.photo}
-          onChange={(e) => setNewEmployee({ ...newEmployee, photo: e.target.value })}
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" }, // Texto blanco
-          }}
-          InputLabelProps={{
-            style: { color: "#A0AEC0" }, // Color del label
-          }}
-        />
-        <TextField
-          label="Nombre"
-          value={newEmployee.name}
-          onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" },
-          }}
-          InputLabelProps={{
-            style: { color: "#A0AEC0" },
-          }}
-        />
-        <TextField
-          label="Apellido Paterno"
-          value={newEmployee.last_name_paterno}
-          onChange={(e) => setNewEmployee({ ...newEmployee, last_name_paterno: e.target.value })}
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" },
-          }}
-          InputLabelProps={{
-            style: { color: "#A0AEC0" },
-          }}
-        />
-        <TextField
-          label="Apellido Materno"
-          value={newEmployee.last_name_materno}
-          onChange={(e) => setNewEmployee({ ...newEmployee, last_name_materno: e.target.value })}
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" },
-          }}
-          InputLabelProps={{
-            style: { color: "#A0AEC0" },
-          }}
-        />
-        <TextField
-          label="Puesto"
-          value={newEmployee.position}
-          onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })}
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" },
-          }}
-          InputLabelProps={{
-            style: { color: "#A0AEC0" },
-          }}
-        />
-        <TextField
-          label="Salario"
-          value={newEmployee.salary}
-          onChange={(e) => setNewEmployee({ ...newEmployee, salary: e.target.value })}
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" },
-          }}
-          InputLabelProps={{
-            style: { color: "#A0AEC0" },
-          }}
-        />
-        <TextField
-          label="Fecha de Ingreso"
-          type="date"
-          value={newEmployee.hire_date}
-          onChange={(e) => setNewEmployee({ ...newEmployee, hire_date: e.target.value })}
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" },
-          }}
-          InputLabelProps={{
-            shrink: true,
-            style: { color: "#A0AEC0" },
-          }}
-        />
-        <TextField
-          label="Teléfono"
-          value={newEmployee.phone_number}
-          onChange={(e) => setNewEmployee({ ...newEmployee, phone_number: e.target.value })}
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" },
-          }}
-          InputLabelProps={{
-            style: { color: "#A0AEC0" },
-          }}
-        />
-        <TextField
-          label="Contacto de Emergencia"
-          value={newEmployee.emergency_contact}
-          onChange={(e) => setNewEmployee({ ...newEmployee, emergency_contact: e.target.value })}
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" },
-          }}
-          InputLabelProps={{
-            style: { color: "#A0AEC0" },
-          }}
-        />
-        <TextField
-          label="NSS"
-          value={newEmployee.nss ? "Sí" : "No"}
-          onChange={(e) => setNewEmployee({ ...newEmployee, nss: e.target.value === "Sí" })}
-          select
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" },
-          }}
-          InputLabelProps={{
-            style: { color: "#A0AEC0" },
-          }}
-        >
-          <MenuItem value="Sí">Sí</MenuItem>
-          <MenuItem value="No">No</MenuItem>
-        </TextField>
-        <TextField
-          label="Estatus"
-          value={newEmployee.status ? "Activo" : "Inactivo"}
-          onChange={(e) => setNewEmployee({ ...newEmployee, status: e.target.value === "Activo" })}
-          select
-          fullWidth
-          InputProps={{
-            style: { color: "#ffffff" },
-          }}
-          InputLabelProps={{
-            style: { color: "#A0AEC0" },
-          }}
-        >
-          <MenuItem value="Activo">Activo</MenuItem>
-          <MenuItem value="Inactivo">Inactivo</MenuItem>
-        </TextField>
-      </DialogContent>
+        <MenuItem value="Sí">Sí</MenuItem>
+        <MenuItem value="No">No</MenuItem>
+      </TextField>
+    </Box>
+    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+      <TextField
+        label="Estatus"
+        value={newEmployee.status ? "Activo" : "Inactivo"}
+        onChange={(e) =>
+          setNewEmployee({
+            ...newEmployee,
+            status: e.target.value === "Activo",
+          })
+        }
+        select
+        fullWidth
+        InputLabelProps={{
+          style: { color: "#6B7280" },
+        }}
+      >
+        <MenuItem value="Activo">Activo</MenuItem>
+        <MenuItem value="Inactivo">Inactivo</MenuItem>
+      </TextField>
+    </Box>
+  </Box>
+</DialogContent>
       <Box
         sx={{
           display: "flex",
