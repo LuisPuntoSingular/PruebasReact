@@ -7,6 +7,8 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
+
+  
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const handleMenuClick = () => {

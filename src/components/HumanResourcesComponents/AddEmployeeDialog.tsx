@@ -8,10 +8,13 @@ import {
   Button,
   MenuItem,
 } from "@mui/material";
+import { createEmployee } from "./employeeApi"; // Asegúrate de importar esta función
+
+
 
 interface Employee {
   id?: number; // Opcional si no está presente al crear un nuevo empleado
-  photo: string;
+
   name: string;
   last_name_paterno: string;
   last_name_materno: string;
@@ -20,7 +23,7 @@ interface Employee {
   hire_date: string;
   phone_number?: string;
   emergency_contact?: string;
-  nss: boolean;
+  
   status: boolean;
 }
 
@@ -39,18 +42,19 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   refreshEmployees,
 }) => {
   const [newEmployee, setNewEmployee] = useState({
-    photo: "",
     name: "",
     last_name_paterno: "",
     last_name_materno: "",
     position: "",
-    salary: "",
+    salary: "", // Cambiar a un número
     hire_date: "",
     phone_number: "",
     emergency_contact: "",
     nss: false,
     status: true,
   });
+
+
 
   const handleSave = async () => {
     if (
@@ -67,10 +71,10 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
 
     try {
       // Aquí iría la lógica para guardar el empleado
+      await createEmployee({ ...newEmployee, salary: Number(newEmployee.salary) });
       refreshEmployees();
       onClose();
       setNewEmployee({
-        photo: "",
         name: "",
         last_name_paterno: "",
         last_name_materno: "",
@@ -79,7 +83,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         hire_date: "",
         phone_number: "",
         emergency_contact: "",
-        nss: false,
+        nss: true,
         status: true,
       });
     } catch (error) {
@@ -129,21 +133,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       gap: "16px",
     }}
   >
-    {/* Foto */}
-    <Box sx={{ flex: "1 1 100%" }}>
-      <TextField
-        label="Foto (URL)"
-        value={newEmployee.photo}
-        onChange={(e) =>
-          setNewEmployee({ ...newEmployee, photo: e.target.value })
-        }
-        fullWidth
-        InputLabelProps={{
-          style: { color: "#6B7280" }, // Color del label
-        }}
-      />
-    </Box>
-
+ 
     {/* Nombres y Apellidos */}
     <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
       <TextField
@@ -266,23 +256,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     </Box>
 
     {/* NSS y Estatus */}
-    <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
-      <TextField
-        label="NSS"
-        value={newEmployee.nss ? "Sí" : "No"}
-        onChange={(e) =>
-          setNewEmployee({ ...newEmployee, nss: e.target.value === "Sí" })
-        }
-        select
-        fullWidth
-        InputLabelProps={{
-          style: { color: "#6B7280" },
-        }}
-      >
-        <MenuItem value="Sí">Sí</MenuItem>
-        <MenuItem value="No">No</MenuItem>
-      </TextField>
-    </Box>
+ 
     <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
       <TextField
         label="Estatus"

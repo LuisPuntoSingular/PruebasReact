@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import BaseTable from "@/components/EditPricesComponents/BaseTable";
 import axios from "axios";
+import { Button } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
 interface ResistanceCategory {
   id: number;
@@ -46,17 +48,41 @@ const ResistancesCategoriesTable: React.FC = () => {
     console.log("Eliminar:", row);
   };
 
+  const handleAdd = () => {
+    console.log("Agregar nuevo registro");
+  };
+
   return (
-    <BaseTable
-      columns={columns}
-      data={data}
-      page={page}
-      rowsPerPage={rowsPerPage}
-      onPageChange={(event, newPage) => setPage(newPage)}
-      onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-    />
+    <div style={{ position: "relative", paddingTop: "40px" }}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleAdd}
+        sx={{
+          position: "absolute",
+          top: "0", // Posición en la parte superior del contenedor
+          right: "16px", // Alineado a la derecha
+          zIndex: 1,
+          backgroundColor: "#1E88E5",
+          color: "#ffffff",
+          "&:hover": {
+            backgroundColor: "#1565C0",
+          },
+        }}
+      >
+        <AddIcon />
+      </Button>
+      <BaseTable
+        columns={columns}
+        data={data}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={(event, newPage) => setPage(newPage)}
+        onRowsPerPageChange={(event) => setRowsPerPage(parseInt(event.target.value, 10))}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+    </div>
   );
 };
 

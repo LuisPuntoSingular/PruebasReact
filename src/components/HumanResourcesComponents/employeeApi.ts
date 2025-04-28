@@ -1,11 +1,12 @@
 import axios, { AxiosResponse } from "axios";
 
 const API_URL = "https://backnode-production.up.railway.app/api/employee"; // Cambia la URL si es necesario
+const API_URL_D = "https://backnode-production.up.railway.app"; // Cambia la URL si es necesario
 
 // Definir la interfaz para un empleado
 export interface Employee {
   id?: number; // Opcional porque no estará presente al crear un nuevo empleado
-  photo: string;
+
   name: string;
   last_name_paterno: string;
   last_name_materno: string;
@@ -14,13 +15,17 @@ export interface Employee {
   hire_date: string;
   phone_number?: string; // Opcional
   emergency_contact?: string; // Opcional
-  nss: boolean;
+
   status: boolean;
 }
 
 // Configurar el cliente Axios con un interceptor
 const apiClient = axios.create({
   baseURL: API_URL,
+  
+});
+const apiClientD = axios.create({
+  baseURL: API_URL_D,
 });
 
 // Agregar el token de autenticación a cada solicitud
@@ -58,4 +63,15 @@ export const updateEmployee = async (id: number, employee: Employee): Promise<Em
 // Eliminar un empleado
 export const deleteEmployee = async (id: number): Promise<void> => {
   await apiClient.delete(`/${id}`);
+};
+
+
+export const getNssCount = async (): Promise<number> => {
+  try {
+    const response: AxiosResponse<{ count: number }> = await apiClientD.get("/api/employeeDocuments/count/nss");
+    return response.data.count;
+  } catch (error) {
+    console.error("Error al obtener el número de empleados con NSS activado:", error);
+    throw new Error("No se pudo obtener el contador de NSS.");
+  }
 };

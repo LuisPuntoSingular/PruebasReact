@@ -65,7 +65,7 @@ const EvaTable: React.FC = () => {
 
   return (
     <>
-      <div style={{ position: "relative" }}>
+      <div style={{ position: "relative", paddingTop: "40px" }}>
         <Button
           variant="contained"
           color="primary"
@@ -75,9 +75,14 @@ const EvaTable: React.FC = () => {
           }}
           sx={{
             position: "absolute",
-            top: "-40px",
-            right: "16px",
+            top: "0", // Posición en la parte superior del contenedor
+            right: "16px", // Alineado a la derecha
             zIndex: 1,
+            backgroundColor: "#1E88E5",
+            color: "#ffffff",
+            "&:hover": {
+              backgroundColor: "#1565C0",
+            },
           }}
         >
           <AddIcon />
@@ -99,18 +104,8 @@ const EvaTable: React.FC = () => {
 
       {/* Modal para crear/editar */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
-        <DialogTitle>{isEditing ? "Editar Registro" : "Agregar Nuevo Registro"}</DialogTitle>
+        <DialogTitle>{isEditing ? "Editar EVA" : "Agregar Nuevo EVA"}</DialogTitle>
         <DialogContent>
-          {/* Campo deshabilitado para mostrar el ID */}
-          {!isEditing && (
-            <TextField
-              margin="dense"
-              label="ID (Próximo)"
-              value={data.length > 0 ? Math.max(...data.map((row) => row.id || 0)) + 1 : 1}
-              disabled
-              fullWidth
-            />
-          )}
           <TextField
             margin="dense"
             label="Medida"

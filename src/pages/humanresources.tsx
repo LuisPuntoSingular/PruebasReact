@@ -8,11 +8,12 @@ import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import { getEmployees, createEmployee } from "../components/HumanResourcesComponents/employeeApi";
-
+import { getNssCount } from "../components/HumanResourcesComponents/employeeApi";
 
 interface Employee {
+  
   id?: number; // Opcional si no está presente al crear un nuevo empleado
-  photo: string;
+ 
   name: string;
   last_name_paterno: string;
   last_name_materno: string;
@@ -21,15 +22,17 @@ interface Employee {
   hire_date: string;
   phone_number?: string;
   emergency_contact?: string;
-  nss: boolean;
+
   status: boolean;
 }
 
 
 const HumanResources: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [nssCount, setNssCount] = useState<number>(0); // Estado para el contador de NSS
+  
   const [newEmployee, setNewEmployee] = useState<Employee>({
-    photo: "",
+    
     name: "",
     last_name_paterno: "",
     last_name_materno: "",
@@ -38,7 +41,6 @@ const HumanResources: React.FC = () => {
     hire_date: "",
     phone_number: "",
     emergency_contact: "",
-    nss: false,
     status: true,
   });
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null); // Cambiar `any` a `Employee | null`
@@ -50,7 +52,18 @@ const HumanResources: React.FC = () => {
       const data = await getEmployees();
       setEmployees(data);
     };
+
+    const fetchNssCount = async () => {
+      try {
+        const count = await getNssCount();
+        setNssCount(count); // Actualizar el estado con el contador de NSS
+      } catch (error) {
+        console.error("Error al obtener el contador de NSS:", error);
+      }
+    };
+
     fetchEmployees();
+    fetchNssCount();
   }, []);
 
   // Manejar la creación de un nuevo empleado
@@ -59,7 +72,9 @@ const HumanResources: React.FC = () => {
     setEmployees([...employees, addedEmployee]); // Actualizar la lista de empleados
     setOpenAddDialog(false);
     setNewEmployee({
-      photo: "",
+      // Reiniciar el formulario
+
+     
       name: "",
       last_name_paterno: "",
       last_name_materno: "",
@@ -68,10 +83,12 @@ const HumanResources: React.FC = () => {
       hire_date: "",
       phone_number: "",
       emergency_contact: "",
-      nss: false,
+ 
       status: true,
     });
   };
+
+  
 
   // Función para cargar empleados desde la API
   const refreshEmployees = async () => {
@@ -120,7 +137,7 @@ const HumanResources: React.FC = () => {
         <StatCard
           icon={<VerifiedIcon sx={{ fontSize: "20px" }} />}
           title="NSS Activo"
-          value={employees.filter((e) => e.nss).length}
+          value={nssCount}
           backgroundColor="#F59E0B"
           sx={{
             flex: "1 1 calc(33.333% - 8px)",
@@ -181,7 +198,7 @@ const HumanResources: React.FC = () => {
                 phoneNumber: selectedEmployee.phone_number,
                 emergencyContact: selectedEmployee.emergency_contact,
                 hireDate: selectedEmployee.hire_date,
-                nss: selectedEmployee.nss,
+              
               }
             : null
         }

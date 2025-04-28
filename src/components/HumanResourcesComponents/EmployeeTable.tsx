@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -13,10 +13,11 @@ import {
   Typography,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
+import DescriptionIcon from "@mui/icons-material/Description";
+import EmployeeDocumentsDialog from "./EmployeeDocumentsDialog";
 
 interface Employee {
   id?: number;
-  photo: string;
   name: string;
   last_name_paterno: string;
   last_name_materno: string;
@@ -25,7 +26,7 @@ interface Employee {
   hire_date: string;
   phone_number?: string;
   emergency_contact?: string;
-  nss: boolean;
+  
   status: boolean;
 }
 
@@ -46,13 +47,26 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   onRowsPerPageChange,
   onEmployeeSelect,
 }) => {
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [documentDialogOpen, setDocumentDialogOpen] = useState(false);
+
+  const handleDocumentClick = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setDocumentDialogOpen(true);
+  };
+
+  const handleDocumentDialogClose = () => {
+    setDocumentDialogOpen(false);
+    setSelectedEmployee(null);
+  };
+
   return (
     <Paper
       elevation={3}
       sx={{
         padding: "16px",
-        borderRadius: "12px", // Bordes suaves
-        backgroundColor: "#F1F5F9", // Fondo gris claro para el contenedor
+        borderRadius: "12px",
+        backgroundColor: "#F1F5F9",
       }}
     >
       <TableContainer>
@@ -60,12 +74,12 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
           <TableHead>
             <TableRow
               sx={{
-                backgroundColor: "#1E293B", // Fondo azul marino para encabezados
+                backgroundColor: "#1E293B",
               }}
             >
               <TableCell
                 sx={{
-                  color: "#FFFFFF", // Texto blanco
+                  color: "#FFFFFF",
                   fontWeight: "bold",
                   fontSize: "16px",
                   borderBottom: "none",
@@ -75,7 +89,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#FFFFFF", // Texto blanco
+                  color: "#FFFFFF",
                   fontWeight: "bold",
                   fontSize: "16px",
                   borderBottom: "none",
@@ -85,7 +99,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#FFFFFF", // Texto blanco
+                  color: "#FFFFFF",
                   fontWeight: "bold",
                   fontSize: "16px",
                   borderBottom: "none",
@@ -95,7 +109,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#FFFFFF", // Texto blanco
+                  color: "#FFFFFF",
                   fontWeight: "bold",
                   fontSize: "16px",
                   borderBottom: "none",
@@ -105,7 +119,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#FFFFFF", // Texto blanco
+                  color: "#FFFFFF",
                   fontWeight: "bold",
                   fontSize: "16px",
                   borderBottom: "none",
@@ -115,7 +129,17 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#FFFFFF", // Texto blanco
+                  color: "#FFFFFF",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderBottom: "none",
+                }}
+              >
+                Documentos
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "#FFFFFF",
                   fontWeight: "bold",
                   fontSize: "16px",
                   borderBottom: "none",
@@ -132,18 +156,15 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                 <TableRow
                   key={employee.id}
                   sx={{
-                    backgroundColor: "#F8FAFC", // Fondo gris claro para filas
+                    backgroundColor: "#F8FAFC",
                     "&:hover": {
-                      backgroundColor: "#E2E8F0", // Fondo más oscuro en hover
+                      backgroundColor: "#E2E8F0",
                     },
                   }}
                 >
                   <TableCell>
                     <Avatar
-                      src={
-                        employee.photo ||
-                        "https://via.placeholder.com/40?text=Avatar" // Avatar genérico
-                      }
+                      src={"https://via.placeholder.com/40?text=Avatar"}
                       alt={employee.name}
                       sx={{
                         width: 40,
@@ -171,12 +192,17 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                     <Typography
                       variant="body2"
                       sx={{
-                        color: employee.status ? "#10B981" : "#EF4444", // Verde para activo, rojo para inactivo
+                        color: employee.status ? "#10B981" : "#EF4444",
                         fontWeight: "500",
                       }}
                     >
                       {employee.status ? "Activo" : "Inactivo"}
                     </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton onClick={() => handleDocumentClick(employee)}>
+                      <DescriptionIcon sx={{ color: "#1E3A8A" }} />
+                    </IconButton>
                   </TableCell>
                   <TableCell>
                     <IconButton onClick={() => onEmployeeSelect(employee)}>
@@ -198,12 +224,17 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         onRowsPerPageChange={onRowsPerPageChange}
         sx={{
           "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-            color: "#475569", // Texto gris oscuro
+            color: "#475569",
           },
           "& .MuiTablePagination-actions": {
-            color: "#475569", // Iconos gris oscuro
+            color: "#475569",
           },
         }}
+      />
+      <EmployeeDocumentsDialog
+        open={documentDialogOpen}
+        onClose={handleDocumentDialogClose}
+        employee={selectedEmployee} // Pass the employee object or null
       />
     </Paper>
   );

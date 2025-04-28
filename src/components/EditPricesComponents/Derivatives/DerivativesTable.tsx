@@ -65,7 +65,7 @@ const DerivativesTable: React.FC = () => {
 
   return (
     <>
-      <div style={{ position: "relative" }}>
+      <div style={{ position: "relative", paddingTop: "40px" }}>
         <Button
           variant="contained"
           color="primary"
@@ -75,9 +75,14 @@ const DerivativesTable: React.FC = () => {
           }}
           sx={{
             position: "absolute",
-            top: "-40px",
-            right: "16px",
+            top: "0", // Posición en la parte superior del contenedor
+            right: "16px", // Alineado a la derecha
             zIndex: 1,
+            backgroundColor: "#1E88E5",
+            color: "#ffffff",
+            "&:hover": {
+              backgroundColor: "#1565C0",
+            },
           }}
         >
           <AddIcon />
@@ -99,7 +104,7 @@ const DerivativesTable: React.FC = () => {
 
       {/* Modal para crear/editar */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
-        <DialogTitle>{isEditing ? "Editar Registro" : "Agregar Nuevo Registro"}</DialogTitle>
+        <DialogTitle>{isEditing ? "Editar Derivado" : "Agregar Nuevo Derivado"}</DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
@@ -136,7 +141,7 @@ const DerivativesTable: React.FC = () => {
       <Dialog open={openConfirmDialog} onClose={() => setOpenConfirmDialog(false)}>
         <DialogTitle>Confirmar Eliminación</DialogTitle>
         <DialogContent>
-          <Typography>¿Estás seguro de que deseas eliminar este registro?</Typography>
+          <Typography>¿Estás seguro de que deseas eliminar este derivado?</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenConfirmDialog(false)} color="secondary">

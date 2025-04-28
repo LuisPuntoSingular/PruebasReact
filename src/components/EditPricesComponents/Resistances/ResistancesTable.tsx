@@ -75,7 +75,7 @@ const ResistancesTable: React.FC = () => {
 
   return (
     <>
-      <div style={{ position: "relative" }}>
+      <div style={{ position: "relative", paddingTop: "40px" }}>
         <Button
           variant="contained"
           color="primary"
@@ -85,9 +85,14 @@ const ResistancesTable: React.FC = () => {
           }}
           sx={{
             position: "absolute",
-            top: "-40px",
-            right: "16px",
+            top: "0", // Posición en la parte superior del contenedor
+            right: "16px", // Alineado a la derecha
             zIndex: 1,
+            backgroundColor: "#1E88E5",
+            color: "#ffffff",
+            "&:hover": {
+              backgroundColor: "#1565C0",
+            },
           }}
         >
           <AddIcon />

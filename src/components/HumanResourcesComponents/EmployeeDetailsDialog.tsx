@@ -11,7 +11,7 @@ interface EmployeeDetailsDialogProps {
     phoneNumber: string;
     emergencyContact: string;
     hireDate: string;
-    nss: boolean;
+   
   } | null;
 }
 
@@ -69,9 +69,7 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
         <Typography>
           <strong>Fecha de Ingreso:</strong> {employee.hireDate}
         </Typography>
-        <Typography>
-          <strong>NSS:</strong> {employee.nss ? "Sí" : "No"}
-        </Typography>
+       
       </DialogContent>
       <Box
         sx={{

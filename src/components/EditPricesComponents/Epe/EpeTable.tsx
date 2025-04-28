@@ -65,7 +65,7 @@ const EpeTable: React.FC = () => {
 
   return (
     <>
-      <div style={{ position: "relative" }}>
+      <div style={{ position: "relative", paddingTop: "40px" }}>
         <Button
           variant="contained"
           color="primary"
@@ -75,9 +75,14 @@ const EpeTable: React.FC = () => {
           }}
           sx={{
             position: "absolute",
-            top: "-40px",
-            right: "16px",
+            top: "0", // Posición en la parte superior del contenedor
+            right: "16px", // Alineado a la derecha
             zIndex: 1,
+            backgroundColor: "#1E88E5",
+            color: "#ffffff",
+            "&:hover": {
+              backgroundColor: "#1565C0",
+            },
           }}
         >
           <AddIcon />
@@ -96,10 +101,31 @@ const EpeTable: React.FC = () => {
           onDelete={handleDelete}
         />
       </div>
-
+  
       {/* Modal para crear/editar */}
-      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
-        <DialogTitle>{isEditing ? "Editar Registro" : "Agregar Nuevo Registro"}</DialogTitle>
+      <Dialog
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: "16px",
+            padding: "16px",
+            backgroundColor: "#f9f9f9",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            backgroundColor: "#1E88E5",
+            color: "#ffffff",
+            fontWeight: "bold",
+            textAlign: "center",
+            borderRadius: "12px 12px 0 0",
+            padding: "16px",
+          }}
+        >
+          {isEditing ? "Editar Registro" : "Agregar Nuevo Registro"}
+        </DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
@@ -110,6 +136,9 @@ const EpeTable: React.FC = () => {
             error={!!errors.medidas}
             helperText={errors.medidas}
             fullWidth
+            sx={{
+              marginBottom: "16px",
+            }}
           />
           <TextField
             margin="dense"
@@ -122,33 +151,105 @@ const EpeTable: React.FC = () => {
             fullWidth
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenModal(false)} color="secondary">
+        <DialogActions
+          sx={{
+            justifyContent: "space-between",
+            padding: "16px",
+          }}
+        >
+          <Button
+            onClick={() => setOpenModal(false)}
+            color="secondary"
+            variant="outlined"
+            sx={{
+              borderRadius: "8px",
+            }}
+          >
             Cancelar
           </Button>
-          <Button onClick={isEditing ? handleUpdate : handleCreate} color="primary">
+          <Button
+            onClick={isEditing ? handleUpdate : handleCreate}
+            color="primary"
+            variant="contained"
+            sx={{
+              backgroundColor: "#1E88E5",
+              color: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#1565C0",
+              },
+              borderRadius: "8px",
+            }}
+          >
             {isEditing ? "Actualizar" : "Crear"}
           </Button>
         </DialogActions>
       </Dialog>
-
+  
       {/* Modal de confirmación */}
-      <Dialog open={openConfirmDialog} onClose={() => setOpenConfirmDialog(false)}>
-        <DialogTitle>Confirmar Eliminación</DialogTitle>
+      <Dialog
+        open={openConfirmDialog}
+        onClose={() => setOpenConfirmDialog(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: "16px",
+            padding: "16px",
+            backgroundColor: "#f9f9f9",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            backgroundColor: "#EF5350",
+            color: "#ffffff",
+            fontWeight: "bold",
+            textAlign: "center",
+            borderRadius: "12px 12px 0 0",
+            padding: "16px",
+          }}
+        >
+          Confirmar Eliminación
+        </DialogTitle>
         <DialogContent>
-          <Typography>¿Estás seguro de que deseas eliminar este registro?</Typography>
+          <Typography
+            sx={{
+              textAlign: "center",
+              color: "#333333",
+              marginBottom: "16px",
+            }}
+          >
+            ¿Estás seguro de que deseas eliminar este registro?
+          </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenConfirmDialog(false)} color="secondary">
+        <DialogActions
+          sx={{
+            justifyContent: "space-between",
+            padding: "16px",
+          }}
+        >
+          <Button
+            onClick={() => setOpenConfirmDialog(false)}
+            color="secondary"
+            variant="outlined"
+            sx={{
+              borderRadius: "8px",
+            }}
+          >
             Cancelar
           </Button>
-          <Button onClick={confirmDelete} color="primary">
+          <Button
+            onClick={confirmDelete}
+            color="error"
+            variant="contained"
+            sx={{
+              borderRadius: "8px",
+            }}
+          >
             Eliminar
           </Button>
         </DialogActions>
       </Dialog>
     </>
   );
-};
+}
 
 export default EpeTable;
