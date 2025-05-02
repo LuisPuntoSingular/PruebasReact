@@ -2,26 +2,26 @@ import React, { useState, useEffect } from "react";
 import { Box, Button } from "@mui/material";
 import StatCard from "../components/HumanResourcesComponents/StatCard";
 import EmployeeTable from "../components/HumanResourcesComponents/EmployeeTable";
-import AddEmployeeDialog from "../components/HumanResourcesComponents/AddEmployeeDialog";
+import AddEmployeeDialog from "../components/HumanResourcesComponents/EmployeeInformation/AddEmployeeDialog";
 import EmployeeDetailsDialog from "../components/HumanResourcesComponents/EmployeeDetailsDialog";
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import { getEmployees, createEmployee } from "../components/HumanResourcesComponents/employeeApi";
-import { getNssCount } from "../components/HumanResourcesComponents/employeeApi";
+import { getEmployees } from "../components/HumanResourcesComponents/EmployeeInformation/Apis/employeeApi";
+import RefreshIcon from "@mui/icons-material/Refresh"; // Importar el ícono de refrescar
+
 
 interface Employee {
   
   id?: number; // Opcional si no está presente al crear un nuevo empleado
- 
-  name: string;
+  first_name: string;
+  second_name: string;
   last_name_paterno: string;
   last_name_materno: string;
-  position: string;
+  work_area_id: number | string; // Cambiado a string para que coincida con el tipo de work_area_id en el formulario
   salary: number;
   hire_date: string;
-  phone_number?: string;
-  emergency_contact?: string;
+  nss_date?: string | null; // Opcional si no está presente al crear un nuevo empleado
 
   status: boolean;
 }
@@ -29,20 +29,10 @@ interface Employee {
 
 const HumanResources: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [nssCount, setNssCount] = useState<number>(0); // Estado para el contador de NSS
+  const [page, setPage] = useState(0); // Estado para la página actual
+  const [rowsPerPage, setRowsPerPage] = useState(5); // Estado para las filas por página
   
-  const [newEmployee, setNewEmployee] = useState<Employee>({
-    
-    name: "",
-    last_name_paterno: "",
-    last_name_materno: "",
-    position: "",
-    salary: 0,
-    hire_date: "",
-    phone_number: "",
-    emergency_contact: "",
-    status: true,
-  });
+  
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null); // Cambiar `any` a `Employee | null`
   const [openAddDialog, setOpenAddDialog] = useState(false);
 
@@ -53,40 +43,14 @@ const HumanResources: React.FC = () => {
       setEmployees(data);
     };
 
-    const fetchNssCount = async () => {
-      try {
-        const count = await getNssCount();
-        setNssCount(count); // Actualizar el estado con el contador de NSS
-      } catch (error) {
-        console.error("Error al obtener el contador de NSS:", error);
-      }
-    };
+   
 
     fetchEmployees();
-    fetchNssCount();
+   
   }, []);
 
   // Manejar la creación de un nuevo empleado
-  const handleAddEmployee = async () => {
-    const addedEmployee = await createEmployee({ ...newEmployee, salary: newEmployee.salary });
-    setEmployees([...employees, addedEmployee]); // Actualizar la lista de empleados
-    setOpenAddDialog(false);
-    setNewEmployee({
-      // Reiniciar el formulario
-
-     
-      name: "",
-      last_name_paterno: "",
-      last_name_materno: "",
-      position: "",
-      salary: 0,
-      hire_date: "",
-      phone_number: "",
-      emergency_contact: "",
  
-      status: true,
-    });
-  };
 
   
 
@@ -101,110 +65,129 @@ const HumanResources: React.FC = () => {
     refreshEmployees();
   }, []);
 
-  return (
-    <Box>
-      {/* Sección de estadísticas */}
-      <Box
+
+ // Manejar el cambio de página
+ const handlePageChange = (event: unknown, newPage: number) => {
+  setPage(newPage);
+};
+
+// Manejar el cambio de filas por página
+const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  setRowsPerPage(parseInt(event.target.value, 10));
+  setPage(0); // Reiniciar a la primera página
+};
+
+
+
+
+
+
+return (
+  <Box>
+    {/* Sección de estadísticas */}
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "8px",
+        justifyContent: "space-between",
+      }}
+    >
+      <StatCard
+        icon={<PeopleIcon sx={{ fontSize: "20px" }} />}
+        title="Empleados"
+        value={employees.length}
+        backgroundColor="#3B82F6"
         sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "8px",
-          justifyContent: "space-between",
+          flex: "1 1 calc(33.333% - 8px)",
+          minWidth: "100px",
+          padding: "8px",
         }}
-      >
-        <StatCard
-          icon={<PeopleIcon sx={{ fontSize: "20px" }} />}
-          title="Empleados"
-          value={employees.length}
-          backgroundColor="#3B82F6"
-          sx={{
-            flex: "1 1 calc(33.333% - 8px)",
-            minWidth: "100px",
-            padding: "8px",
-          }}
-        />
-        <StatCard
-          icon={<CheckCircleIcon sx={{ fontSize: "20px" }} />}
-          title="Activos"
-          value={employees.filter((e) => e.status).length}
-          backgroundColor="#10B981"
-          sx={{
-            flex: "1 1 calc(33.333% - 8px)",
-            minWidth: "100px",
-            padding: "8px",
-          }}
-        />
-        <StatCard
-          icon={<VerifiedIcon sx={{ fontSize: "20px" }} />}
-          title="NSS Activo"
-          value={nssCount}
-          backgroundColor="#F59E0B"
-          sx={{
-            flex: "1 1 calc(33.333% - 8px)",
-            minWidth: "100px",
-            padding: "8px",
-          }}
-        />
-      </Box>
-
-      {/* Botón para agregar empleado */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", margin: "16px 0" }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setOpenAddDialog(true)}
-          sx={{
-            backgroundColor: "#3B82F6",
-            color: "#ffffff",
-            textTransform: "none",
-            "&:hover": { backgroundColor: "#2563EB" },
-          }}
-        >
-          Agregar Empleado
-        </Button>
-      </Box>
-
-      {/* Tabla de empleados */}
-      <EmployeeTable
-        
-        filteredEmployees={employees}
-        page={0}
-        rowsPerPage={5}
-        onPageChange={() => {}}
-        onRowsPerPageChange={() => {}}
-        onEmployeeSelect={(employee) => setSelectedEmployee(employee)}
       />
-
-      {/* Diálogo para agregar empleado */}
-      <AddEmployeeDialog
-        open={openAddDialog}
-        onClose={() => setOpenAddDialog(false)}
-        refreshEmployees={refreshEmployees} // Pasa la función para recargar empleados
-        newEmployee={{ ...newEmployee, salary: newEmployee.salary }}
-        setNewEmployee={setNewEmployee}
-        onSave={handleAddEmployee} // Pasa la función para guardar
+      <StatCard
+        icon={<CheckCircleIcon sx={{ fontSize: "20px" }} />}
+        title="Activos"
+        value={employees.filter((e) => e.status).length}
+        backgroundColor="#10B981"
+        sx={{
+          flex: "1 1 calc(33.333% - 8px)",
+          minWidth: "100px",
+          padding: "8px",
+        }}
       />
-
-      {/* Diálogo para mostrar detalles del empleado */}
-      <EmployeeDetailsDialog
-        open={!!selectedEmployee}
-        onClose={() => setSelectedEmployee(null)}
-        employee={
-          selectedEmployee
-            ? {
-                name: selectedEmployee.name,
-                lastNamePaterno: selectedEmployee.last_name_paterno,
-                lastNameMaterno: selectedEmployee.last_name_materno,
-                phoneNumber: selectedEmployee.phone_number,
-                emergencyContact: selectedEmployee.emergency_contact,
-                hireDate: selectedEmployee.hire_date,
-              
-              }
-            : null
-        }
+      <StatCard
+        icon={<VerifiedIcon sx={{ fontSize: "20px" }} />}
+        title="NSS Activo"
+        value={0}
+        backgroundColor="#F59E0B"
+        sx={{
+          flex: "1 1 calc(33.333% - 8px)",
+          minWidth: "100px",
+          padding: "8px",
+        }}
       />
     </Box>
-  );
+
+    {/* Botones de refrescar y agregar empleado */}
+    <Box sx={{ display: "flex", justifyContent: "flex-end", margin: "16px 0", gap: "8px" }}>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={refreshEmployees} // Llama a la función para refrescar empleados
+        sx={{
+          minWidth: "40px",
+          padding: "8px",
+          borderRadius: "50%",
+          borderColor: "#3B82F6",
+          color: "#3B82F6",
+          "&:hover": { backgroundColor: "#E0F2FE", borderColor: "#2563EB" },
+        }}
+      >
+        <RefreshIcon />
+      </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setOpenAddDialog(true)}
+        sx={{
+          backgroundColor: "#3B82F6",
+          color: "#ffffff",
+          textTransform: "none",
+          "&:hover": { backgroundColor: "#2563EB" },
+        }}
+      >
+        Agregar Empleado
+      </Button>
+    </Box>
+
+    {/* Tabla de empleados */}
+    <EmployeeTable
+      filteredEmployees={employees.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+      )} // Mostrar solo las filas correspondientes a la página actual
+      page={page}
+      rowsPerPage={rowsPerPage}
+      onPageChange={handlePageChange}
+      onRowsPerPageChange={handleRowsPerPageChange}
+      onEmployeeSelect={(employee) => setSelectedEmployee(employee)}
+    />
+
+    {/* Diálogo para agregar empleado */}
+    <AddEmployeeDialog
+      open={openAddDialog}
+      onClose={() => setOpenAddDialog(false)}
+      
+    />
+
+    {/* Diálogo para mostrar detalles del empleado */}
+    <EmployeeDetailsDialog
+      open={!!selectedEmployee}
+      onClose={() => setSelectedEmployee(null)}
+      employeeId={selectedEmployee ? selectedEmployee.id : null}
+    />
+  </Box>
+);
 };
 
 export default HumanResources;

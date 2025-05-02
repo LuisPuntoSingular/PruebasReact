@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import BusinessIcon from "@mui/icons-material/Business";
 import { useRouter } from "next/router";
-import { useAuth } from "@/context/AuthContext"; // Importa el AuthContext
+import { useAuth } from "@/context/AuthContext"; 
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");

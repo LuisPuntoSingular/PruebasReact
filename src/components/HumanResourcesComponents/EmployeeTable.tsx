@@ -18,14 +18,14 @@ import EmployeeDocumentsDialog from "./EmployeeDocumentsDialog";
 
 interface Employee {
   id?: number;
-  name: string;
+  first_name: string;
+  second_name: string;
   last_name_paterno: string;
   last_name_materno: string;
-  position: string;
+  work_area_id: number | string; // Cambiado a string para que coincida con el tipo de work_area_id en el formulario
   salary: number;
   hire_date: string;
-  phone_number?: string;
-  emergency_contact?: string;
+
   
   status: boolean;
 }
@@ -165,7 +165,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   <TableCell>
                     <Avatar
                       src={"https://via.placeholder.com/40?text=Avatar"}
-                      alt={employee.name}
+                      alt={employee.first_name}
                       sx={{
                         width: 40,
                         height: 40,
@@ -174,13 +174,13 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Typography variant="body1" sx={{ fontWeight: "500" }}>
-                      {employee.name} {employee.last_name_paterno}{" "}
+                      {employee.first_name}  {employee.second_name} {employee.last_name_paterno}{" "}
                       {employee.last_name_materno}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" sx={{ color: "#475569" }}>
-                      {employee.position}
+                      {employee.work_area_id}
                     </Typography>
                   </TableCell>
                   <TableCell>

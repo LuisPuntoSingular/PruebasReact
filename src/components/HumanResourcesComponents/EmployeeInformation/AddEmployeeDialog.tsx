@@ -1,0 +1,394 @@
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Box,
+  Button,
+  Snackbar,
+  Alert,
+  Tabs,
+  Tab,
+} from "@mui/material";
+import AddEmployeeGeneralInformation from "./EmployeeGeneralInformation/AddEmployeeGeneralInformation";
+import AddEmployeeInformationDialog from "./EmployeePersonalInformation/AddEmployeeInformationDialog";
+import AddEmployeeBeneficiaryFields from "./EmployeeBeneficiary/AddEmployeeBeneficiaryDialog";
+import AddEmployeeAddressFields from "./EmployeeAddressContact/AddEmployeeAddressDialog";
+import {
+  createEmployeePersonalInformation,
+} from "./Apis/employeePersonalInformationApi";
+import {
+  createEmployeeBeneficiary,
+} from "./Apis/employeeBeneficiaryApi";
+import {
+  createEmployeeAddress,
+} from "./Apis/employeeAdressContactApi";
+interface AddEmployeeDialogProps {
+  open: boolean;
+  onClose: () => void;
+}
+import { createEmployee } from "./Apis/employeeApi";
+
+
+
+const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
+  open,
+  onClose,
+}) => {
+  // Estado para AddEmployeeGeneralInformation
+  const [newEmployee, setNewEmployee] = useState({
+    employee_id: 0,
+    plant_id: 0,
+    first_name: "",
+    second_name: "",
+    last_name_paterno: "",
+    last_name_materno: "",
+    work_area_id: "",
+    salary: "",
+    hire_date: "",
+    nss_date: null,
+    status: true,
+  });
+
+  // Estado para AddEmployeeInformationDialog
+  const [personalInfo, setPersonalInfo] = useState({
+    employee_id: 0,
+    curp: "",
+    rfc: "",
+    gender: "",
+    marital_status: "",
+    birth_date: "",
+    nss: "",
+  });
+
+  // Estado para AddEmployeeBeneficiaryFields
+  const [beneficiaryInfo, setBeneficiaryInfo] = useState({
+    employee_id: 0,
+    first_name: "",
+    last_name: "",
+    birth_date: "",
+    relationship: "",
+    phone_number: "",
+    percentage: "",
+  });
+
+  // Estado para AddEmployeeAddressFields
+  const [addressInfo, setAddressInfo] = useState({
+    employee_id: 0,
+    postal_code: "",
+    neighborhood: "",
+    state: "",
+    municipality: "",
+    street_and_number: "",
+    phone_number: "",
+    email: "",
+  });
+
+  // Estados para alertas
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [successAlertOpen, setSuccessAlertOpen] = useState(false);
+  const [errorAlertOpen, setErrorAlertOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Estado para controlar la pestaña activa
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabIndex(newValue);
+  };
+
+
+  const handleSave = async () => {
+    try {
+      // Validación de campos obligatorios
+
+
+
+      if (
+        !newEmployee.plant_id ||
+     
+        !personalInfo.gender ||
+        !personalInfo.marital_status ||
+        !personalInfo.birth_date ||
+        !newEmployee.first_name ||
+        !newEmployee.last_name_paterno ||
+        !newEmployee.last_name_materno ||
+        !newEmployee.work_area_id ||
+        !newEmployee.salary ||
+        !newEmployee.hire_date
+      ) {
+
+       
+
+        setAlertOpen(true); // Muestra el Snackbar si faltan campos obligatorios
+        return;
+      }
+  
+      // Crear el empleado
+      console.log("Creando nuevo empleado...");
+      const createdEmployee = await createEmployee({
+        plant_id: Number(newEmployee.plant_id),
+        first_name: newEmployee.first_name,
+        second_name: newEmployee.second_name,
+        last_name_paterno: newEmployee.last_name_paterno,
+        last_name_materno: newEmployee.last_name_materno,
+        work_area_id: Number(newEmployee.work_area_id),
+        salary: Number(newEmployee.salary),
+        hire_date: newEmployee.hire_date,
+        nss_date: newEmployee.nss_date || null,
+        status: newEmployee.status,
+      });
+  
+      // Verificar si el ID del empleado fue generado correctamente
+      if (!createdEmployee.id) {
+        setErrorAlertOpen(true); // Muestra el Snackbar de error
+        setErrorMessage(
+          "Hubo un problema al crear el empleado. Por favor, inténtalo de nuevo."
+        );
+        return;
+      }
+  
+      console.log("Empleado creado con ID:", createdEmployee.id);
+  
+      // Guardar Información Personal
+      console.log("Guardando Información Personal...");
+      const generalInfoResponse = await createEmployeePersonalInformation({
+        employee_id: createdEmployee.id,
+        curp: personalInfo.curp || null,
+        rfc: personalInfo.rfc || null,
+        gender: personalInfo.gender,
+        marital_status: personalInfo.marital_status,
+        birth_date: personalInfo.birth_date,
+        nss: personalInfo.nss || null,
+      });
+      console.log("Información Personal Guardada:", generalInfoResponse);
+  
+      // Guardar Información del Beneficiario
+      console.log("Guardando Información del Beneficiario...");
+      const beneficiaryResponse = await createEmployeeBeneficiary({
+        employee_id: createdEmployee.id,
+        first_name: beneficiaryInfo.first_name,
+        last_name: beneficiaryInfo.last_name,
+        birth_date: beneficiaryInfo.birth_date,
+        relationship: beneficiaryInfo.relationship,
+        phone_number: beneficiaryInfo.phone_number,
+        percentage: parseFloat(beneficiaryInfo.percentage),
+      });
+      console.log("Información del Beneficiario Guardada:", beneficiaryResponse);
+  
+      // Guardar Dirección y Contacto
+      console.log("Guardando Dirección y Contacto...");
+      const addressResponse = await createEmployeeAddress({
+        employee_id: createdEmployee.id,
+        postal_code: addressInfo.postal_code,
+        neighborhood: addressInfo.neighborhood,
+        state: addressInfo.state,
+        municipality: addressInfo.municipality,
+        street_and_number: addressInfo.street_and_number,
+        phone_number: addressInfo.phone_number,
+        email: addressInfo.email,
+      });
+      console.log("Información de Dirección Guardada:", addressResponse);
+  
+      // Mostrar mensaje de éxito
+      setSuccessAlertOpen(true);
+      onClose(); // Cierra el diálogo principal
+    } catch (error) {
+      console.error("Error al guardar la información:", error);
+      setErrorAlertOpen(true); // Muestra el mensaje de error
+      setErrorMessage(
+        "Ocurrió un error inesperado al guardar la información. Por favor, inténtalo de nuevo."
+      );
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        sx: {
+          backgroundColor: "#1E293B",
+          color: "#ffffff",
+          borderRadius: "16px",
+          padding: "16px",
+          maxWidth: "600px",
+          width: "100%",
+        },
+      }}
+    >
+
+<Snackbar
+  open={errorAlertOpen}
+  autoHideDuration={4000}
+  onClose={() => setErrorAlertOpen(false)}
+  anchorOrigin={{ vertical: "top", horizontal: "center" }}
+>
+  <Alert
+    onClose={() => setErrorAlertOpen(false)}
+    severity="error"
+    sx={{ width: "100%" }}
+  >
+    {errorMessage}
+  </Alert>
+</Snackbar>
+
+
+
+      <DialogTitle
+        sx={{
+          backgroundColor: "#1E3A8A",
+          color: "#ffffff",
+          fontWeight: "bold",
+          textAlign: "center",
+          borderRadius: "12px 12px 0 0",
+          padding: "16px",
+        }}
+      >
+        Información del Empleado
+      </DialogTitle>
+
+      {/* Tabs para navegación */}
+      <Tabs
+  value={tabIndex}
+  onChange={handleTabChange}
+  indicatorColor="primary"
+  textColor="inherit"
+  variant="fullWidth" // Las pestañas se ajustan al ancho disponible
+  sx={{
+    backgroundColor: "#1E293B",
+    color: "#ffffff",
+    textTransform: "none", 
+  }}
+>
+  <Tab label="Información General" />
+  <Tab label="Información Personal" />
+  <Tab label="Beneficiario y Contacto" />
+  <Tab label="Dirección y contacto" />
+</Tabs>
+
+      {/* Contenido del diálogo */}
+      <DialogContent
+        dividers
+        sx={{
+          padding: "24px",
+          backgroundColor: "#FFFFFF",
+          borderRadius: "12px",
+        }}
+      >
+        {tabIndex === 0 && (
+          <AddEmployeeGeneralInformation
+            newEmployee={newEmployee}
+            setNewEmployee={setNewEmployee}
+          />
+        )}
+
+        {tabIndex === 1 && (
+          <AddEmployeeInformationDialog
+            personalInfo={personalInfo}
+            setPersonalInfo={setPersonalInfo}
+          />
+        )}
+        {tabIndex === 2 && (
+          <AddEmployeeBeneficiaryFields
+            beneficiaryInfo={beneficiaryInfo}
+            setBeneficiaryInfo={setBeneficiaryInfo}
+          />
+        )}
+        {tabIndex === 3 && (
+          <AddEmployeeAddressFields
+            addressInfo={addressInfo}
+            setAddressInfo={setAddressInfo}
+          />
+        )}
+      </DialogContent>
+
+      {/* Footer con botones */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          padding: "16px",
+          gap: "8px",
+        }}
+      >
+        <Button
+          onClick={onClose}
+          variant="contained"
+          sx={{
+            backgroundColor: "#EF4444",
+            color: "#ffffff",
+            "&:hover": { backgroundColor: "#DC2626" },
+          }}
+        >
+          Cancelar
+        </Button>
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          sx={{
+            backgroundColor: "#10B981",
+            color: "#ffffff",
+            "&:hover": { backgroundColor: "#059669" },
+          }}
+        >
+          Guardar
+        </Button>
+      </Box>
+
+      {/* Snackbar para alertas */}
+      <Snackbar
+        open={alertOpen}
+        autoHideDuration={4000}
+        onClose={() => setAlertOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setAlertOpen(false)}
+          severity="warning"
+          sx={{ width: "100%" }}
+        >
+          Por favor, completa todos los campos obligatorios.
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={successAlertOpen}
+        autoHideDuration={4000}
+        onClose={() => setSuccessAlertOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSuccessAlertOpen(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          Información guardada con éxito.
+          <ul>
+      <li>Información General</li>
+      <li>Información Personal</li>
+      <li>Información del Beneficiario</li>
+      <li>Información de Dirección</li>
+    </ul>
+
+
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={errorAlertOpen}
+        autoHideDuration={4000}
+        onClose={() => setErrorAlertOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setErrorAlertOpen(false)}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          Error al guardar la información. Por favor, inténtalo de nuevo.
+        </Alert>
+      </Snackbar>
+    </Dialog>
+  );
+};
+
+export default AddEmployeeDialog;

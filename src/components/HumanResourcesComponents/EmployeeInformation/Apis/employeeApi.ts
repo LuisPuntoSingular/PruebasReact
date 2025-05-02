@@ -1,21 +1,21 @@
 import axios, { AxiosResponse } from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/employee"; // Cambia la URL si es necesario
-const API_URL_D = "https://backnode-production.up.railway.app"; // Cambia la URL si es necesario
+const API_URL = "https://backnode-production.up.railway.app"; // Cambia la URL si es necesario
 
 // Definir la interfaz para un empleado
 export interface Employee {
   id?: number; // Opcional porque no estará presente al crear un nuevo empleado
-
-  name: string;
+  plant_id?: number; // Opcional porque no estará presente al crear un nuevo empleado
+  first_name: string;
+  second_name: string;
   last_name_paterno: string;
   last_name_materno: string;
-  position: string;
+  work_area_id: number;
   salary: number;
   hire_date: string;
   phone_number?: string; // Opcional
   emergency_contact?: string; // Opcional
-
+  nss_date?: string | null; // Opcional, puede ser null
   status: boolean;
 }
 
@@ -23,9 +23,6 @@ export interface Employee {
 const apiClient = axios.create({
   baseURL: API_URL,
   
-});
-const apiClientD = axios.create({
-  baseURL: API_URL_D,
 });
 
 // Agregar el token de autenticación a cada solicitud
@@ -42,21 +39,39 @@ apiClient.interceptors.request.use(
   }
 );
 
+
+
+
+
 // Obtener todos los empleados
 export const getEmployees = async (): Promise<Employee[]> => {
-  const response: AxiosResponse<Employee[]> = await apiClient.get("/");
+  const response: AxiosResponse<Employee[]> = await apiClient.get("/api/employee/");
   return response.data;
 };
+
+
+// Obtener un empleado por ID
+export const getEmployeeById = async (id: number): Promise<Employee> => {
+  try {
+    const response: AxiosResponse<Employee> = await apiClient.get(`/api/employee/${id}`);
+    return response.data; // Devuelve la información del empleado
+  } catch (error) {
+    console.error("Error retrieving employee by ID:", error);
+    throw error;
+  }
+};
+
+
 
 // Crear un nuevo empleado
 export const createEmployee = async (employee: Employee): Promise<Employee> => {
     console.log("Datos enviados al backend:", employee); // Agregar console.log para depuración
-    const response: AxiosResponse<Employee> = await apiClient.post("/", employee);
+    const response: AxiosResponse<Employee> = await apiClient.post("/api/employee/", employee);
     return response.data;
   };
 // Actualizar un empleado
 export const updateEmployee = async (id: number, employee: Employee): Promise<Employee> => {
-  const response: AxiosResponse<Employee> = await apiClient.put(`/${id}`, employee);
+  const response: AxiosResponse<Employee> = await apiClient.put(`/api/employee/${id}`, employee);
   return response.data;
 };
 
@@ -66,12 +81,3 @@ export const deleteEmployee = async (id: number): Promise<void> => {
 };
 
 
-export const getNssCount = async (): Promise<number> => {
-  try {
-    const response: AxiosResponse<{ count: number }> = await apiClientD.get("/api/employeeDocuments/count/nss");
-    return response.data.count;
-  } catch (error) {
-    console.error("Error al obtener el número de empleados con NSS activado:", error);
-    throw new Error("No se pudo obtener el contador de NSS.");
-  }
-};

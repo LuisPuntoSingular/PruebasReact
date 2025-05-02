@@ -13,7 +13,7 @@ import { getEmployeeDocuments, updateEmployeeDocuments, EmployeeDocuments } from
 
 interface Employee {
   id?: number;
-  name: string;
+  first_name: string;
 }
 
 interface EmployeeDocumentsDialogProps {
@@ -140,7 +140,7 @@ const EmployeeDocumentsDialog: React.FC<EmployeeDocumentsDialogProps> = ({
           padding: "16px",
         }}
       >
-        Documentos de {employee.name}
+        Documentos de {employee.first_name}
       </DialogTitle>
       <DialogContent
         dividers
