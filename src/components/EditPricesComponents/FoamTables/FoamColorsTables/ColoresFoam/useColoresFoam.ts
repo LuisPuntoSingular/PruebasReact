@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/coloresfoam";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/coloresfoam`;
 
 // Definir la interfaz para los datos de la tabla
 interface ColoresFoam {
@@ -13,7 +14,6 @@ interface ColoresFoam {
 
 export const useColoresFoam = () => {
   const [columns, setColumns] = useState<(keyof ColoresFoam)[]>([]);
-
   const [data, setData] = useState<ColoresFoam[]>([]);
   const [formData, setFormData] = useState<ColoresFoam>({
     color: "",
@@ -41,10 +41,10 @@ export const useColoresFoam = () => {
         console.error("Error al cargar los datos:", error);
       }
     };
-  
+
     fetchData();
   }, []);
-  
+
   // Crear un nuevo registro
   const createRecord = async (newRecord: ColoresFoam) => {
     try {

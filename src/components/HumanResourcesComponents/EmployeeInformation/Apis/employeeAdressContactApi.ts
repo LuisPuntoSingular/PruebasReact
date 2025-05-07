@@ -1,7 +1,9 @@
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app"; // Cambia la URL si es necesario
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employeeAddressContact`;
 
+// Configurar el cliente Axios
 const apiClient = axios.create({
   baseURL: API_URL,
 });
@@ -35,7 +37,7 @@ export interface AddressContact {
 // Obtener dirección y contacto por ID
 export const getEmployeeAddressById = async (id: number): Promise<AddressContact> => {
   try {
-    const response = await apiClient.get<AddressContact>(`/api/employeeAddressContact/${id}`);
+    const response = await apiClient.get<AddressContact>(`/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error al obtener la dirección y contacto con ID ${id}:`, error);
@@ -46,7 +48,7 @@ export const getEmployeeAddressById = async (id: number): Promise<AddressContact
 // Crear nueva dirección y contacto
 export const createEmployeeAddress = async (addressInfo: AddressContact): Promise<AddressContact> => {
   try {
-    const response = await apiClient.post<AddressContact>("/api/employeeAddressContact", addressInfo);
+    const response = await apiClient.post<AddressContact>("/", addressInfo);
     return response.data;
   } catch (error) {
     console.error("Error al crear la dirección y contacto:", error);
@@ -60,7 +62,7 @@ export const updateEmployeeAddress = async (
   addressInfo: AddressContact
 ): Promise<AddressContact> => {
   try {
-    const response = await apiClient.put<AddressContact>(`/api/employeeAddressContact/${id}`, addressInfo);
+    const response = await apiClient.put<AddressContact>(`/${id}`, addressInfo);
     return response.data;
   } catch (error) {
     console.error(`Error al actualizar la dirección y contacto con ID ${id}:`, error);
@@ -71,7 +73,7 @@ export const updateEmployeeAddress = async (
 // Eliminar dirección y contacto por ID
 export const deleteEmployeeAddress = async (id: number): Promise<void> => {
   try {
-    await apiClient.delete(`/api/employeeAddressContact/${id}`);
+    await apiClient.delete(`/${id}`);
   } catch (error) {
     console.error(`Error al eliminar la dirección y contacto con ID ${id}:`, error);
     throw new Error("No se pudo eliminar la dirección y contacto.");

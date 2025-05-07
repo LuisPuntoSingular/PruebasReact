@@ -11,10 +11,18 @@ import {
   Paper,
   Avatar,
   Typography,
+  TextField,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import DescriptionIcon from "@mui/icons-material/Description";
-import EmployeeDocumentsDialog from "./EmployeeDocumentsDialog";
+import EmployeeDocumentsDialog from "./EmployeeDocuments/EmployeeDocumentsDialog";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Menu from "@mui/material/Menu";
+import { SelectChangeEvent } from "@mui/material";
 
 interface Employee {
   id?: number;
@@ -22,11 +30,9 @@ interface Employee {
   second_name: string;
   last_name_paterno: string;
   last_name_materno: string;
-  work_area_id: number | string; // Cambiado a string para que coincida con el tipo de work_area_id en el formulario
+  work_area_id: number | string;
   salary: number;
   hire_date: string;
-
-  
   status: boolean;
 }
 
@@ -47,8 +53,21 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   onRowsPerPageChange,
   onEmployeeSelect,
 }) => {
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [documentDialogOpen, setDocumentDialogOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+
+  
+  const handleStatusFilterChange = (event: SelectChangeEvent<string>) => {
+      setStatusFilter(event.target.value);
+  };
 
   const handleDocumentClick = (employee: Employee) => {
     setSelectedEmployee(employee);
@@ -60,6 +79,35 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     setSelectedEmployee(null);
   };
 
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, employee: Employee) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedEmployee(employee);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedEmployee(null);
+  };
+
+  const handleEdit = () => {
+    console.log("Editar empleado:", selectedEmployee);
+    handleMenuClose();
+  };
+
+  const handleDeactivate = () => {
+    console.log("Dar de baja empleado:", selectedEmployee);
+    handleMenuClose();
+  };
+
+  // Filtrar empleados por búsqueda y estatus
+  const filteredAndSearchedEmployees = filteredEmployees.filter((employee) => {
+    const fullName = `${employee.first_name} ${employee.second_name} ${employee.last_name_paterno} ${employee.last_name_materno}`.toLowerCase();
+    const matchesSearch = fullName.includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || (statusFilter === "active" && employee.status) || (statusFilter === "inactive" && !employee.status);
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <Paper
       elevation={3}
@@ -69,6 +117,31 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         backgroundColor: "#F1F5F9",
       }}
     >
+      {/* Buscador y Filtros */}
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+        <TextField
+          label="Buscar por nombre"
+          variant="outlined"
+          size="small"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          sx={{ width: "60%" }}
+        />
+        <FormControl size="small" sx={{ width: "35%" }}>
+          <InputLabel id="status-filter-label">Filtrar por estatus</InputLabel>
+          <Select
+            labelId="status-filter-label"
+            value={statusFilter}
+            onChange={handleStatusFilterChange}
+            label="Filtrar por estatus"
+          >
+            <MenuItem value="all">Todos</MenuItem>
+            <MenuItem value="active">Activos</MenuItem>
+            <MenuItem value="inactive">Inactivos</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+
       <TableContainer>
         <Table>
           <TableHead>
@@ -145,12 +218,22 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   borderBottom: "none",
                 }}
               >
+                Información
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "#FFFFFF",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderBottom: "none",
+                }}
+              >
                 Acciones
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredEmployees
+            {filteredAndSearchedEmployees
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((employee) => (
                 <TableRow
@@ -174,7 +257,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   </TableCell>
                   <TableCell>
                     <Typography variant="body1" sx={{ fontWeight: "500" }}>
-                      {employee.first_name}  {employee.second_name} {employee.last_name_paterno}{" "}
+                      {employee.first_name} {employee.second_name} {employee.last_name_paterno}{" "}
                       {employee.last_name_materno}
                     </Typography>
                   </TableCell>
@@ -209,6 +292,11 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                       <InfoIcon sx={{ color: "#1E3A8A" }} />
                     </IconButton>
                   </TableCell>
+                  <TableCell>
+                    <IconButton onClick={(event) => handleMenuClick(event, employee)}>
+                      <MoreVertIcon sx={{ color: "#1E3A8A" }} />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -217,7 +305,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
-        count={filteredEmployees.length}
+        count={filteredAndSearchedEmployees.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={onPageChange}
@@ -234,8 +322,16 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       <EmployeeDocumentsDialog
         open={documentDialogOpen}
         onClose={handleDocumentDialogClose}
-        employee={selectedEmployee} // Pass the employee object or null
+        employeeId={selectedEmployee?.id}
       />
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem onClick={handleEdit}>Editar</MenuItem>
+        <MenuItem onClick={handleDeactivate}>Dar de Baja</MenuItem>
+      </Menu>
     </Paper>
   );
 };

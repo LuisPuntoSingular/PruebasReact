@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/eva";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/eva`;
 
 interface Eva {
   id?: number; // Opcional porque no estará presente al crear un nuevo registro
@@ -17,7 +18,7 @@ export const useEva = () => {
     precio: 0,
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  
+
   // Obtener datos
   useEffect(() => {
     const fetchData = async () => {
@@ -100,7 +101,6 @@ export const useEva = () => {
   const openDialog = (row?: Eva) => {
     if (row) {
       setIsEditing(true);
-     
       setFormData(row);
     } else {
       setIsEditing(false);
@@ -117,7 +117,6 @@ export const useEva = () => {
       medida: "",
       precio: 0,
     });
-
     setIsEditing(false);
   };
 

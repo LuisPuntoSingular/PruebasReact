@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/work-areas"; // Ruta base para las áreas de trabajo
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/work-areas`;
 
 // Definir la interfaz para un área de trabajo
 export interface WorkArea {

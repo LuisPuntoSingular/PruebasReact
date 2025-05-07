@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/poliburbujaprecios";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/poliburbujaprecios`;
 
 interface PoliburbujaPrecio {
   id?: number; // Opcional porque no estará presente al crear un nuevo registro

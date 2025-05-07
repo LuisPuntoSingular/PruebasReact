@@ -85,7 +85,7 @@ const TableMeasures: React.FC = () => {
                   textAlign: "center",
                 }}
               >
-                Largo
+                Largo cm
               </TableCell>
               <TableCell
                 sx={{
@@ -97,7 +97,7 @@ const TableMeasures: React.FC = () => {
                   textAlign: "center",
                 }}
               >
-                Ancho
+                Ancho cm
               </TableCell>
               <TableCell
                 sx={{
@@ -109,7 +109,7 @@ const TableMeasures: React.FC = () => {
                   textAlign: "center",
                 }}
               >
-                Espesor
+                Espesor cm
               </TableCell>
               <TableCell
                 sx={{

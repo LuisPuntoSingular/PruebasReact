@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/employeeDocuments";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employeeDocuments`;
 
 // Configurar el cliente Axios con un interceptor
 const apiClient = axios.create({
@@ -23,13 +24,15 @@ apiClient.interceptors.request.use(
 
 // Interfaz para los documentos de un empleado
 export interface EmployeeDocuments {
-    birth_certificate: boolean;
-    curp: boolean;
-    proof_of_address: boolean;
-    ine: boolean;
-    rfc: boolean;
-    nss: boolean; // Added the missing 'nss' property
-  }
+  birth_certificate: boolean;
+  curp: boolean;
+  proof_of_address: boolean;
+  ine: boolean;
+  rfc: boolean;
+  nss: boolean; // Propiedad NSS
+  fonacot: boolean; // Nuevo campo
+  infonavit: boolean; // Nuevo campo
+}
 
 // Obtener los documentos de un empleado por ID
 export const getEmployeeDocuments = async (id: number): Promise<EmployeeDocuments> => {

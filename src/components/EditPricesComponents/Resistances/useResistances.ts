@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/resistances";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/resistances`;
 
 interface Resistance {
   resistanceid?: number; // Opcional porque no estará presente al crear un nuevo registro
@@ -27,7 +28,7 @@ export const useResistances = () => {
     categoryid: 0,
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
- 
+
   // Obtener datos de la tabla
   useEffect(() => {
     const fetchData = async () => {
@@ -110,7 +111,6 @@ export const useResistances = () => {
   const openDialog = (row?: Resistance) => {
     if (row) {
       setIsEditing(true);
-      
       setFormData(row);
     } else {
       setIsEditing(false);
@@ -137,7 +137,6 @@ export const useResistances = () => {
       trim: 0,
       categoryid: 0,
     });
-  
     setIsEditing(false);
   };
 

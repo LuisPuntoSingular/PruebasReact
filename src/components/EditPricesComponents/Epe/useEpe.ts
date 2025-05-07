@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/epe";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/epe`;
 
 interface Epe {
   id?: number; // Opcional porque no estará presente al crear un nuevo registro
@@ -17,7 +18,7 @@ export const useEpe = () => {
     precio: 0,
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  
+
   // Obtener datos de la tabla
   useEffect(() => {
     const fetchData = async () => {
@@ -100,7 +101,6 @@ export const useEpe = () => {
   const openDialog = (row?: Epe) => {
     if (row) {
       setIsEditing(true);
-     
       setFormData(row);
     } else {
       setIsEditing(false);
@@ -117,7 +117,6 @@ export const useEpe = () => {
       medidas: "",
       precio: 0,
     });
-  
     setIsEditing(false);
   };
 

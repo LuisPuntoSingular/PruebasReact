@@ -88,7 +88,7 @@ const CardboardMeasures: React.FC = () => {
           <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
             {/* Campo para Largo */}
             <TextField
-              label="Largo"
+              label="Largo cm"
               type="number"
               fullWidth
               size="small"
@@ -119,7 +119,7 @@ const CardboardMeasures: React.FC = () => {
 
             {/* Campo para Ancho */}
             <TextField
-              label="Ancho"
+              label="Ancho cm"
               type="number"
               fullWidth
               size="small"
@@ -150,7 +150,7 @@ const CardboardMeasures: React.FC = () => {
 
             {/* Campo para Alto */}
             <TextField
-              label="Alto"
+              label="Alto cm"
               type="number"
               fullWidth
               size="small"

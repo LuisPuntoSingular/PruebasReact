@@ -10,6 +10,9 @@ interface ResistanceCategory {
   description: string;
 }
 
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/resistancescategories`;
+
 const ResistancesCategoriesTable: React.FC = () => {
   const [columns, setColumns] = useState<(keyof ResistanceCategory)[]>([]);
   const [data, setData] = useState<ResistanceCategory[]>([]);
@@ -20,14 +23,11 @@ const ResistancesCategoriesTable: React.FC = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await axios.get<ResistanceCategory[]>(
-          "https://backnode-production.up.railway.app/api/resistancescategories",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get<ResistanceCategory[]>(API_URL, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (response.data.length > 0) {
           setColumns(Object.keys(response.data[0]) as (keyof ResistanceCategory)[]);
           setData(response.data);

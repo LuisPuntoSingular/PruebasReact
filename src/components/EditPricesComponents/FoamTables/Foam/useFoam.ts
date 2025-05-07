@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/foam";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/foam`;
 
 interface Foam {
   id?: number; // Opcional porque no estará presente al crear un nuevo registro
@@ -15,7 +16,7 @@ export const useFoam = () => {
     derivado: "",
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  
+
   // Obtener datos de la tabla
   useEffect(() => {
     const fetchData = async () => {
@@ -98,7 +99,6 @@ export const useFoam = () => {
   const openDialog = (row?: Foam) => {
     if (row) {
       setIsEditing(true);
-      
       setFormData(row);
     } else {
       setIsEditing(false);
@@ -113,7 +113,6 @@ export const useFoam = () => {
     setFormData({
       derivado: "",
     });
-   
     setIsEditing(false);
   };
 

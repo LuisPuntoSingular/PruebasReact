@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app"; // Cambia la URL si es necesario
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employee`;
 
 // Definir la interfaz para un empleado
 export interface Employee {
@@ -22,7 +23,6 @@ export interface Employee {
 // Configurar el cliente Axios con un interceptor
 const apiClient = axios.create({
   baseURL: API_URL,
-  
 });
 
 // Agregar el token de autenticación a cada solicitud
@@ -39,21 +39,16 @@ apiClient.interceptors.request.use(
   }
 );
 
-
-
-
-
 // Obtener todos los empleados
 export const getEmployees = async (): Promise<Employee[]> => {
-  const response: AxiosResponse<Employee[]> = await apiClient.get("/api/employee/");
+  const response: AxiosResponse<Employee[]> = await apiClient.get("/");
   return response.data;
 };
-
 
 // Obtener un empleado por ID
 export const getEmployeeById = async (id: number): Promise<Employee> => {
   try {
-    const response: AxiosResponse<Employee> = await apiClient.get(`/api/employee/${id}`);
+    const response: AxiosResponse<Employee> = await apiClient.get(`/${id}`);
     return response.data; // Devuelve la información del empleado
   } catch (error) {
     console.error("Error retrieving employee by ID:", error);
@@ -61,17 +56,16 @@ export const getEmployeeById = async (id: number): Promise<Employee> => {
   }
 };
 
-
-
 // Crear un nuevo empleado
 export const createEmployee = async (employee: Employee): Promise<Employee> => {
-    console.log("Datos enviados al backend:", employee); // Agregar console.log para depuración
-    const response: AxiosResponse<Employee> = await apiClient.post("/api/employee/", employee);
-    return response.data;
-  };
+  console.log("Datos enviados al backend:", employee); // Agregar console.log para depuración
+  const response: AxiosResponse<Employee> = await apiClient.post("/", employee);
+  return response.data;
+};
+
 // Actualizar un empleado
 export const updateEmployee = async (id: number, employee: Employee): Promise<Employee> => {
-  const response: AxiosResponse<Employee> = await apiClient.put(`/api/employee/${id}`, employee);
+  const response: AxiosResponse<Employee> = await apiClient.put(`/${id}`, employee);
   return response.data;
 };
 
@@ -79,5 +73,3 @@ export const updateEmployee = async (id: number, employee: Employee): Promise<Em
 export const deleteEmployee = async (id: number): Promise<void> => {
   await apiClient.delete(`/${id}`);
 };
-
-

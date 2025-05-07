@@ -181,6 +181,9 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
                 <Typography>
                   <strong>Fecha de Ingreso:</strong> {employeeInfo.hire_date}
                 </Typography>
+                <Typography>
+                  <strong>Fecha de Alta Nss:</strong> {employeeInfo.nss_date }
+                </Typography>
               </Box>
             </AccordionDetails>
           </Accordion>

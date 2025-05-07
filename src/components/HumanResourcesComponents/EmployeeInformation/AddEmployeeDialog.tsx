@@ -103,19 +103,29 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       // Validación de campos obligatorios
 
 
-
       if (
-        !newEmployee.plant_id ||
-     
-        !personalInfo.gender ||
-        !personalInfo.marital_status ||
-        !personalInfo.birth_date ||
-        !newEmployee.first_name ||
-        !newEmployee.last_name_paterno ||
-        !newEmployee.last_name_materno ||
-        !newEmployee.work_area_id ||
-        !newEmployee.salary ||
-        !newEmployee.hire_date
+        !newEmployee.plant_id || // Planta
+        !newEmployee.first_name || // Primer Nombre
+        !newEmployee.last_name_paterno || // Apellido Paterno
+        !newEmployee.last_name_materno || // Apellido Materno
+        !newEmployee.work_area_id || // Puesto
+        !newEmployee.salary || // Salario
+        !newEmployee.hire_date || // Fecha de Ingreso
+        !personalInfo.gender || // Sexo
+        !personalInfo.marital_status || // Estado Civil
+        !personalInfo.birth_date || // Fecha de Nacimiento
+        !beneficiaryInfo.first_name || // Nombre del Beneficiario
+        !beneficiaryInfo.last_name || // Apellidos del Beneficiario
+        !beneficiaryInfo.birth_date || // Fecha de Nacimiento del Beneficiario
+        !beneficiaryInfo.relationship || // Parentesco
+        !beneficiaryInfo.phone_number || // Teléfono del Beneficiario
+        !beneficiaryInfo.percentage || // Porcentaje del Beneficiario
+        !addressInfo.postal_code || // Código Postal
+        !addressInfo.neighborhood || // Colonia
+        !addressInfo.state || // Estado
+        !addressInfo.municipality || // Delegación/Municipio
+        !addressInfo.street_and_number || // Calle y Número
+        !addressInfo.phone_number // Celular
       ) {
 
        
@@ -125,7 +135,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       }
   
       // Crear el empleado
-      console.log("Creando nuevo empleado...");
+    
       const createdEmployee = await createEmployee({
         plant_id: Number(newEmployee.plant_id),
         first_name: newEmployee.first_name,
@@ -148,11 +158,8 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         return;
       }
   
-      console.log("Empleado creado con ID:", createdEmployee.id);
-  
-      // Guardar Información Personal
-      console.log("Guardando Información Personal...");
-      const generalInfoResponse = await createEmployeePersonalInformation({
+    
+       await createEmployeePersonalInformation({
         employee_id: createdEmployee.id,
         curp: personalInfo.curp || null,
         rfc: personalInfo.rfc || null,
@@ -161,11 +168,11 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         birth_date: personalInfo.birth_date,
         nss: personalInfo.nss || null,
       });
-      console.log("Información Personal Guardada:", generalInfoResponse);
+
   
       // Guardar Información del Beneficiario
-      console.log("Guardando Información del Beneficiario...");
-      const beneficiaryResponse = await createEmployeeBeneficiary({
+
+      await createEmployeeBeneficiary({
         employee_id: createdEmployee.id,
         first_name: beneficiaryInfo.first_name,
         last_name: beneficiaryInfo.last_name,
@@ -174,11 +181,10 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         phone_number: beneficiaryInfo.phone_number,
         percentage: parseFloat(beneficiaryInfo.percentage),
       });
-      console.log("Información del Beneficiario Guardada:", beneficiaryResponse);
+   
   
-      // Guardar Dirección y Contacto
-      console.log("Guardando Dirección y Contacto...");
-      const addressResponse = await createEmployeeAddress({
+    
+      await createEmployeeAddress({
         employee_id: createdEmployee.id,
         postal_code: addressInfo.postal_code,
         neighborhood: addressInfo.neighborhood,
@@ -188,7 +194,57 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         phone_number: addressInfo.phone_number,
         email: addressInfo.email,
       });
-      console.log("Información de Dirección Guardada:", addressResponse);
+
+       // Reiniciar los campos después de guardar
+    setNewEmployee({
+      employee_id: 0,
+      plant_id: 0,
+      first_name: "",
+      second_name: "",
+      last_name_paterno: "",
+      last_name_materno: "",
+      work_area_id: "",
+      salary: "",
+      hire_date: "",
+      nss_date: null,
+      status: true,
+    });
+
+    setPersonalInfo({
+      employee_id: 0,
+      curp: "",
+      rfc: "",
+      gender: "",
+      marital_status: "",
+      birth_date: "",
+      nss: "",
+    });
+
+    setBeneficiaryInfo({
+      employee_id: 0,
+      first_name: "",
+      last_name: "",
+      birth_date: "",
+      relationship: "",
+      phone_number: "",
+      percentage: "",
+    });
+
+    setAddressInfo({
+      employee_id: 0,
+      postal_code: "",
+      neighborhood: "",
+      state: "",
+      municipality: "",
+      street_and_number: "",
+      phone_number: "",
+      email: "",
+    });
+
+
+
+
+     
   
       // Mostrar mensaje de éxito
       setSuccessAlertOpen(true);

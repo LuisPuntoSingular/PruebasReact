@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/plants";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/plants`;
 
 // Crear una instancia de Axios con la URL base
 const apiClient = axios.create({
@@ -27,7 +28,7 @@ export const getAllPlants = async () => {
     const response = await apiClient.get("/");
     return response.data; // Devuelve la lista de plantas
   } catch (error) {
-    console.error("Error retrieving plants:", error);
+    console.error("Error al obtener las plantas:", error);
     throw error;
   }
 };
@@ -38,7 +39,7 @@ export const getPlantById = async (id: number) => {
     const response = await apiClient.get(`/${id}`);
     return response.data; // Devuelve la planta correspondiente
   } catch (error) {
-    console.error("Error retrieving plant:", error);
+    console.error(`Error al obtener la planta con ID ${id}:`, error);
     throw error;
   }
 };
@@ -49,7 +50,7 @@ export const createPlant = async (plant_name: string) => {
     const response = await apiClient.post("/", { plant_name });
     return response.data; // Devuelve la planta creada
   } catch (error) {
-    console.error("Error creating plant:", error);
+    console.error("Error al crear la planta:", error);
     throw error;
   }
 };
@@ -60,7 +61,7 @@ export const updatePlant = async (id: number, plant_name: string) => {
     const response = await apiClient.put(`/${id}`, { plant_name });
     return response.data; // Devuelve la planta actualizada
   } catch (error) {
-    console.error("Error updating plant:", error);
+    console.error(`Error al actualizar la planta con ID ${id}:`, error);
     throw error;
   }
 };
@@ -71,7 +72,7 @@ export const deletePlant = async (id: number) => {
     const response = await apiClient.delete(`/${id}`);
     return response.data; // Devuelve el mensaje de éxito
   } catch (error) {
-    console.error("Error deleting plant:", error);
+    console.error(`Error al eliminar la planta con ID ${id}:`, error);
     throw error;
   }
 };

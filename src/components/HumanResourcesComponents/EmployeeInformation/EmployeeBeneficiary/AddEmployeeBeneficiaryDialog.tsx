@@ -126,10 +126,22 @@ const AddEmployeeBeneficiaryFields: React.FC<AddEmployeeBeneficiaryFieldsProps> 
           }}
         >
           <MenuItem value="Abuela/o">Abuela/o</MenuItem>
-          <MenuItem value="Amiga/o">Amiga/o</MenuItem>
-          <MenuItem value="Concubina/o">Concubina/o</MenuItem>
-          <MenuItem value="Cuñada/o">Cuñada/o</MenuItem>
-          <MenuItem value="Esposa/o">Esposa/o</MenuItem>
+<MenuItem value="Amiga/o">Amiga/o</MenuItem>
+<MenuItem value="Concubina/o">Concubina/o</MenuItem>
+<MenuItem value="Cuñada/o">Cuñada/o</MenuItem>
+<MenuItem value="Esposa/o">Esposa/o</MenuItem>
+<MenuItem value="Hermana/o">Hermana/o</MenuItem>
+<MenuItem value="Hija/o">Hija/o</MenuItem>
+<MenuItem value="Madrastra">Madrastra</MenuItem>
+<MenuItem value="Madre">Madre</MenuItem>
+<MenuItem value="Padrastro">Padrastro</MenuItem>
+<MenuItem value="Padre">Padre</MenuItem>
+<MenuItem value="Pareja">Pareja</MenuItem>
+<MenuItem value="Prima/o">Prima/o</MenuItem>
+<MenuItem value="Sobrina/o">Sobrina/o</MenuItem>
+<MenuItem value="Suegra/o">Suegra/o</MenuItem>
+<MenuItem value="Tía/o">Tía/o</MenuItem>
+<MenuItem value="Otro">Otro</MenuItem>
         </TextField>
       </Box>
 
@@ -152,24 +164,26 @@ const AddEmployeeBeneficiaryFields: React.FC<AddEmployeeBeneficiaryFieldsProps> 
         />
       </Box>
 
-      {/* Porcentaje */}
-      <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
-        <TextField
-          required
-          label="Porcentaje"
-          value={beneficiaryInfo.percentage}
-          onChange={(e) =>
-            setBeneficiaryInfo({
-              ...beneficiaryInfo,
-              percentage: validateNumericInput(e.target.value), // Validar solo números
-            })
-          }
-          fullWidth
-          InputLabelProps={{
-            style: { color: "#6B7280" },
-          }}
-        />
-      </Box>
+     {/* Porcentaje */}
+<Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+  <TextField
+    required
+    label="Porcentaje"
+    value={beneficiaryInfo.percentage}
+    onChange={(e) => {
+      const value = validateNumericInput(e.target.value); // Validar solo números
+      const percentage = Math.max(0, Math.min(100, parseInt(value) || 0)); // Limitar entre 1 y 100
+      setBeneficiaryInfo({
+        ...beneficiaryInfo,
+        percentage: percentage.toString(),
+      });
+    }}
+    fullWidth
+    InputLabelProps={{
+      style: { color: "#6B7280" },
+    }}
+  />
+</Box>
     </Box>
   );
 };

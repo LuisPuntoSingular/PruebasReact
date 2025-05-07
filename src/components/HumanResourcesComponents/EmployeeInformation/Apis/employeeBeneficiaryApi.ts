@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/employeeBeneficiary"; // Ruta base para los beneficiarios
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employeeBeneficiary`;
 
 // Configurar el cliente Axios
 const apiClient = axios.create({

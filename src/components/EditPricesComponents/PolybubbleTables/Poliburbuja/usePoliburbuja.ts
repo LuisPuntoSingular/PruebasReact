@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = "https://backnode-production.up.railway.app/api/poliburbuja";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/poliburbuja`;
 
 interface Poliburbuja {
   id?: number; // Opcional porque no estará presente al crear un nuevo registro
@@ -15,7 +16,7 @@ export const usePoliburbuja = () => {
     derivados: "",
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
- 
+
   // Obtener datos
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +60,7 @@ export const usePoliburbuja = () => {
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.put<Poliburbuja>(
-        `${API_URL}/${updatedRecord.id}`, // Asegúrate de que el ID esté presente en la URL
+        `${API_URL}/${updatedRecord.id}`,
         updatedRecord,
         {
           headers: {
@@ -98,7 +99,6 @@ export const usePoliburbuja = () => {
   const openDialog = (row?: Poliburbuja) => {
     if (row) {
       setIsEditing(true);
-    
       setFormData(row);
     } else {
       setIsEditing(false);
@@ -113,7 +113,6 @@ export const usePoliburbuja = () => {
     setFormData({
       derivados: "",
     });
-  
     setIsEditing(false);
   };
 

@@ -4,44 +4,34 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import Avatar from "@mui/material/Avatar";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useState } from "react";
 import { styled } from "@mui/material/styles";
+import Avatar from "@mui/material/Avatar"; // Importar Avatar para StyledAvatar
 
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
+  margin: theme.spacing(1),
+}));
+const StyledAppBar = styled(AppBar)(({  }) => ({
+  backgroundColor: "#1F2937", // Fondo oscuro
+}));
+
+const StyledAvatar = styled(Avatar)(({ theme }) => ({
+  width: theme.spacing(4),
+  height: theme.spacing(4),
+}));
+
+// Define the HeaderProps interface
 interface HeaderProps {
-  onMenuClick: () => void; // Función para manejar el clic en el menú
+  onMenuClick: () => void;
 }
-
-// Estilo personalizado para el AppBar con colores oscuros y animaciones
-const StyledAppBar = styled(AppBar)({
-  background: "linear-gradient(90deg, #1e1e2f 0%, #121212 100%)", // Fondo oscuro con degradado
-  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)", // Sombra para profundidad
-  transition: "background 0.3s ease-in-out",
-});
-
-// Estilo para los botones interactivos
-const StyledIconButton = styled(IconButton)({
-  transition: "transform 0.2s ease-in-out",
-  "&:hover": {
-    transform: "scale(1.1)", // Animación de escala al pasar el cursor
-  },
-});
-
-// Estilo para el avatar
-const StyledAvatar = styled(Avatar)({
-  width: 40,
-  height: 40,
-  border: "2px solid #ffffff",
-  transition: "box-shadow 0.3s ease-in-out",
-  "&:hover": {
-    boxShadow: "0px 0px 10px 2px rgba(255, 255, 255, 0.8)", // Sombra al pasar el cursor
-  },
-});
 
 export default function Header({ onMenuClick }: HeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  
+  // Simulación del rol del usuario
+ // Cambiar a "user" para probar el comportamiento
 
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -50,6 +40,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
 
   return (
     <StyledAppBar position="static">
@@ -72,7 +63,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             flexGrow: 1,
             fontWeight: "bold",
             letterSpacing: "0.5px",
-            color: "#ffffff",
+            color: "#ffffff", // Texto blanco
           }}
         >
           My Enterprise App
@@ -91,10 +82,23 @@ export default function Header({ onMenuClick }: HeaderProps) {
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
+          PaperProps={{
+            sx: {
+              backgroundColor: "#374151", // Fondo oscuro del menú
+              color: "#ffffff", // Texto blanco
+            },
+          }}
         >
-          <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+          <MenuItem onClick={handleMenuClose} sx={{ color: "#ffffff" }}>
+            Profile
+          </MenuItem>
+         
+          {/* Configuración comentada para habilitar Settings solo si el rol es administrador */}
+       
+          
+          <MenuItem onClick={handleMenuClose} sx={{ color: "#ffffff" }}>
+            Logout
+          </MenuItem>
         </Menu>
       </Toolbar>
     </StyledAppBar>

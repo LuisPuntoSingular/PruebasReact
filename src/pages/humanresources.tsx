@@ -104,6 +104,7 @@ return (
           padding: "8px",
         }}
       />
+      
       <StatCard
         icon={<CheckCircleIcon sx={{ fontSize: "20px" }} />}
         title="Activos"

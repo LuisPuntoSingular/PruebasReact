@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useColoresFoam } from "../ColoresFoam/useColoresFoam"; // Importa el hook de ColoresFoam
 
-
-const API_URL = "https://backnode-production.up.railway.app/api/coloresprecio";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/coloresprecio`;
 
 interface ColoresPrecio {
   id?: number; // Opcional porque no estará presente al crear un nuevo registro
@@ -22,43 +22,41 @@ export const useColoresPrecio = () => {
   });
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-// Obtener los datos de ColoresFoam
-const { data: coloresFoamData } = useColoresFoam(); // Obtén los datos de ColoresFoam desde el hook
+  // Obtener los datos de ColoresFoam
+  const { data: coloresFoamData } = useColoresFoam(); // Obtén los datos de ColoresFoam desde el hook
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get<ColoresPrecio[]>(API_URL, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
+        if (response.data.length > 0) {
+          // Crear un mapa para relacionar idcoloresfoam con el nombre del color
+          const coloresFoamMap = new Map(
+            coloresFoamData.map((color) => [color.id, color.color])
+          );
 
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.get<ColoresPrecio[]>(API_URL, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+          // Transformar los datos para reemplazar idcoloresfoam con el nombre del color
+          const transformedData = response.data.map((item) => ({
+            ...item,
+            idcoloresfoam: coloresFoamMap.get(Number(item.idcoloresfoam)) || item.idcoloresfoam, // Reemplaza idcoloresfoam con el nombre
+          }));
 
-      if (response.data.length > 0) {
-        // Crear un mapa para relacionar idcoloresfoam con el nombre del color
-        const coloresFoamMap = new Map(
-          coloresFoamData.map((color) => [color.id, color.color])
-        );
-
-        // Transformar los datos para reemplazar idcoloresfoam con el nombre del color
-        const transformedData = response.data.map((item) => ({
-          ...item,
-          idcoloresfoam: coloresFoamMap.get(Number(item.idcoloresfoam)) || item.idcoloresfoam, // Reemplaza idcoloresfoam con el nombre
-        }));
-
-        setColumns(Object.keys(response.data[0]) as (keyof ColoresPrecio)[]);
-        setData(transformedData);
+          setColumns(Object.keys(response.data[0]) as (keyof ColoresPrecio)[]);
+          setData(transformedData);
+        }
+      } catch (error) {
+        console.error("Error al cargar los datos:", error);
       }
-    } catch (error) {
-      console.error("Error al cargar los datos:", error);
-    }
-  };
+    };
 
-  fetchData();
-}, [coloresFoamData]); // Ejecutar cuando los datos de ColoresFoam cambien
+    fetchData();
+  }, [coloresFoamData]); // Ejecutar cuando los datos de ColoresFoam cambien
 
   // Crear un nuevo registro
   const createRecord = async (newRecord: ColoresPrecio) => {
@@ -130,10 +128,6 @@ useEffect(() => {
       });
     }
   };
-
-  
-
-
 
   // Resetear el formulario
   const resetForm = () => {

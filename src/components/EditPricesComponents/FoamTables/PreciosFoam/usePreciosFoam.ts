@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useFoam } from "../Foam/useFoam";
 
-const API_URL = "https://backnode-production.up.railway.app/api/preciosfoam";
+// Usar la variable de entorno para configurar la URL base
+const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/preciosfoam`;
 
 // Define la interfaz para los datos
 interface PreciosFoam {
@@ -27,6 +28,7 @@ export const usePreciosFoam = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const { data: foamData } = useFoam();
+
   // Obtener datos
   useEffect(() => {
     const fetchData = async () => {
@@ -60,7 +62,6 @@ export const usePreciosFoam = () => {
 
     fetchData();
   }, [foamData]); // Ejecutar cuando los datos de Foam cambien
-
 
   // Crear un nuevo registro
   const createRecord = async (newRecord: PreciosFoam) => {
@@ -122,20 +123,8 @@ export const usePreciosFoam = () => {
   // Abrir el diálogo para crear o editar
   const openDialog = (row?: PreciosFoam) => {
     if (row) {
-      console.log("Datos de la fila seleccionada:");
-      Object.entries(row).forEach(([key, value]) => {
-        console.log(`Columna: ${key}, Valor: ${value}`);
-      });
-
-      // Mapea las claves con espacios a nombres válidos
-      const transformedRow = {
-        ...row,
-        ancho_rollo:  row["ancho rollo"], // Mapea "ancho rollo" a "ancho_rollo"
-        largo_rollo: row["largo rollo"], // Mapea "largo rollo" a "largo_rollo"
-      };
-
       setIsEditing(true);
-      setFormData(transformedRow); // Asigna los valores transformados a formData
+      setFormData(row);
     } else {
       setIsEditing(false);
       resetForm(); // Resetea el formulario para un nuevo registro
