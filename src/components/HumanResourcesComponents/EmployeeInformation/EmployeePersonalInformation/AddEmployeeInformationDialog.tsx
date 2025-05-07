@@ -1,5 +1,9 @@
 import React from "react";
 import { TextField, MenuItem, Box } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker"; // Nuevo componente
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { es } from "date-fns/locale";
 
 interface AddEmployeeInformationDialogProps {
   personalInfo: {
@@ -23,8 +27,6 @@ interface AddEmployeeInformationDialogProps {
   >;
 }
 
-
-
 const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> = ({
   personalInfo,
   setPersonalInfo,
@@ -45,134 +47,138 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "16px",
-      }}
-    >
-      {/* CURP */}
-      <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
-        <TextField
-          label="CURP"
-          value={personalInfo.curp}
-          onChange={(e) =>
-            setPersonalInfo({
-              ...personalInfo,
-              curp: formatText(e.target.value.slice(0, MAX_CURP_LENGTH)), // Formatear y restringir longitud
-            })
-          }
-          fullWidth
-          InputLabelProps={{
-            style: { color: "#6B7280" },
-          }}
-        />
-      </Box>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "16px",
+        }}
+      >
+        {/* CURP */}
+        <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+          <TextField
+            label="CURP"
+            value={personalInfo.curp}
+            onChange={(e) =>
+              setPersonalInfo({
+                ...personalInfo,
+                curp: formatText(e.target.value.slice(0, MAX_CURP_LENGTH)), // Formatear y restringir longitud
+              })
+            }
+            fullWidth
+            InputLabelProps={{
+              style: { color: "#6B7280" },
+            }}
+          />
+        </Box>
 
-      {/* RFC */}
-      <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
-        <TextField
-          label="RFC"
-          value={personalInfo.rfc}
-          onChange={(e) =>
-            setPersonalInfo({
-              ...personalInfo,
-              rfc: formatText(e.target.value.slice(0, MAX_RFC_LENGTH)), // Formatear y restringir longitud
-            })
-          }
-          fullWidth
-          InputLabelProps={{
-            style: { color: "#6B7280" },
-          }}
-        />
-      </Box>
+        {/* RFC */}
+        <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+          <TextField
+            label="RFC"
+            value={personalInfo.rfc}
+            onChange={(e) =>
+              setPersonalInfo({
+                ...personalInfo,
+                rfc: formatText(e.target.value.slice(0, MAX_RFC_LENGTH)), // Formatear y restringir longitud
+              })
+            }
+            fullWidth
+            InputLabelProps={{
+              style: { color: "#6B7280" },
+            }}
+          />
+        </Box>
 
-      {/* Sexo */}
-      <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
-        <TextField
-          required
-          label="Sexo"
-          value={personalInfo.gender}
-          onChange={(e) =>
-            setPersonalInfo({ ...personalInfo, gender: e.target.value })
-          }
-          select
-          fullWidth
-          InputLabelProps={{
-            style: { color: "#6B7280" },
-          }}
-        >
-          <MenuItem value="Masculino">Masculino</MenuItem>
-          <MenuItem value="Femenino">Femenino</MenuItem>
-        </TextField>
-      </Box>
+        {/* Sexo */}
+        <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+          <TextField
+            required
+            label="Sexo"
+            value={personalInfo.gender}
+            onChange={(e) =>
+              setPersonalInfo({ ...personalInfo, gender: e.target.value })
+            }
+            select
+            fullWidth
+            InputLabelProps={{
+              style: { color: "#6B7280" },
+            }}
+          >
+            <MenuItem value="Masculino">Masculino</MenuItem>
+            <MenuItem value="Femenino">Femenino</MenuItem>
+          </TextField>
+        </Box>
 
-      {/* Estado Civil */}
-      <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
-        <TextField
-          required
-          label="Estado Civil"
-          value={personalInfo.marital_status}
-          onChange={(e) =>
-            setPersonalInfo({
-              ...personalInfo,
-              marital_status: e.target.value,
-            })
-          }
-          select
-          fullWidth
-          InputLabelProps={{
-            style: { color: "#6B7280" },
-          }}
-        >
-          <MenuItem value="Soltero">Soltero</MenuItem>
-          <MenuItem value="Casado">Casado</MenuItem>
-          <MenuItem value="Divorciado">Divorciado</MenuItem>
-          <MenuItem value="Unión Libre">Unión Libre</MenuItem>
-          <MenuItem value="Viudo">Viudo</MenuItem>
-        </TextField>
-      </Box>
+        {/* Estado Civil */}
+        <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+          <TextField
+            required
+            label="Estado Civil"
+            value={personalInfo.marital_status}
+            onChange={(e) =>
+              setPersonalInfo({
+                ...personalInfo,
+                marital_status: e.target.value,
+              })
+            }
+            select
+            fullWidth
+            InputLabelProps={{
+              style: { color: "#6B7280" },
+            }}
+          >
+            <MenuItem value="Soltero">Soltero</MenuItem>
+            <MenuItem value="Casado">Casado</MenuItem>
+            <MenuItem value="Divorciado">Divorciado</MenuItem>
+            <MenuItem value="Unión Libre">Unión Libre</MenuItem>
+            <MenuItem value="Viudo">Viudo</MenuItem>
+          </TextField>
+        </Box>
 
-      {/* Fecha de Nacimiento */}
-      <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
-        <TextField
-          required
-          label="Fecha de Nacimiento"
-          type="date"
-          value={personalInfo.birth_date}
-          onChange={(e) =>
-            setPersonalInfo({
-              ...personalInfo,
-              birth_date: e.target.value,
-            })
-          }
-          fullWidth
-          InputLabelProps={{
-            shrink: true,
-            style: { color: "#6B7280" },
-          }}
-        />
-      </Box>
+        {/* Fecha de Nacimiento */}
+        <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+          <DesktopDatePicker
+            label="Fecha de Nacimiento"
+            value={personalInfo.birth_date ? new Date(personalInfo.birth_date) : null}
+            onChange={(newValue) =>
+              setPersonalInfo({
+                ...personalInfo,
+                birth_date: newValue ? newValue.toISOString().split("T")[0] : "",
+              })
+            }
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                InputLabelProps: {
+                  shrink: true,
+                  style: { color: "#6B7280" },
+                },
+              },
+            }}
+          />
+        </Box>
 
-      {/* NSS */}
-      <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
-        <TextField
-          label="NSS"
-          value={personalInfo.nss}
-          onChange={(e) =>
-            setPersonalInfo({
-              ...personalInfo,
-              nss: validateNumericInput(e.target.value.slice(0, MAX_NSS_LENGTH)), // Validar solo números y restringir longitud
-            })
-          }
-          fullWidth
-          InputLabelProps={{
-            style: { color: "#6B7280" },
-          }}
-        />
+        {/* NSS */}
+        <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
+          <TextField
+            label="NSS"
+            value={personalInfo.nss}
+            onChange={(e) =>
+              setPersonalInfo({
+                ...personalInfo,
+                nss: validateNumericInput(e.target.value.slice(0, MAX_NSS_LENGTH)), // Validar solo números y restringir longitud
+              })
+            }
+            fullWidth
+            InputLabelProps={{
+              style: { color: "#6B7280" },
+            }}
+          />
+        </Box>
       </Box>
-    </Box>
+    </LocalizationProvider>
   );
 };
 

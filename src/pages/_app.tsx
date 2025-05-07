@@ -14,21 +14,41 @@ import { ApiProvider } from "@/context/ApiContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { EvaProvider } from "@/context/EvaContext/EvaContext";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 
 const publicRoutes = ["/login"]; // Define rutas públicas aquí
 
 function AppContent({ Component, pageProps }: AppProps) {
-  const { isAuthenticated } = useAuth(); // Usa el AuthContext para verificar autenticación
+  const { isAuthenticated, validateToken } = useAuth(); // Usa el AuthContext para verificar autenticación
   const nextRouter = useRouter();
   const isPublicRoute = publicRoutes.includes(nextRouter.pathname);
+  const [isRedirecting, setIsRedirecting] = useState(false); // Nuevo estado para controlar la redirección
 
   useEffect(() => {
-    if (isAuthenticated === false && !isPublicRoute) {
-      console.log("Usuario no autenticado, redirigiendo al login");
-      nextRouter.push("/login");
-    }
-  }, [isAuthenticated, isPublicRoute, nextRouter]);
+    const checkAuthentication = async () => {
+      const token = localStorage.getItem("authToken");
+
+      if (!token) {
+        if (!isRedirecting) {
+          console.log("No hay token, redirigiendo al login");
+          setIsRedirecting(true); // Marca que ya se está redirigiendo
+          nextRouter.push("/login");
+        }
+        return;
+      }
+
+      const isValid = await validateToken(token);
+      if (!isValid && !isPublicRoute) {
+        if (!isRedirecting) {
+          console.log("Token inválido o expirado, redirigiendo al login");
+          setIsRedirecting(true); // Marca que ya se está redirigiendo
+          nextRouter.push("/login");
+        }
+      }
+    };
+
+    checkAuthentication();
+  }, [isPublicRoute, nextRouter, validateToken, isRedirecting]);
 
   if (isAuthenticated === false && !isPublicRoute) {
     // Evita renderizar mientras redirige

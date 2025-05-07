@@ -10,39 +10,18 @@ import {
   CardContent,
 } from "@mui/material";
 import BusinessIcon from "@mui/icons-material/Business";
-import { useRouter } from "next/router";
-import { useAuth } from "@/context/AuthContext"; 
+import { useAuth } from "@/context/AuthContext";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [localError, setLocalError] = useState<string | null>(null);
-  const { handleLogin } = useAuth(); // Usa el AuthContext
-  const router = useRouter();
+  const { login } = useAuth(); // Usa la función login del contexto
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Credenciales inválidas");
-      }
-
-      const { token } = await response.json();
-     
-
-      // Llama a handleLogin desde el AuthContext
-      handleLogin(token);
-
-      // Redirige al dashboard después del login
-      router.push("/dashboard");
+      await login(email, password); // Llama a la función login del contexto
     } catch (err: unknown) {
       if (err instanceof Error) {
         setLocalError(err.message || "Error al iniciar sesión");
@@ -58,7 +37,7 @@ const Login: React.FC = () => {
       component="main"
       sx={{
         height: "100vh",
-        background: "linear-gradient(to bottom, #0d1117, #161b22)", // Fondo oscuro con degradado
+        background: "linear-gradient(to bottom, #0d1117, #161b22)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -68,9 +47,9 @@ const Login: React.FC = () => {
         sx={{
           maxWidth: 450,
           width: "100%",
-          boxShadow: "0px 8px 30px rgba(0, 0, 0, 0.5)", // Sombra para destacar la card
+          boxShadow: "0px 8px 30px rgba(0, 0, 0, 0.5)",
           borderRadius: "16px",
-          backgroundColor: "#1e272e", // Fondo oscuro del card
+          backgroundColor: "#1e272e",
         }}
       >
         <CardContent>
@@ -84,7 +63,7 @@ const Login: React.FC = () => {
             <Avatar
               sx={{
                 m: 1,
-                bgcolor: "#f39c12", // Color dorado para el avatar
+                bgcolor: "#f39c12",
                 width: 56,
                 height: 56,
               }}
@@ -96,7 +75,7 @@ const Login: React.FC = () => {
               variant="h5"
               sx={{
                 fontWeight: "bold",
-                color: "#f1f1f1", // Texto claro
+                color: "#f1f1f1",
                 textTransform: "uppercase",
               }}
             >
@@ -105,7 +84,7 @@ const Login: React.FC = () => {
             <Typography
               component="p"
               sx={{
-                color: "#a5a5a5", // Texto gris claro
+                color: "#a5a5a5",
                 fontSize: "14px",
                 marginBottom: "20px",
               }}
@@ -141,21 +120,21 @@ const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 InputProps={{
-                  style: { color: "#f1f1f1" }, // Texto blanco
+                  style: { color: "#f1f1f1" },
                 }}
                 InputLabelProps={{
-                  style: { color: "#a5a5a5" }, // Etiqueta gris claro
+                  style: { color: "#a5a5a5" },
                 }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": {
-                      borderColor: "#555", // Borde gris oscuro
+                      borderColor: "#555",
                     },
                     "&:hover fieldset": {
-                      borderColor: "#f39c12", // Borde dorado al pasar el cursor
+                      borderColor: "#f39c12",
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#f39c12", // Borde dorado al enfocar
+                      borderColor: "#f39c12",
                     },
                   },
                 }}
@@ -172,21 +151,21 @@ const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 InputProps={{
-                  style: { color: "#f1f1f1" }, // Texto blanco
+                  style: { color: "#f1f1f1" },
                 }}
                 InputLabelProps={{
-                  style: { color: "#a5a5a5" }, // Etiqueta gris claro
+                  style: { color: "#a5a5a5" },
                 }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": {
-                      borderColor: "#555", // Borde gris oscuro
+                      borderColor: "#555",
                     },
                     "&:hover fieldset": {
-                      borderColor: "#f39c12", // Borde dorado al pasar el cursor
+                      borderColor: "#f39c12",
                     },
                     "&.Mui-focused fieldset": {
-                      borderColor: "#f39c12", // Borde dorado al enfocar
+                      borderColor: "#f39c12",
                     },
                   },
                 }}
@@ -198,11 +177,11 @@ const Login: React.FC = () => {
                 sx={{
                   mt: 3,
                   mb: 2,
-                  backgroundColor: "#f39c12", // Botón dorado
+                  backgroundColor: "#f39c12",
                   color: "#fff",
                   fontWeight: "bold",
                   "&:hover": {
-                    backgroundColor: "#d68910", // Botón dorado más oscuro al pasar el cursor
+                    backgroundColor: "#d68910",
                   },
                 }}
               >
