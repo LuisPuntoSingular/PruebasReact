@@ -30,16 +30,16 @@ const ShowMeasures: React.FC<ShowMeasuresProps> = ({ }) => {
       {/* Renderizar PalletMeasures solo si el material es "Madera" */}
       {selectedMaterial === "Madera" && <PalletMeasures key="pallets" />}
 
-      {/* Renderizar CardBoardMeasureWithoutHigh si el derivado es "Area" o "Separador" */}
-      {(selectedDerivado === "Area" || selectedDerivado === "Separador") ||
-  (
-    
-    selectedMaterial === "Foam" ||
-    selectedMaterial === "Poliburbuja" ||
-    selectedMaterial === "EPE" ||
-    selectedMaterial === "EVA") && (
-    <CardBoardMeasureWithoutHigh key="cardboardWithoutHigh" />
-  )}
+    {(
+  selectedDerivado === "Area" ||
+  selectedDerivado === "Separador" ||
+  selectedMaterial === "Foam" ||
+  selectedMaterial === "Poliburbuja" ||
+  selectedMaterial === "EPE" ||
+  selectedMaterial === "EVA"
+) && (
+  <CardBoardMeasureWithoutHigh key="cardboardWithoutHigh" />
+)}
 
       {/* Renderizar CardboardMeasure para los demás derivados */}
       {selectedMaterial === "Carton" &&
