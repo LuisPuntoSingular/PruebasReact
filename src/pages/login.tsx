@@ -10,7 +10,7 @@ import {
   CardContent,
 } from "@mui/material";
 import BusinessIcon from "@mui/icons-material/Business";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/GlobalApis/AuthContext";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");

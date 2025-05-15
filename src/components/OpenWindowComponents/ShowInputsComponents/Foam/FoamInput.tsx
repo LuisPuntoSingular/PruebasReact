@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import FoamInputColors from "./FoamInputColors";
 import { useFoamContext } from "@/context/Foam/FoamContext";
-import { useApi } from "@/context/ApiContext";
+import { useApi } from "@/context/GlobalApis/ApiContext";
 import { Foam,FoamPrecio } from "@/context/Interfaces/interfaces";
 
 

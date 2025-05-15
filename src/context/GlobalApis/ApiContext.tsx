@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { useAuth } from "@/context/AuthContext"; // Importa el AuthContext
+import { useAuth } from "@/context/GlobalApis/AuthContext"; // Importa el AuthContext
 import {
   Material,
   Derivative,
@@ -14,7 +14,7 @@ import {
   ColorPrecio,
   Polybubble,
   PolybubblePrecio,
-} from "../context/Interfaces/interfaces";
+} from "../Interfaces/interfaces";
 
 interface ApiContextType {
   materials: Material[] | null;
@@ -52,18 +52,12 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Configurar Axios para incluir el token JWT en las solicitudes
-  const axiosInstance = axios.create({
+   // Configurar Axios para incluir cookies en las solicitudes
+   const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000", // URL base del backend
+    withCredentials: true, // Incluye cookies en las solicitudes
   });
 
-  axiosInstance.interceptors.request.use((config) => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  });
 
   // Cargar datos automáticamente al montar el componente si el usuario está autenticado
   useEffect(() => {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
-import { useApi } from "@/context/ApiContext"; // Hook personalizado para las APIs
+import { useApi } from "@/context/GlobalApis/ApiContext"; // Hook personalizado para las APIs
 import { usePolybubbleContext } from "@/context/PolybubbleContext/PolybubbleContext"; // Contexto de Polybubble
 import { Polybubble, PolybubblePrecio } from "@/context/Interfaces/interfaces"; // Interfaces para los datos
 

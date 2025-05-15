@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Checkbox, FormControlLabel, Button, Box, Typography } from "@mui/material";
-import { getEmployeeDocuments, updateEmployeeDocuments, EmployeeDocuments } from "../../employeeDocumentsApi";
+import { getEmployeeDocuments, updateEmployeeDocuments, EmployeeDocuments } from "../../Apis/employeeDocumentsApi";
 
 interface EmployeeDocumentsDialogProps {
   employeeId: number;

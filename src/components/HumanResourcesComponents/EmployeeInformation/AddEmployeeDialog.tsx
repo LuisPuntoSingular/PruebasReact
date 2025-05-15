@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -14,20 +14,26 @@ import AddEmployeeGeneralInformation from "./EmployeeGeneralInformation/AddEmplo
 import AddEmployeeInformationDialog from "./EmployeePersonalInformation/AddEmployeeInformationDialog";
 import AddEmployeeBeneficiaryFields from "./EmployeeBeneficiary/AddEmployeeBeneficiaryDialog";
 import AddEmployeeAddressFields from "./EmployeeAddressContact/AddEmployeeAddressDialog";
+import AddEmployeeBossDialog from "./EmployeeBoss/AddEmployeeBossDialog";
+import { createEmployeeSupervisor } from "../Apis/employeeBossApi";
+import { fetchBosses, Boss } from "../Apis/employeeApi";
 import {
   createEmployeePersonalInformation,
-} from "./Apis/employeePersonalInformationApi";
+} from "../Apis/employeePersonalInformationApi";
 import {
   createEmployeeBeneficiary,
-} from "./Apis/employeeBeneficiaryApi";
+} from "../Apis/employeeBeneficiaryApi";
 import {
   createEmployeeAddress,
-} from "./Apis/employeeAdressContactApi";
+} from "../Apis/employeeAdressContactApi";
+import { createEmployee } from "../Apis/employeeApi";
+
+
 interface AddEmployeeDialogProps {
   open: boolean;
   onClose: () => void;
 }
-import { createEmployee } from "./Apis/employeeApi";
+
 
 
 
@@ -48,7 +54,9 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     hire_date: "",
     nss_date: null,
     status: true,
+    is_boss: false,
   });
+  
 
   // Estado para AddEmployeeInformationDialog
   const [personalInfo, setPersonalInfo] = useState({
@@ -59,6 +67,8 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     marital_status: "",
     birth_date: "",
     nss: "",
+    is_card: false,
+    cardname: "",
   });
 
   // Estado para AddEmployeeBeneficiaryFields
@@ -84,11 +94,14 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     email: "",
   });
 
+
   // Estados para alertas
   const [alertOpen, setAlertOpen] = useState(false);
   const [successAlertOpen, setSuccessAlertOpen] = useState(false);
   const [errorAlertOpen, setErrorAlertOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [bosses, setBosses] = useState<Boss[]>([]);
+  const [selectedBoss, setSelectedBoss] = useState<string>(""); // "0" para "Sin jefe"
 
   // Estado para controlar la pestaña activa
   const [tabIndex, setTabIndex] = useState(0);
@@ -96,6 +109,23 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
+
+
+ useEffect(() => {
+  const fetchBossesData = async () => {
+    try {
+      const data: Boss[] = await fetchBosses();
+      console.log("Lista de jefes:", data); // Verifica la lista de jefes obtenida
+      setBosses(data); // Usa directamente los datos proporcionados por la API
+    } catch (error) {
+      console.error("Error al obtener la lista de jefes:", error);
+    }
+  };
+
+  fetchBossesData();
+}, []);
+
+
 
 
   const handleSave = async () => {
@@ -147,6 +177,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         hire_date: newEmployee.hire_date,
         nss_date: newEmployee.nss_date || null,
         status: newEmployee.status,
+        is_boss: newEmployee.is_boss,
       });
   
       // Verificar si el ID del empleado fue generado correctamente
@@ -157,6 +188,20 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         );
         return;
       }
+
+ 
+    await createEmployeeSupervisor({
+      employee_id: createdEmployee.id,
+      supervisor_id: Number(selectedBoss),
+      start_date: new Date().toISOString().split("T")[0],
+      end_date: null,
+      active: true,
+    });
+  
+      
+
+  
+
   
     
        await createEmployeePersonalInformation({
@@ -167,6 +212,8 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         marital_status: personalInfo.marital_status,
         birth_date: personalInfo.birth_date,
         nss: personalInfo.nss || null,
+        is_card: personalInfo.is_card,
+        cardname: personalInfo.cardname || null,
       });
 
   
@@ -208,6 +255,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       hire_date: "",
       nss_date: null,
       status: true,
+      is_boss: false,
     });
 
     setPersonalInfo({
@@ -218,6 +266,8 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       marital_status: "",
       birth_date: "",
       nss: "",
+      is_card: false,
+      cardname: "",
     });
 
     setBeneficiaryInfo({
@@ -240,6 +290,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       phone_number: "",
       email: "",
     });
+    setSelectedBoss(""); // Reiniciar el jefe seleccionado
 
 
 
@@ -321,6 +372,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   <Tab label="Información Personal" />
   <Tab label="Beneficiario y Contacto" />
   <Tab label="Dirección y contacto" />
+  <Tab label="Asignacion de Jefe" />
 </Tabs>
 
       {/* Contenido del diálogo */}
@@ -356,6 +408,14 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             addressInfo={addressInfo}
             setAddressInfo={setAddressInfo}
           />
+        )}
+         {tabIndex === 4 && (
+         <AddEmployeeBossDialog
+         employeeId={newEmployee.employee_id}
+         bosses={bosses} // Pasar la lista de jefes
+         selectedBoss={selectedBoss} // Pasar el jefe seleccionado
+         setSelectedBoss={setSelectedBoss} // Pasar la función para actualizar el jefe seleccionado
+       />
         )}
       </DialogContent>
 
@@ -424,6 +484,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
       <li>Información Personal</li>
       <li>Información del Beneficiario</li>
       <li>Información de Dirección</li>
+     
     </ul>
 
 

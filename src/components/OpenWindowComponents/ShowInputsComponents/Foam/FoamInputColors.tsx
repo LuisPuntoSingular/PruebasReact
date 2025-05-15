@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
-import { useApi } from "@/context/ApiContext"; // Obtener datos desde ApiContext
+import { useApi } from "@/context/GlobalApis/ApiContext"; // Obtener datos desde ApiContext
 import { useFoamColorsContext } from "@/context/Foam/FoamColorsContext"; // Manejar lógica de selección
 import { FoamColor,ColorPrecio } from "@/context/Interfaces/interfaces"; // Definir la interfaz Colors si no está importada
 

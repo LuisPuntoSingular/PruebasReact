@@ -13,6 +13,7 @@ export interface WorkArea {
 // Configurar el cliente Axios con un interceptor
 const apiClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
 });
 
 // Agregar el token de autenticación a cada solicitud

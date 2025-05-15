@@ -10,45 +10,49 @@ import { PalletsProvider } from "@/context/PalletsContext/PalletsContext";
 import { FoamColorsProvider } from "@/context/Foam/FoamColorsContext";
 import { FoamProvider } from "@/context/Foam/FoamContext";
 import { PolybubbleProvider } from "@/context/PolybubbleContext/PolybubbleContext";
-import { ApiProvider } from "@/context/ApiContext";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ApiProvider } from "@/context/GlobalApis/ApiContext";
+import { AuthProvider, useAuth } from "@/context/GlobalApis/AuthContext";
 import { EvaProvider } from "@/context/EvaContext/EvaContext";
+import { UserSessionInfoProvider } from "@/context/GlobalApis/UserSessionInfoContext";
+
 import { useRouter } from "next/router";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 
 const publicRoutes = ["/login"]; // Define rutas públicas aquí
 
 function AppContent({ Component, pageProps }: AppProps) {
-  const { isAuthenticated, validateToken } = useAuth(); // Usa el AuthContext para verificar autenticación
+  const { validateToken, isAuthenticated } = useAuth(); // Usa el AuthContext para verificar autenticación
   const nextRouter = useRouter();
   const isPublicRoute = publicRoutes.includes(nextRouter.pathname);
   const [isRedirecting, setIsRedirecting] = useState(false); // Nuevo estado para controlar la redirección
 
   useEffect(() => {
     const checkAuthentication = async () => {
-      const token = localStorage.getItem("authToken");
-
-      if (!token) {
-        if (!isRedirecting) {
-          console.log("No hay token, redirigiendo al login");
-          setIsRedirecting(true); // Marca que ya se está redirigiendo
-          nextRouter.push("/login");
-        }
+      if (isPublicRoute) {
+    
         return;
       }
 
-      const isValid = await validateToken(token);
-      if (!isValid && !isPublicRoute) {
-        if (!isRedirecting) {
-          console.log("Token inválido o expirado, redirigiendo al login");
-          setIsRedirecting(true); // Marca que ya se está redirigiendo
-          nextRouter.push("/login");
+      if (isAuthenticated === false) {
+      
+        const isValid = await validateToken();
+        if (!isValid) {
+      
+          if (!isRedirecting) {
+            setIsRedirecting(true);
+            nextRouter.push("/login");
+          }
         }
+        return;
       }
-    };
-
+    }
     checkAuthentication();
-  }, [isPublicRoute, nextRouter, validateToken, isRedirecting]);
+  }, [isPublicRoute, isAuthenticated, nextRouter, isRedirecting, validateToken]);
+
+  if (isAuthenticated === null) {
+    // Muestra un indicador de carga mientras se valida el estado de autenticación
+    return <div>Cargando...</div>;
+  }
 
   if (isAuthenticated === false && !isPublicRoute) {
     // Evita renderizar mientras redirige
@@ -57,6 +61,7 @@ function AppContent({ Component, pageProps }: AppProps) {
 
   return (
     <ThemeProvider theme={theme}>
+      <UserSessionInfoProvider>
       <EvaProvider>
         <PolybubbleProvider>
           <FoamProvider>
@@ -82,6 +87,7 @@ function AppContent({ Component, pageProps }: AppProps) {
           </FoamProvider>
         </PolybubbleProvider>
       </EvaProvider>
+      </UserSessionInfoProvider>
     </ThemeProvider>
   );
 }

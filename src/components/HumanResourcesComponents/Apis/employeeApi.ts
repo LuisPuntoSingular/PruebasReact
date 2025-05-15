@@ -18,26 +18,19 @@ export interface Employee {
   emergency_contact?: string; // Opcional
   nss_date?: string | null; // Opcional, puede ser null
   status: boolean;
+  is_boss?: boolean;
 }
 
+export interface Boss {
+  id: number;
+  full_name: string; // Ahora solo necesitas el campo full_name
+}
 // Configurar el cliente Axios con un interceptor
 const apiClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
 });
 
-// Agregar el token de autenticación a cada solicitud
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("authToken"); // Obtén el token del almacenamiento local
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`; // Agrega el token al encabezado
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
 // Obtener todos los empleados
 export const getEmployees = async (): Promise<Employee[]> => {
@@ -72,4 +65,16 @@ export const updateEmployee = async (id: number, employee: Employee): Promise<Em
 // Eliminar un empleado
 export const deleteEmployee = async (id: number): Promise<void> => {
   await apiClient.delete(`/${id}`);
+};
+
+// Obtener el ID y nombre completo de todos los empleados que son jefes
+export const fetchBosses = async (): Promise<Boss[]> => {
+  const response = await apiClient.get("/bosses"); // Ajusta la URL según tu API
+  const data = response.data;
+
+  // Devuelve los datos directamente, ya que el campo `full_name` ya está presente
+  return data.map((boss: Boss) => ({
+    id: boss.id,
+    full_name: boss.full_name, // Usa directamente el campo `full_name` de la API
+  }));
 };

@@ -6,21 +6,10 @@ const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/plants`;
 // Crear una instancia de Axios con la URL base
 const apiClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
 });
 
-// Agregar el token de autenticación a cada solicitud
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("authToken"); // Obtén el token del almacenamiento local
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`; // Agrega el token al encabezado
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+
 
 // Obtener todas las plantas
 export const getAllPlants = async () => {

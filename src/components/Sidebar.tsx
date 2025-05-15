@@ -17,9 +17,8 @@ import {
   AttachMoney,
   Dashboard,
   People,
- 
   PersonAdd,
-} from "@mui/icons-material"; // Importa íconos adicionales
+} from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import FloatingWindow from "../components/OpenWindow";
@@ -27,10 +26,10 @@ import FloatingWindow from "../components/OpenWindow";
 // Estilo personalizado para el Drawer
 const StyledDrawer = styled(Drawer)({
   "& .MuiDrawer-paper": {
-    background: "linear-gradient(to bottom, #1e1e2f, #121212)", // Fondo oscuro con degradado
-    color: "#ffffff", // Texto claro
-    width: 300, // Ancho del sidebar
-    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)", // Sombra moderna
+    background: "linear-gradient(to bottom, #1e1e2f, #121212)",
+    color: "#ffffff",
+    width: 300,
+    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.5)",
     transition: "background 0.3s ease-in-out",
   },
 });
@@ -39,17 +38,17 @@ const StyledDrawer = styled(Drawer)({
 const StyledListItemButton = styled(ListItemButton)({
   transition: "transform 0.2s ease-in-out",
   "&:hover": {
-    transform: "scale(1.05)", // Animación de escala al pasar el cursor
-    backgroundColor: "rgba(255, 255, 255, 0.1)", // Fondo translúcido al pasar el cursor
+    transform: "scale(1.05)",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
 });
 
 // Estilo para los íconos
 const StyledListItemIcon = styled(ListItemIcon)({
-  color: "#ffffff", // Color blanco para los íconos
+  color: "#ffffff",
   transition: "color 0.3s ease-in-out",
   "&:hover": {
-    color: "#03a9f4", // Cambia a azul claro al pasar el cursor
+    color: "#03a9f4",
   },
 });
 
@@ -61,7 +60,7 @@ interface SidebarProps {
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const [showFloatingWindow, setShowFloatingWindow] = useState(false);
   const [openVentas, setOpenVentas] = useState(false);
-  const [openRecursosHumanos, setOpenRecursosHumanos] = useState(false); // Estado para Recursos Humanos
+  const [openRecursosHumanos, setOpenRecursosHumanos] = useState(false);
   const router = useRouter();
 
   const handleOpenFloatingWindow = () => {
@@ -77,21 +76,23 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
   };
 
   const handleToggleRecursosHumanos = () => {
-    setOpenRecursosHumanos(!openRecursosHumanos); // Alternar el estado de Recursos Humanos
+    setOpenRecursosHumanos(!openRecursosHumanos);
   };
 
   const handleGoToDashboard = () => {
-    router.push("/dashboard"); // Redirige a la página Dashboard
+    router.push("/dashboard");
   };
 
-  
-
   const handleGoToAddEmployee = () => {
-    router.push("/humanresources"); // Redirige a la página para agregar empleado
+    router.push("/humanresources");
   };
 
   const handleGoToModified = () => {
-    router.push("/editprices"); // Redirige a la página para agregar empleado
+    router.push("/editprices");
+  };
+
+  const handleGoToPayrollHR = () => {
+    router.push("/payrollhumanresources");
   };
 
   return (
@@ -128,74 +129,84 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Lista de opciones */}
         <List>
-  {/* Dashboard */}
-  <StyledListItemButton onClick={handleGoToDashboard}>
-    <StyledListItemIcon>
-      <Dashboard />
-    </StyledListItemIcon>
-    <ListItemText primary="Dashboard" />
-  </StyledListItemButton>
+          {/* Dashboard */}
+          <StyledListItemButton onClick={handleGoToDashboard}>
+            <StyledListItemIcon>
+              <Dashboard />
+            </StyledListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </StyledListItemButton>
 
-  {/* Ventas con submenú */}
-  <StyledListItemButton onClick={handleToggleVentas}>
-    <StyledListItemIcon>
-      <Business />
-    </StyledListItemIcon>
-    <ListItemText primary="Ventas" />
-    {openVentas ? <ExpandLess /> : <ExpandMore />}
-  </StyledListItemButton>
-  <Collapse in={openVentas} timeout="auto" unmountOnExit>
-    <List component="div" disablePadding>
-      <StyledListItemButton
-        sx={{
-          pl: 4,
-        }}
-        onClick={handleOpenFloatingWindow}
-      >
-        <StyledListItemIcon>
-          <AttachMoney />
-        </StyledListItemIcon>
-        <ListItemText primary="Cotizador" />
-      </StyledListItemButton>
-      <StyledListItemButton
-        sx={{
-          pl: 4,
-        }}
-        onClick={handleGoToModified}
-      >
-        <StyledListItemIcon>
-          <AttachMoney />
-        </StyledListItemIcon>
-        <ListItemText primary="Editar Precios" />
-      </StyledListItemButton>
-    </List>
-  </Collapse>
+          {/* Ventas con submenú */}
+          <StyledListItemButton onClick={handleToggleVentas}>
+            <StyledListItemIcon>
+              <Business />
+            </StyledListItemIcon>
+            <ListItemText primary="Ventas" />
+            {openVentas ? <ExpandLess /> : <ExpandMore />}
+          </StyledListItemButton>
+          <Collapse in={openVentas} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <StyledListItemButton
+                sx={{
+                  pl: 4,
+                }}
+                onClick={handleOpenFloatingWindow}
+              >
+                <StyledListItemIcon>
+                  <AttachMoney />
+                </StyledListItemIcon>
+                <ListItemText primary="Cotizador" />
+              </StyledListItemButton>
+              <StyledListItemButton
+                sx={{
+                  pl: 4,
+                }}
+                onClick={handleGoToModified}
+              >
+                <StyledListItemIcon>
+                  <AttachMoney />
+                </StyledListItemIcon>
+                <ListItemText primary="Editar Precios" />
+              </StyledListItemButton>
+            </List>
+          </Collapse>
 
-  {/* Recursos Humanos con submenú */}
-  <StyledListItemButton onClick={handleToggleRecursosHumanos}>
-    <StyledListItemIcon>
-      <People />
-    </StyledListItemIcon>
-    <ListItemText primary="Recursos Humanos" />
-    {openRecursosHumanos ? <ExpandLess /> : <ExpandMore />}
-  </StyledListItemButton>
-  <Collapse in={openRecursosHumanos} timeout="auto" unmountOnExit>
-    <List component="div" disablePadding>
-     
-      <StyledListItemButton
-        sx={{
-          pl: 4,
-        }}
-        onClick={handleGoToAddEmployee}
-      >
-        <StyledListItemIcon>
-          <PersonAdd />
-        </StyledListItemIcon>
-        <ListItemText primary="Agregar Empleado" />
-      </StyledListItemButton>
-    </List>
-  </Collapse>
-</List>
+          {/* Recursos Humanos con submenú */}
+          <StyledListItemButton onClick={handleToggleRecursosHumanos}>
+            <StyledListItemIcon>
+              <People />
+            </StyledListItemIcon>
+            <ListItemText primary="Recursos Humanos" />
+            {openRecursosHumanos ? <ExpandLess /> : <ExpandMore />}
+          </StyledListItemButton>
+          <Collapse in={openRecursosHumanos} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <StyledListItemButton
+                sx={{
+                  pl: 4,
+                }}
+                onClick={handleGoToAddEmployee}
+              >
+                <StyledListItemIcon>
+                  <PersonAdd />
+                </StyledListItemIcon>
+                <ListItemText primary="Agregar Empleado" />
+              </StyledListItemButton>
+              <StyledListItemButton
+                sx={{
+                  pl: 4,
+                }}
+                onClick={handleGoToPayrollHR}
+              >
+                <StyledListItemIcon>
+                  <AttachMoney />
+                </StyledListItemIcon>
+                <ListItemText primary="Nómina RH" />
+              </StyledListItemButton>
+            </List>
+          </Collapse>
+        </List>
       </StyledDrawer>
 
       {/* Ventana flotante */}

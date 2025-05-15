@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { useAuth } from "@/context/AuthContext"; // Conecta con el AuthContext
+import { useAuth } from "@/context/GlobalApis/AuthContext"; // Conecta con el AuthContext
 
 const Dashboard: React.FC = () => {
   const { isAuthenticated, handleLogout } = useAuth(); // Usa el AuthContext

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Box, MenuItem } from "@mui/material";
-import { getAllWorkAreas, WorkArea } from "../Apis/employeeWorkAreasApi";
-import { getAllPlants } from "../Apis/employeePlantsApi"; // Importar la función para obtener las plantas
+import { TextField, Box, MenuItem,Switch, FormControlLabel } from "@mui/material";
+import { getAllWorkAreas, WorkArea,  } from "../../Apis/employeeWorkAreasApi";
+import { getAllPlants } from "../../Apis/employeePlantsApi"; // Importar la función para obtener las plantas
+
 
 interface Employee {
   employee_id: number;
@@ -15,6 +16,7 @@ interface Employee {
   nss_date?: string | null;
   status: boolean;
   plant_id: number | string; // Agregar el campo plant_id
+  is_boss: boolean;
 }
 
 interface AddEmployeeGeneralInformationProps {
@@ -97,6 +99,26 @@ const AddEmployeeGeneralInformation: React.FC<AddEmployeeGeneralInformationProps
           </MenuItem>
         ))}
       </TextField>
+      {/* Selección de Jefe */}
+      <Box display="flex" alignItems="center" justifyContent="center" width="100%">
+  <FormControlLabel
+    control={
+      <Switch
+        checked={newEmployee.is_boss}
+        onChange={(e) =>
+          setNewEmployee({ ...newEmployee, is_boss: e.target.checked })
+        }
+        color="primary"
+      />
+    }
+    label="¿Es jefe?"
+    labelPlacement="start"
+    sx={{
+      color: "#6B7280",
+      "& .MuiFormControlLabel-label": { fontWeight: 500 },
+    }}
+  />
+</Box>
 
       {/* Nombres y Apellidos */}
       <TextField

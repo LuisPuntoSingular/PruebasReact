@@ -6,20 +6,10 @@ const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employeePersonalInf
 // Configurar el cliente Axios
 const apiClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
 });
 
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("authToken"); // Obtén el token del almacenamiento local
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`; // Agrega el token al encabezado
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+
 
 // Definir la interfaz para la información personal
 export interface PersonalInfo {
@@ -30,6 +20,8 @@ export interface PersonalInfo {
   marital_status: string;
   birth_date: string;
   nss?: string | null;
+  is_card: boolean;
+  cardname?: string | null;
 }
 
 // Obtener información personal por ID

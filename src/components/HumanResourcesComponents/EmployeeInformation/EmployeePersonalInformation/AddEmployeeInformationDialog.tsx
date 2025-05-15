@@ -1,5 +1,5 @@
 import React from "react";
-import { TextField, MenuItem, Box } from "@mui/material";
+import { TextField, MenuItem, Box,RadioGroup, FormControlLabel, Radio,FormControl } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker"; // Nuevo componente
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -14,6 +14,8 @@ interface AddEmployeeInformationDialogProps {
     marital_status: string;
     birth_date: string;
     nss: string;
+    is_card: boolean;
+    cardname: string;
   };
   setPersonalInfo: React.Dispatch<
     React.SetStateAction<{
@@ -23,6 +25,8 @@ interface AddEmployeeInformationDialogProps {
       marital_status: string;
       birth_date: string;
       nss: string;
+      is_card: boolean;
+      cardname: string;
     }>
   >;
 }
@@ -55,6 +59,51 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
           gap: "16px",
         }}
       >
+
+
+
+
+{/* ¿Tiene tarjeta y banco? */}
+<Box sx={{ display: "flex", gap: "16px", alignItems: "center", width: "100%" }}>
+  {/* RadioGroup para is_card */}
+  <Box sx={{ flex: "1 1 50%" }}>
+    <FormControl component="fieldset" sx={{ color: "#6B7280" }}>
+      <RadioGroup
+        row
+        value={personalInfo.is_card ? "yes" : "no"}
+        onChange={(e) =>
+          setPersonalInfo({ ...personalInfo, is_card: e.target.value === "yes" })
+        }
+        name="is_card"
+      >
+        <FormControlLabel value="yes" control={<Radio color="primary" />} label="Sí" />
+        <FormControlLabel value="no" control={<Radio color="primary" />} label="No" />
+      </RadioGroup>
+    </FormControl>
+  </Box>
+
+  {/* Select para el banco */}
+  <Box sx={{ flex: "1 1 50%" }}>
+    <TextField
+      label="Banco"
+      value={personalInfo.cardname || ""}
+      onChange={(e) =>
+        setPersonalInfo({ ...personalInfo, cardname: e.target.value })
+      }
+      select
+      fullWidth
+      InputLabelProps={{
+        style: { color: "#6B7280" },
+      }}
+      disabled={!personalInfo.is_card} // Deshabilitar si no tiene tarjeta
+    >
+      <MenuItem value="Santander">Santander</MenuItem>
+      <MenuItem value="Ban Bajío">Ban Bajío</MenuItem>
+    </TextField>
+  </Box>
+</Box>
+
+
         {/* CURP */}
         <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
           <TextField
@@ -94,8 +143,8 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
         {/* Sexo */}
         <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
           <TextField
-            required
             label="Sexo"
+            required
             value={personalInfo.gender}
             onChange={(e) =>
               setPersonalInfo({ ...personalInfo, gender: e.target.value })
@@ -114,7 +163,7 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
         {/* Estado Civil */}
         <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
           <TextField
-            required
+             required
             label="Estado Civil"
             value={personalInfo.marital_status}
             onChange={(e) =>
@@ -140,7 +189,8 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
         {/* Fecha de Nacimiento */}
         <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
           <DesktopDatePicker
-            label="Fecha de Nacimiento"
+           
+           
             value={personalInfo.birth_date ? new Date(personalInfo.birth_date) : null}
             onChange={(newValue) =>
               setPersonalInfo({
@@ -150,6 +200,8 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
             }
             slotProps={{
               textField: {
+                 label:"Fecha de Nacimiento",
+                 required : true,
                 fullWidth: true,
                 InputLabelProps: {
                   shrink: true,
@@ -158,6 +210,7 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
               },
             }}
           />
+          
         </Box>
 
         {/* NSS */}

@@ -1,9 +1,8 @@
 import React from "react";
 import { FormControl, TextField, MenuItem } from "@mui/material";
-import { useApi } from "@/context/ApiContext";
+import { useApi } from "@/context/GlobalApis/ApiContext";
 import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext"; // Importar el contexto
 import { Material } from "@/context/Interfaces/interfaces";
-
 
 const MaterialInput: React.FC = () => {
   const { materials, loading, error } = useApi(); // Hook para obtener los materiales desde la API
@@ -11,15 +10,15 @@ const MaterialInput: React.FC = () => {
 
   if (loading) return <div>Cargando materiales...</div>; // Mensaje de carga
   if (error) return <p>Error: {error}</p>;
-    
+
   const handleMaterialChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedMaterial(event.target.value); // Actualizar el material seleccionado en el contexto
   };
-  
+
   return (
     <FormControl fullWidth sx={{ marginBottom: "16px" }}>
       <TextField
-       size="small"
+        size="small"
         fullWidth // Asegura que el campo ocupe todo el ancho disponible
         select
         label="Seleccionar Material"
@@ -27,7 +26,6 @@ const MaterialInput: React.FC = () => {
         onChange={handleMaterialChange}
         sx={{
           background: "rgba(194, 176, 176, 0.34)", // Fondo del campo
-        
           borderRadius: "8px", // Bordes redondeados
           "& .MuiOutlinedInput-root": {
             color: "#ffffff", // Color del texto
@@ -49,13 +47,13 @@ const MaterialInput: React.FC = () => {
           },
         }}
       >
-       {/* Renderiza las opciones dinámicamente */}
-       {materials.map((material: Material) => (
+        {/* Renderiza las opciones dinámicamente */}
+        {materials.map((material: Material) => (
           <MenuItem key={material.id} value={material.name}>
             {material.name}
           </MenuItem>
         ))}
-        </TextField>
+      </TextField>
     </FormControl>
   );
 };

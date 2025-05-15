@@ -12,10 +12,10 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import { getEmployeeById } from "../HumanResourcesComponents/EmployeeInformation/Apis/employeeApi";
-import { getEmployeePersonalInformationById } from "../HumanResourcesComponents/EmployeeInformation/Apis/employeePersonalInformationApi";
-import { getEmployeeBeneficiaryById } from "../HumanResourcesComponents/EmployeeInformation/Apis/employeeBeneficiaryApi";
-import { getEmployeeAddressById } from "../HumanResourcesComponents/EmployeeInformation/Apis/employeeAdressContactApi";
+import { getEmployeeById } from "./Apis/employeeApi";
+import { getEmployeePersonalInformationById } from "./Apis/employeePersonalInformationApi";
+import { getEmployeeBeneficiaryById } from "./Apis/employeeBeneficiaryApi";
+import { getEmployeeAddressById } from "./Apis/employeeAdressContactApi";
 
 interface EmployeeDetailsDialogProps {
   open: boolean;
@@ -35,6 +35,7 @@ interface Employee {
   nss_date?: string | null;
   status: boolean;
   plant_id?: number | string; // Agregar el campo plant_id
+  is_boss?: boolean; 
 }
 
 // Información personal del empleado
@@ -45,6 +46,8 @@ interface PersonalInfo {
   marital_status: string;
   birth_date: string;
   nss?: string;
+  is_card?: boolean;
+  cardname?: string;
 }
 
 // Dirección y contacto del empleado
@@ -162,6 +165,9 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
                 <Typography>
                   <strong>ID:</strong> {employeeInfo.id}
                 </Typography>
+                <Typography>
+                  <strong>Jefe</strong> {employeeInfo.is_boss ? "Sí" : "No"}
+                </Typography>
 
                 <Typography>
                   <strong>Planta:</strong> {employeeInfo.plant_id}
@@ -216,6 +222,12 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
                 </Typography>
                 <Typography>
                   <strong>NSS:</strong> {personalInfo.nss}
+                </Typography>
+                <Typography>
+                  <strong>¿Tiene Tarjeta?</strong> {personalInfo.is_card ? "Sí" : "No"}
+                </Typography>
+                <Typography>
+                  <strong>Nombre de la Tarjeta:</strong> {personalInfo.cardname || "No Tiene"}
                 </Typography>
               </Box>
             ) : (

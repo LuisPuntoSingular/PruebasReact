@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
-import { useApi } from "@/context/ApiContext";
+import { useApi } from "@/context/GlobalApis/ApiContext";
 import { useEva } from "@/context/EvaContext/EvaContext";
 
 const EvaInputs: React.FC = () => {
