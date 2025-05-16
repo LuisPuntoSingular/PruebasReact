@@ -33,10 +33,10 @@ export const usePreciosFoam = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("authToken");
+      
         const response = await axios.get<PreciosFoam[]>(API_URL, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            credentials: "include",
           },
         });
 

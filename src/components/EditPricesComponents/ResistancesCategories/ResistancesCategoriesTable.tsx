@@ -22,10 +22,10 @@ const ResistancesCategoriesTable: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("authToken");
+      
         const response = await axios.get<ResistanceCategory[]>(API_URL, {
           headers: {
-            Authorization: `Bearer ${token}`,
+           credentials: "include",
           },
         });
         if (response.data.length > 0) {

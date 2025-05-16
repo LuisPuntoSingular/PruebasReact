@@ -21,10 +21,10 @@ export const usePoliburbuja = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("authToken");
+     
         const response = await axios.get<Poliburbuja[]>(API_URL, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            credentials: "include",
           },
         });
         if (response.data.length > 0) {

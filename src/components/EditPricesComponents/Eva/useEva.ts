@@ -23,10 +23,10 @@ export const useEva = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("authToken");
+     
         const response = await axios.get<Eva[]>(API_URL, {
           headers: {
-            Authorization: `Bearer ${token}`,
+           credentials: "include",
           },
         });
         if (response.data.length > 0) {

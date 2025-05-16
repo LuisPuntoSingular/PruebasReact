@@ -21,11 +21,8 @@ export const useMaterials = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("authToken");
         const response = await axios.get<Material[]>(API_URL, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // Mover esta opción fuera de headers
         });
         if (response.data.length > 0) {
           setColumns(Object.keys(response.data[0]) as (keyof Material)[]);
@@ -35,7 +32,7 @@ export const useMaterials = () => {
         console.error("Error al cargar los datos:", error);
       }
     };
-
+  
     fetchData();
   }, []);
 

@@ -28,10 +28,10 @@ export const useColoresPrecio = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("authToken");
+      
         const response = await axios.get<ColoresPrecio[]>(API_URL, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            credentials: "include",
           },
         });
 

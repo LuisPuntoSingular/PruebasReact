@@ -29,10 +29,10 @@ export const usePoliburbujaPrecios = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("authToken");
+      
         const response = await axios.get<PoliburbujaPrecio[]>(API_URL, {
           headers: {
-            Authorization: `Bearer ${token}`,
+           credentials: "include",
           },
         });
         if (response.data.length > 0) {

@@ -80,10 +80,10 @@ export const useDerivatives = () => {
   // Eliminar un registro
   const deleteRecord = async (row: Derivative) => {
     try {
-      const token = localStorage.getItem("authToken");
+      
       await axios.delete(`${API_URL}/${row.derivativeid}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+         credentials: "include",
         },
       });
       setData(data.filter((item) => item.derivativeid !== row.derivativeid));
