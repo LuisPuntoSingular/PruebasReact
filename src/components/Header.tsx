@@ -9,7 +9,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import Avatar from "@mui/material/Avatar"; // Importar Avatar para StyledAvatar
-import { useRouter } from "next/router"; // Importar useRouter para redirección
+
 import { useAuth } from "@/context/GlobalApis/AuthContext"; // Importar AuthContext
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
@@ -31,7 +31,7 @@ interface HeaderProps {
 
 export default function Header({ onMenuClick }: HeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const router = useRouter(); // Hook para redirección en Next.js
+
   const { handleLogout } = useAuth(); // Usa el AuthContext para obtener handleLogout
 
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -42,10 +42,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
     setAnchorEl(null);
   };
 
-  const handleSettingsClick = () => {
-    setAnchorEl(null);
-    router.push("/adminconfigurations"); // Redirigir a adminconfigurations
-  };
+ 
 
   const handleLogoutClick = async () => {
     setAnchorEl(null); // Cierra el menú
@@ -103,7 +100,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             Profile
           </MenuItem>
 
-          <MenuItem onClick={handleSettingsClick} sx={{ color: "#ffffff" }}>
+          <MenuItem  sx={{ color: "#ffffff" }}>
             Settings
           </MenuItem>
 
