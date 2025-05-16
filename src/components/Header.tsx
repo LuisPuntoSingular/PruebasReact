@@ -10,11 +10,12 @@ import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import Avatar from "@mui/material/Avatar"; // Importar Avatar para StyledAvatar
 import { useRouter } from "next/router"; // Importar useRouter para redirección
+import { useAuth } from "@/context/GlobalApis/AuthContext"; // Importar AuthContext
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
   margin: theme.spacing(1),
 }));
-const StyledAppBar = styled(AppBar)(({  }) => ({
+const StyledAppBar = styled(AppBar)(({}) => ({
   backgroundColor: "#1F2937", // Fondo oscuro
 }));
 
@@ -31,9 +32,7 @@ interface HeaderProps {
 export default function Header({ onMenuClick }: HeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const router = useRouter(); // Hook para redirección en Next.js
-
-  // Simulación del rol del usuario
-   //let userRole = "admin"; // Cambiar a "user" para probar el comportamiento
+  const { handleLogout } = useAuth(); // Usa el AuthContext para obtener handleLogout
 
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -46,6 +45,11 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const handleSettingsClick = () => {
     setAnchorEl(null);
     router.push("/adminconfigurations"); // Redirigir a adminconfigurations
+  };
+
+  const handleLogoutClick = async () => {
+    setAnchorEl(null); // Cierra el menú
+    await handleLogout(); // Llama a la función de cierre de sesión del AuthContext
   };
 
   return (
@@ -98,12 +102,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <MenuItem onClick={handleMenuClose} sx={{ color: "#ffffff" }}>
             Profile
           </MenuItem>
-         
+
           <MenuItem onClick={handleSettingsClick} sx={{ color: "#ffffff" }}>
             Settings
           </MenuItem>
-          
-          <MenuItem onClick={handleMenuClose} sx={{ color: "#ffffff" }}>
+
+          <MenuItem onClick={handleLogoutClick} sx={{ color: "#ffffff" }}>
             Logout
           </MenuItem>
         </Menu>

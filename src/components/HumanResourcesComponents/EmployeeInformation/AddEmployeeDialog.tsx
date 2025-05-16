@@ -309,6 +309,16 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     }
   };
 
+  const reloadBosses = async () => {
+    try {
+      const updatedBosses = await fetchBosses(); // Llama a la API para obtener la lista actualizada
+      setBosses(updatedBosses); // Actualiza el estado con la nueva lista
+    } catch (error) {
+      console.error("Error al recargar la lista de jefes:", error);
+    }
+  };
+
+
   return (
     <Dialog
       open={open}
@@ -397,6 +407,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
          bosses={bosses} // Pasar la lista de jefes
          selectedBoss={selectedBoss} // Pasar el jefe seleccionado
          setSelectedBoss={setSelectedBoss} // Pasar la función para actualizar el jefe seleccionado
+        onReloadBosses={reloadBosses} // Pasar la función para recargar la lista de jefes
        />
         )}
 

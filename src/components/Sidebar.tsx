@@ -14,10 +14,11 @@ import {
   ExpandLess,
   ExpandMore,
   Business,
-  AttachMoney,
+  EventAvailable, // Ícono relacionado con asistencias
   Dashboard,
   People,
   PersonAdd,
+  AttachMoney
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
@@ -95,6 +96,10 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     router.push("/payrollhumanresources");
   };
 
+  const handleGoToIncidents = () => {
+    router.push("/incidents");
+  };
+
   return (
     <>
       <StyledDrawer anchor="left" open={open} onClose={onClose}>
@@ -154,7 +159,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 onClick={handleOpenFloatingWindow}
               >
                 <StyledListItemIcon>
-                  <AttachMoney />
+                  <EventAvailable /> {/* Cambiado a EventAvailable */}
                 </StyledListItemIcon>
                 <ListItemText primary="Cotizador" />
               </StyledListItemButton>
@@ -165,7 +170,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 onClick={handleGoToModified}
               >
                 <StyledListItemIcon>
-                  <AttachMoney />
+                  <EventAvailable /> {/* Cambiado a EventAvailable */}
                 </StyledListItemIcon>
                 <ListItemText primary="Editar Precios" />
               </StyledListItemButton>
@@ -200,9 +205,20 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 onClick={handleGoToPayrollHR}
               >
                 <StyledListItemIcon>
-                  <AttachMoney />
+                  <AttachMoney /> {/* Cambiado a EventAvailable */}
                 </StyledListItemIcon>
                 <ListItemText primary="Nómina RH" />
+              </StyledListItemButton>
+              <StyledListItemButton
+                sx={{
+                  pl: 4,
+                }}
+                onClick={handleGoToIncidents}
+              >
+                <StyledListItemIcon>
+                  <EventAvailable /> {/* Cambiado a EventAvailable */}
+                </StyledListItemIcon>
+                <ListItemText primary="Incidencias" />
               </StyledListItemButton>
             </List>
           </Collapse>

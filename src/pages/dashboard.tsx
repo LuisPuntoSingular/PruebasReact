@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useAuth } from "@/context/GlobalApis/AuthContext"; // Conecta con el AuthContext
 
 const Dashboard: React.FC = () => {
-  const { isAuthenticated, handleLogout } = useAuth(); // Usa el AuthContext
+  const { isAuthenticated } = useAuth(); // Usa el AuthContext
   const router = useRouter();
 
   useEffect(() => {
@@ -19,19 +19,6 @@ const Dashboard: React.FC = () => {
   return (
     <div>
       <h1>Bienvenido al Dashboard</h1>
-      <button
-        onClick={handleLogout} // Usa handleLogout del AuthContext
-        style={{
-          padding: "10px 15px",
-          backgroundColor: "#FF0000",
-          color: "#fff",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        Cerrar Sesión
-      </button>
     </div>
   );
 };
