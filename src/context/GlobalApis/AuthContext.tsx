@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
+import axios from "axios";
 
 interface User {
   id: number;
@@ -8,30 +9,30 @@ interface User {
   employee_id?: number; // Opcional si no siempre está presente
 }
 
-
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: Record<string, User> | null; 
+  user: Record<string, User> | null;
   handleLogout: () => void;
   login: (email: string, password: string) => Promise<void>;
   validateToken: () => Promise<boolean>;
 }
-
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); // Inicializa como null
   const [user, setUser] = useState<Record<string, User> | null>(null); // Nuevo: estado para el objeto user
-  
   const router = useRouter();
+
+  // Configurar instancia de Axios
+  const axiosInstance = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000", // URL base del backend
+    withCredentials: true, // Incluye cookies en las solicitudes
+  });
 
   const handleLogout = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`, {
-        method: "POST",
-        credentials: "include", // Incluye cookies en la solicitud
-      });
+      await axiosInstance.post("/auth/logout");
       setIsAuthenticated(false); // Marca al usuario como no autenticado
       setUser(null); // Limpia el objeto user
       router.push("/login"); // Redirige al login
@@ -42,24 +43,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: "include", // Incluye cookies en la solicitud
+      const response = await axiosInstance.post("/auth/login", {
+        email,
+        password,
       });
 
-      if (!response.ok) {
-        throw new Error("Credenciales inválidas");
-      }
-
-      const data = await response.json(); // Extrae los datos de la respuesta
-     
-
+      const data = response.data; // Extrae los datos de la respuesta
       setIsAuthenticated(true); // Marca al usuario como autenticado
-      setUser(data.user); 
+      setUser(data.user); // Guarda los datos del usuario
       router.push("/dashboard");
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
@@ -69,33 +60,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const validateToken = useCallback(async (): Promise<boolean> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/auth/validate-token`, {
-        method: "GET",
-        credentials: "include", // Incluye cookies en la solicitud
-      });
+      const response = await axiosInstance.get("/auth/auth/validate-token");
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Si el token no es válido o ha expirado, marca como no autenticado
-          setIsAuthenticated(false);
-          setUser(null); // Limpia el objeto user
-         
-          return false;
-        }
-        throw new Error("Error al validar el token");
-      }
-
-      const data = await response.json(); // Extrae los datos del usuario
+      const data = response.data; // Extrae los datos del usuario
       setIsAuthenticated(true);
       setUser(data.user);
       return true;
-    } catch (err) {
-      console.error("Error al validar el token:", err);
+    } catch (error) {
+      console.error("Error al validar el token:", error);
       setIsAuthenticated(false); // Marca como no autenticado en caso de error
       setUser(null);
       return false;
     }
-  }, []);
+  }, [axiosInstance]);
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -115,7 +92,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [isAuthenticated, validateToken]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated: !!isAuthenticated, user,  handleLogout, login, validateToken }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated: !!isAuthenticated,
+        user,
+        handleLogout,
+        login,
+        validateToken,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

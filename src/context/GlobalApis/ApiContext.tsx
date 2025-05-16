@@ -52,57 +52,34 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-   // Configurar Axios para incluir cookies en las solicitudes
-   const axiosInstance = axios.create({
+  // Configurar Axios para incluir cookies en las solicitudes
+  const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000", // URL base del backend
     withCredentials: true, // Incluye cookies en las solicitudes
   });
 
-
   // Cargar datos automáticamente al montar el componente si el usuario está autenticado
   useEffect(() => {
     const fetchAllData = async () => {
+     
       setLoading(true);
       setError(null);
 
       try {
-        const materialsData = await axiosInstance
-          .get<Material[]>("/api/materials")
-          .then((res) => res.data);
-        const derivativesData = await axiosInstance
-          .get<Derivative[]>("/api/derivatives")
-          .then((res) => res.data);
-        const resistancesData = await axiosInstance
-          .get<Resistance[]>("/api/resistances")
-          .then((res) => res.data);
-        const corrugatedData = await axiosInstance
-          .get<Category[]>("/api/resistancescategories")
-          .then((res) => res.data);
-        const epeData = await axiosInstance
-          .get<Epe[]>("/api/epe")
-          .then((res) => res.data);
-        const evaData = await axiosInstance
-          .get<Eva[]>("/api/eva")
-          .then((res) => res.data);
-        const foamData = await axiosInstance
-          .get<Foam[]>("/api/foam")
-          .then((res) => res.data);
-        const foamPrecioData = await axiosInstance
-          .get<FoamPrecio[]>("/api/preciosfoam")
-          .then((res) => res.data);
-        const coloresFoamData = await axiosInstance
-          .get<FoamColor[]>("/api/coloresfoam")
-          .then((res) => res.data);
-        const coloresPrecioData = await axiosInstance
-          .get<ColorPrecio[]>("/api/coloresprecio")
-          .then((res) => res.data);
-        const poliburbujaData = await axiosInstance
-          .get<Polybubble[]>("/api/poliburbuja")
-          .then((res) => res.data);
-        const poliburbujapreciosData = await axiosInstance
-          .get<PolybubblePrecio[]>("/api/poliburbujaprecios")
-          .then((res) => res.data);
+        const materialsData = await axiosInstance.get<Material[]>("/api/materials").then((res) => res.data);
+        const derivativesData = await axiosInstance.get<Derivative[]>("/api/derivatives").then((res) => res.data);
+        const resistancesData = await axiosInstance.get<Resistance[]>("/api/resistances").then((res) => res.data);
+        const corrugatedData = await axiosInstance.get<Category[]>("/api/resistancescategories").then((res) => res.data);
+        const epeData = await axiosInstance.get<Epe[]>("/api/epe").then((res) => res.data);
+        const evaData = await axiosInstance.get<Eva[]>("/api/eva").then((res) => res.data);
+        const foamData = await axiosInstance.get<Foam[]>("/api/foam").then((res) => res.data);
+        const foamPrecioData = await axiosInstance.get<FoamPrecio[]>("/api/preciosfoam").then((res) => res.data);
+        const coloresFoamData = await axiosInstance.get<FoamColor[]>("/api/coloresfoam").then((res) => res.data);
+        const coloresPrecioData = await axiosInstance.get<ColorPrecio[]>("/api/coloresprecio").then((res) => res.data);
+        const poliburbujaData = await axiosInstance.get<Polybubble[]>("/api/poliburbuja").then((res) => res.data);
+        const poliburbujapreciosData = await axiosInstance.get<PolybubblePrecio[]>("/api/poliburbujaprecios").then((res) => res.data);
 
+        // Actualizar estados
         setMaterials(materialsData);
         setDerivatives(derivativesData);
         setResistances(resistancesData);

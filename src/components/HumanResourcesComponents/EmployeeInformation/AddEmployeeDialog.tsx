@@ -369,10 +369,11 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   }}
 >
   <Tab label="Información General" />
+  <Tab label="Asignacion de Jefe" />
   <Tab label="Información Personal" />
   <Tab label="Beneficiario y Contacto" />
   <Tab label="Dirección y contacto" />
-  <Tab label="Asignacion de Jefe" />
+  
 </Tabs>
 
       {/* Contenido del diálogo */}
@@ -390,26 +391,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
             setNewEmployee={setNewEmployee}
           />
         )}
-
-        {tabIndex === 1 && (
-          <AddEmployeeInformationDialog
-            personalInfo={personalInfo}
-            setPersonalInfo={setPersonalInfo}
-          />
-        )}
-        {tabIndex === 2 && (
-          <AddEmployeeBeneficiaryFields
-            beneficiaryInfo={beneficiaryInfo}
-            setBeneficiaryInfo={setBeneficiaryInfo}
-          />
-        )}
-        {tabIndex === 3 && (
-          <AddEmployeeAddressFields
-            addressInfo={addressInfo}
-            setAddressInfo={setAddressInfo}
-          />
-        )}
-         {tabIndex === 4 && (
+         {tabIndex === 1 && (
          <AddEmployeeBossDialog
          employeeId={newEmployee.employee_id}
          bosses={bosses} // Pasar la lista de jefes
@@ -417,6 +399,26 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
          setSelectedBoss={setSelectedBoss} // Pasar la función para actualizar el jefe seleccionado
        />
         )}
+
+        {tabIndex === 2 && (
+          <AddEmployeeInformationDialog
+            personalInfo={personalInfo}
+            setPersonalInfo={setPersonalInfo}
+          />
+        )}
+        {tabIndex === 3 && (
+          <AddEmployeeBeneficiaryFields
+            beneficiaryInfo={beneficiaryInfo}
+            setBeneficiaryInfo={setBeneficiaryInfo}
+          />
+        )}
+        {tabIndex === 4 && (
+          <AddEmployeeAddressFields
+            addressInfo={addressInfo}
+            setAddressInfo={setAddressInfo}
+          />
+        )}
+        
       </DialogContent>
 
       {/* Footer con botones */}
