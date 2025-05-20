@@ -125,7 +125,7 @@ const AddEmployeeBeneficiaryFields: React.FC<AddEmployeeBeneficiaryFieldsProps> 
             style: { color: "#6B7280" },
           }}
         >
-          <MenuItem value="Abuela/o">Abuela/o</MenuItem>
+<MenuItem value="Abuela/o">Abuela/o</MenuItem>
 <MenuItem value="Amiga/o">Amiga/o</MenuItem>
 <MenuItem value="Concubina/o">Concubina/o</MenuItem>
 <MenuItem value="Cuñada/o">Cuñada/o</MenuItem>

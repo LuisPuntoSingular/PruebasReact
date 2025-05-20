@@ -6,12 +6,22 @@ import {
   Typography,
   Box,
   Button,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
+} from "@mui/material";
+
+
+// Importar las funciones de API  
+import EmployeeGeneralInfo from "./EmployeesDetails/EmployeeGeneralDetailInfo";
+import EmployeePersonalInfo from "./EmployeesDetails/EmployeePersonalDetailInfo";
+import EmployeeAddressInfo from "./EmployeesDetails/EmployeeAddressDetailInfo";
+import EmployeeBeneficiaryInfo from "./EmployeesDetails/EmployeeBeneficiaryDetailInfo";
+
+import { useEmployeeGeneralInfo } from "./EmployeesDetails/ServicesEmployeesDetails/useEmployeeGeneralInfo";
+
+import { useEmployeePersonalInfo } from "./EmployeesDetails/ServicesEmployeesDetails/useEmployeePersonalInfo";
+
+import { useEmployeeBeneficiary } from "./EmployeesDetails/ServicesEmployeesDetails/useEmployeeBeneficiary";
+import { useEmployeeAddress } from "./EmployeesDetails/ServicesEmployeesDetails/useEmployeeAddress";
 import { getEmployeeById } from "./Apis/employeeApi";
 import { getEmployeePersonalInformationById } from "./Apis/employeePersonalInformationApi";
 import { getEmployeeBeneficiaryById } from "./Apis/employeeBeneficiaryApi";
@@ -34,12 +44,13 @@ interface Employee {
   hire_date: string;
   nss_date?: string | null;
   status: boolean;
-  plant_id?: number | string; // Agregar el campo plant_id
+  plant_id?: number; // Cambiar a solo number para coincidir con la definición de la API
   is_boss?: boolean; 
 }
 
 // Información personal del empleado
 interface PersonalInfo {
+  employee_id: number;
   curp?: string;
   rfc?: string;
   gender: string;
@@ -52,6 +63,7 @@ interface PersonalInfo {
 
 // Dirección y contacto del empleado
 interface AddressContact {
+  employee_id: number;
   postal_code: string;
   neighborhood: string;
   state: string;
@@ -63,6 +75,7 @@ interface AddressContact {
 
 // Beneficiario del empleado
 interface Beneficiary {
+  employee_id: number;
   first_name: string;
   last_name: string;
   birth_date: string;
@@ -78,7 +91,8 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
   const [employeeInfo, setEmployeeInfo] = useState<Employee | null>(null); // Información general del empleado
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+
+    useEffect(() => {
     if (open) {
       const fetchEmployeeDetails = async () => {
         setLoading(true);
@@ -86,12 +100,13 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
           const personalData: PersonalInfo = await getEmployeePersonalInformationById(employeeId);
           const addressData: AddressContact = await getEmployeeAddressById(employeeId);
           const beneficiaryData: Beneficiary = await getEmployeeBeneficiaryById(employeeId);
-          const generalData: Employee = await getEmployeeById(employeeId); // Obtener información general del empleado
+          const generalData: Employee = await getEmployeeById(employeeId);
 
           setPersonalInfo(personalData);
           setAddressContact(addressData);
+          
           setBeneficiary(beneficiaryData);
-          setEmployeeInfo(generalData); // Guardar la información general
+          setEmployeeInfo(generalData);
         } catch (error) {
           console.error("Error al obtener los detalles del empleado:", error);
         } finally {
@@ -102,6 +117,15 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
       fetchEmployeeDetails();
     }
   }, [open, employeeId]);
+
+      // Hook para manejar la dirección y update solo cuando ya tienes addressContact
+    const generalInfoHook = useEmployeeGeneralInfo(employeeInfo);
+    const personalInfoHook = useEmployeePersonalInfo(personalInfo);
+
+    const addressHook = useEmployeeAddress(addressContact)
+    const beneficiaryHook = useEmployeeBeneficiary(beneficiary);
+
+
 
   if (loading) {
     return (
@@ -152,159 +176,43 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
           maxHeight: "70vh", // Altura máxima del contenido
         }}
       >
-        {/* Información General */}
-        {employeeInfo && (
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: "#E3F2FD" }}>
-              <Typography variant="h6" sx={{ color: "#3B82F6", fontWeight: "bold" }}>
-                Información General
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <Typography>
-                  <strong>ID:</strong> {employeeInfo.id}
-                </Typography>
-                <Typography>
-                  <strong>Jefe</strong> {employeeInfo.is_boss ? "Sí" : "No"}
-                </Typography>
+        {generalInfoHook.employee && (
+    <EmployeeGeneralInfo
+      employeeInfo={generalInfoHook.employee}
+      onUpdate={async (updated) => {
+        // Forzar el id correcto
+        await generalInfoHook.updateGeneralInfo({ ...updated, id: employeeId });
+      }}
+    />
+  )}
 
-                <Typography>
-                  <strong>Planta:</strong> {employeeInfo.plant_id}
-                </Typography>
-                <Typography>
-                  <strong>Nombre:</strong> {employeeInfo.first_name} {employeeInfo.second_name || ""}
-                </Typography>
-                <Typography>
-                  <strong>Apellidos:</strong> {employeeInfo.last_name_paterno} {employeeInfo.last_name_materno}
-                </Typography>
-                <Typography>
-                  <strong>Área de Trabajo:</strong> {employeeInfo.work_area_id}
-                </Typography>
-                <Typography>
-                  <strong>Salario:</strong> {employeeInfo.salary}
-                </Typography>
-                <Typography>
-                  <strong>Fecha de Ingreso:</strong> {employeeInfo.hire_date}
-                </Typography>
-                <Typography>
-                  <strong>Fecha de Alta Nss:</strong> {employeeInfo.nss_date }
-                </Typography>
-              </Box>
-            </AccordionDetails>
-          </Accordion>
+        <EmployeePersonalInfo
+  personalInfo={personalInfoHook.personalInfo}
+  onUpdate={async (updated) => {
+    await personalInfoHook.updatePersonalInfo({ ...updated, employee_id: employeeId });
+  }}
+/>
+
+  
+{addressHook.address && (
+  <EmployeeAddressInfo
+    addressContact={addressHook.address}
+    onUpdate={async (updated) => {
+      // Forzar el employee_id correcto
+      await addressHook.updateAddress({ ...updated, employee_id: employeeId });
+    }}
+  />
+)}
+         {beneficiaryHook.beneficiary && (
+          <EmployeeBeneficiaryInfo
+            beneficiary={beneficiaryHook.beneficiary}
+            onUpdate={async (updated) => {
+              // Forzar el employee_id correcto
+              await beneficiaryHook.updateBeneficiary({ ...updated, employee_id: employeeId });
+            }}
+          />
         )}
-
-        {/* Información Personal */}
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: "#E3F2FD" }}>
-            <Typography variant="h6" sx={{ color: "#3B82F6", fontWeight: "bold" }}>
-              Información Personal
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {personalInfo ? (
-              <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <Typography>
-                  <strong>CURP:</strong> {personalInfo.curp}
-                </Typography>
-                <Typography>
-                  <strong>RFC:</strong> {personalInfo.rfc}
-                </Typography>
-                <Typography>
-                  <strong>Género:</strong> {personalInfo.gender}
-                </Typography>
-                <Typography>
-                  <strong>Estado Civil:</strong> {personalInfo.marital_status}
-                </Typography>
-                <Typography>
-                  <strong>Fecha de Nacimiento:</strong> {personalInfo.birth_date}
-                </Typography>
-                <Typography>
-                  <strong>NSS:</strong> {personalInfo.nss}
-                </Typography>
-                <Typography>
-                  <strong>¿Tiene Tarjeta?</strong> {personalInfo.is_card ? "Sí" : "No"}
-                </Typography>
-                <Typography>
-                  <strong>Nombre de la Tarjeta:</strong> {personalInfo.cardname || "No Tiene"}
-                </Typography>
-              </Box>
-            ) : (
-              <Typography>No hay información personal disponible.</Typography>
-            )}
-          </AccordionDetails>
-        </Accordion>
-
-        {/* Dirección y Contacto */}
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: "#FFF7E6" }}>
-            <Typography variant="h6" sx={{ color: "#F59E0B", fontWeight: "bold" }}>
-              Dirección y Contacto
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {addressContact ? (
-              <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <Typography>
-                  <strong>Código Postal:</strong> {addressContact.postal_code}
-                </Typography>
-                <Typography>
-                  <strong>Colonia:</strong> {addressContact.neighborhood}
-                </Typography>
-                <Typography>
-                  <strong>Estado:</strong> {addressContact.state}
-                </Typography>
-                <Typography>
-                  <strong>Municipio:</strong> {addressContact.municipality}
-                </Typography>
-                <Typography>
-                  <strong>Calle y Número:</strong> {addressContact.street_and_number}
-                </Typography>
-                <Typography>
-                  <strong>Teléfono:</strong> {addressContact.phone_number}
-                </Typography>
-                <Typography>
-                  <strong>Email:</strong> {addressContact.email}
-                </Typography>
-              </Box>
-            ) : (
-              <Typography>No hay información de dirección y contacto disponible.</Typography>
-            )}
-          </AccordionDetails>
-        </Accordion>
-
-        {/* Datos de Beneficiario */}
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: "#E6F4EA" }}>
-            <Typography variant="h6" sx={{ color: "#10B981", fontWeight: "bold" }}>
-              Datos de Beneficiario
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {beneficiary ? (
-              <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <Typography>
-                  <strong>Nombre:</strong> {beneficiary.first_name} {beneficiary.last_name}
-                </Typography>
-                <Typography>
-                  <strong>Fecha de Nacimiento:</strong> {beneficiary.birth_date}
-                </Typography>
-                <Typography>
-                  <strong>Parentesco:</strong> {beneficiary.relationship}
-                </Typography>
-                <Typography>
-                  <strong>Teléfono:</strong> {beneficiary.phone_number}
-                </Typography>
-                <Typography>
-                  <strong>Porcentaje:</strong> {beneficiary.percentage}%
-                </Typography>
-              </Box>
-            ) : (
-              <Typography>No hay información de beneficiario disponible.</Typography>
-            )}
-          </AccordionDetails>
-        </Accordion>
+        
       </DialogContent>
       <Box
         sx={{

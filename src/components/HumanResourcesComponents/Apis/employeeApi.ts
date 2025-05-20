@@ -11,8 +11,8 @@ export interface Employee {
   second_name: string;
   last_name_paterno: string;
   last_name_materno: string;
-  work_area_id: number;
-  salary: number;
+  work_area_id: number | string; // Cambiado a string para que coincida con el tipo de work_area_id en el formulario
+  salary: number | string; // Cambiado a string para que coincida con el tipo de salary en el formulario
   hire_date: string;
   phone_number?: string; // Opcional
   emergency_contact?: string; // Opcional
@@ -39,7 +39,7 @@ export const getEmployees = async (): Promise<Employee[]> => {
 };
 
 // Obtener un empleado por ID
-export const getEmployeeById = async (id: number): Promise<Employee> => {
+export const   getEmployeeById = async (id: number): Promise<Employee> => {
   try {
     const response: AxiosResponse<Employee> = await apiClient.get(`/${id}`);
     return response.data; // Devuelve la información del empleado

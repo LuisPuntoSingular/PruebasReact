@@ -68,7 +68,9 @@ const UserProfile: React.FC = () => {
         try {
           const data = await fetchEmployee(employeeId);
           if (data && data.plant_id && data.work_area_id) {
-            const employeesByAreaAndPlant = await getEmployeesByWorkAreaAndPlant(data.plant_id, data.work_area_id);
+            const plantId = typeof data.plant_id === "number" ? data.plant_id : parseInt(data.plant_id, 10);
+            const workAreaId = typeof data.work_area_id === "number" ? data.work_area_id : parseInt(data.work_area_id, 10);
+            const employeesByAreaAndPlant = await getEmployeesByWorkAreaAndPlant(plantId, workAreaId);
             setEmployees(
               employeesByAreaAndPlant
                 .filter(employee => employee.id)

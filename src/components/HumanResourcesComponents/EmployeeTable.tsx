@@ -31,7 +31,7 @@ interface Employee {
   last_name_paterno: string;
   last_name_materno: string;
   work_area_id: number | string;
-  salary: number;
+  salary: number | string;
   hire_date: string;
   status: boolean;
 }

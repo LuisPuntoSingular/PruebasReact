@@ -20,7 +20,7 @@ export interface PersonalInfo {
   marital_status: string;
   birth_date: string;
   nss?: string | null;
-  is_card: boolean;
+  is_card?: boolean;
   cardname?: string | null;
 }
 

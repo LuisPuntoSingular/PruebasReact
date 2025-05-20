@@ -19,7 +19,7 @@ interface Employee {
   last_name_paterno: string;
   last_name_materno: string;
   work_area_id: number | string; // Cambiado a string para que coincida con el tipo de work_area_id en el formulario
-  salary: number;
+  salary: number | string; // Cambiado a string para que coincida con el tipo de salary en el formulario
   hire_date: string;
   nss_date?: string | null; // Opcional si no está presente al crear un nuevo empleado
 
