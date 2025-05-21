@@ -89,10 +89,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     setSelectedEmployee(null);
   };
 
-  const handleEdit = () => {
-    console.log("Editar empleado:", selectedEmployee);
-    handleMenuClose();
-  };
+
 
   const handleDeactivate = () => {
     console.log("Dar de baja empleado:", selectedEmployee);
@@ -150,6 +147,16 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                 backgroundColor: "#1E293B",
               }}
             >
+               <TableCell
+                sx={{
+                  color: "#FFFFFF",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  borderBottom: "none",
+                }}
+              >
+                ID
+              </TableCell>
               <TableCell
                 sx={{
                   color: "#FFFFFF",
@@ -245,6 +252,11 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                     },
                   }}
                 >
+                   <TableCell>
+                    <Typography variant="body2" sx={{ color: "#475569" }}>
+                      {employee.id}
+                    </Typography>
+                  </TableCell>
                   <TableCell>
                     <Avatar
                       src={"https://via.placeholder.com/40?text=Avatar"}
@@ -329,7 +341,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={handleEdit}>Editar</MenuItem>
+        
         <MenuItem onClick={handleDeactivate}>Dar de Baja</MenuItem>
       </Menu>
     </Paper>

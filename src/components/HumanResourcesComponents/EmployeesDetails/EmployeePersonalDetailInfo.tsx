@@ -24,6 +24,26 @@ const MARITAL_STATUS_OPTIONS = [
   "Viudo",
 ];
 
+// Utilidad para formatear fecha a YYYY-MM-DD
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return "No registrada";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toISOString().slice(0, 10);
+};
+
+// Función para capitalizar solo la primera letra de cada palabra
+function toTitleCase(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+// Función para permitir solo números
+function onlyNumbers(str: string) {
+  return str.replace(/\D/g, "");
+}
+
 export default function EmployeePersonalInfo({ personalInfo, onUpdate }) {
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({
@@ -36,8 +56,21 @@ export default function EmployeePersonalInfo({ personalInfo, onUpdate }) {
   });
   const [error, setError] = useState<string | null>(null);
 
+  // Campos que deben ser solo números
+  const numberFields = ["nss"];
+
+  // Campos que deben tener buena ortografía (capitalización)
+  const titleCaseFields = ["curp", "rfc"];
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (numberFields.includes(name)) {
+      setForm({ ...form, [name]: onlyNumbers(value) });
+    } else if (titleCaseFields.includes(name)) {
+      setForm({ ...form, [name]: toTitleCase(value) });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   const handleCheckboxChange = (e) => {
@@ -84,90 +117,114 @@ export default function EmployeePersonalInfo({ personalInfo, onUpdate }) {
       </AccordionSummary>
       <AccordionDetails>
         {editMode ? (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <TextField
-              label="CURP"
-              name="curp"
-              value={form.curp || ""}
-              onChange={handleChange}
-              inputProps={{ maxLength: MAX_CURP_LENGTH }}
-              helperText={`${form.curp.length}/${MAX_CURP_LENGTH}`}
-            />
-            <TextField
-              label="RFC"
-              name="rfc"
-              value={form.rfc || ""}
-              onChange={handleChange}
-              inputProps={{ maxLength: MAX_RFC_LENGTH }}
-              helperText={`${form.rfc.length}/${MAX_RFC_LENGTH}`}
-            />
-            <TextField
-              required
-              select
-              label="Género"
-              name="gender"
-              value={form.gender || ""}
-              onChange={handleChange}
-            >
-              {GENDER_OPTIONS.map((option) => (
-                <MenuItem key={option} value={option}>{option}</MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              required
-              select
-              label="Estado Civil"
-              name="marital_status"
-              value={form.marital_status || ""}
-              onChange={handleChange}
-            >
-              {MARITAL_STATUS_OPTIONS.map((option) => (
-                <MenuItem key={option} value={option}>{option}</MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              required
-              label="Fecha de Nacimiento"
-              name="birth_date"
-              type="date"
-              value={form.birth_date || ""}
-              onChange={handleChange}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              label="NSS"
-              name="nss"
-              value={form.nss || ""}
-              onChange={handleChange}
-              inputProps={{ maxLength: MAX_NSS_LENGTH }}
-              helperText={`${form.nss.length}/${MAX_NSS_LENGTH}`}
-            />
-            <Box>
-              <label>
-                <input
-                  type="checkbox"
-                  name="is_card"
-                  checked={!!form.is_card}
-                  onChange={handleCheckboxChange}
-                />
-                ¿Tiene Tarjeta?
-              </label>
+          <Box sx={{ display: "flex", gap: 4 }}>
+            {/* Columna de edición */}
+            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+              <TextField
+                label="CURP"
+                name="curp"
+                value={form.curp || ""}
+                onChange={handleChange}
+                inputProps={{ maxLength: MAX_CURP_LENGTH }}
+                helperText={`${form.curp.length}/${MAX_CURP_LENGTH}`}
+              />
+              <TextField
+                label="RFC"
+                name="rfc"
+                value={form.rfc || ""}
+                onChange={handleChange}
+                inputProps={{ maxLength: MAX_RFC_LENGTH }}
+                helperText={`${form.rfc.length}/${MAX_RFC_LENGTH}`}
+              />
+              <TextField
+                required
+                select
+                label="Género"
+                name="gender"
+                value={form.gender || ""}
+                onChange={handleChange}
+              >
+                {GENDER_OPTIONS.map((option) => (
+                  <MenuItem key={option} value={option}>{option}</MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                required
+                select
+                label="Estado Civil"
+                name="marital_status"
+                value={form.marital_status || ""}
+                onChange={handleChange}
+              >
+                {MARITAL_STATUS_OPTIONS.map((option) => (
+                  <MenuItem key={option} value={option}>{option}</MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                required
+                label="Fecha de Nacimiento"
+                name="birth_date"
+                type="date"
+                value={form.birth_date || ""}
+                onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                label="NSS"
+                name="nss"
+                value={form.nss || ""}
+                onChange={handleChange}
+                inputProps={{ maxLength: MAX_NSS_LENGTH, inputMode: "numeric", pattern: "[0-9]*" }}
+                helperText={`${form.nss.length}/${MAX_NSS_LENGTH}`}
+              />
+              <Box>
+                <label>
+                  <input
+                    type="checkbox"
+                    name="is_card"
+                    checked={!!form.is_card}
+                    onChange={handleCheckboxChange}
+                  />
+                  ¿Tiene Tarjeta?
+                </label>
+              </Box>
+              <TextField
+                select
+                label="Nombre de la Tarjeta"
+                name="cardname"
+                value={form.cardname || ""}
+                onChange={handleChange}
+                disabled={!form.is_card}
+              >
+                {CARD_OPTIONS.map((option) => (
+                  <MenuItem key={option} value={option}>{option}</MenuItem>
+                ))}
+              </TextField>
+              {error && <Alert severity="error">{error}</Alert>}
+              <Button onClick={handleSave} variant="contained" color="success">Guardar</Button>
+              <Button onClick={() => { setEditMode(false); setError(null); }} color="inherit">Cancelar</Button>
             </Box>
-            <TextField
-              select
-              label="Nombre de la Tarjeta"
-              name="cardname"
-              value={form.cardname || ""}
-              onChange={handleChange}
-              disabled={!form.is_card}
-            >
-              {CARD_OPTIONS.map((option) => (
-                <MenuItem key={option} value={option}>{option}</MenuItem>
-              ))}
-            </TextField>
-            {error && <Alert severity="error">{error}</Alert>}
-            <Button onClick={handleSave} variant="contained" color="success">Guardar</Button>
-            <Button onClick={() => { setEditMode(false); setError(null); }} color="inherit">Cancelar</Button>
+            {/* Columna de referencia */}
+            <Box sx={{
+              flex: 1,
+              background: "#F3F4F6",
+              borderRadius: 2,
+              padding: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              minWidth: 220
+            }}>
+              <Typography variant="subtitle2" color="text.secondary">Valores actuales</Typography>
+              <Typography><strong>CURP:</strong> {personalInfo.curp || "No registrado"}</Typography>
+              <Typography><strong>RFC:</strong> {personalInfo.rfc || "No registrado"}</Typography>
+              <Typography><strong>Género:</strong> {personalInfo.gender}</Typography>
+              <Typography><strong>Estado Civil:</strong> {personalInfo.marital_status}</Typography>
+              <Typography><strong>Fecha de Nacimiento:</strong> {formatDate(personalInfo.birth_date)}</Typography>
+              <Typography><strong>NSS:</strong> {personalInfo.nss || "No registrado"}</Typography>
+              <Typography><strong>¿Tiene Tarjeta?</strong> {personalInfo.is_card ? "Sí" : "No"}</Typography>
+              <Typography><strong>Nombre de la Tarjeta:</strong> {personalInfo.cardname || "No tiene"}</Typography>
+            </Box>
           </Box>
         ) : personalInfo ? (
           <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -175,7 +232,7 @@ export default function EmployeePersonalInfo({ personalInfo, onUpdate }) {
             <Typography><strong>RFC:</strong> {personalInfo.rfc || "No registrado"}</Typography>
             <Typography><strong>Género:</strong> {personalInfo.gender}</Typography>
             <Typography><strong>Estado Civil:</strong> {personalInfo.marital_status}</Typography>
-            <Typography><strong>Fecha de Nacimiento:</strong> {personalInfo.birth_date}</Typography>
+            <Typography><strong>Fecha de Nacimiento:</strong> {formatDate(personalInfo.birth_date)}</Typography>
             <Typography><strong>NSS:</strong> {personalInfo.nss || "No registrado"}</Typography>
             <Typography><strong>¿Tiene Tarjeta?</strong> {personalInfo.is_card ? "Sí" : "No"}</Typography>
             <Typography><strong>Nombre de la Tarjeta:</strong> {personalInfo.cardname || "No tiene"}</Typography>

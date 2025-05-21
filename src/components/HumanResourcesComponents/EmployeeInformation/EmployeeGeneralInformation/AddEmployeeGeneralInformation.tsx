@@ -9,7 +9,7 @@ interface Employee {
   first_name: string;
   second_name: string | null;
   last_name_paterno: string;
-  last_name_materno: string;
+  last_name_materno?: string;
   work_area_id: number | string;
   salary: number | string;
   hire_date: string;
@@ -166,7 +166,7 @@ const AddEmployeeGeneralInformation: React.FC<AddEmployeeGeneralInformationProps
         }}
       />
       <TextField
-        required
+        
         label="Apellido Materno"
         value={newEmployee.last_name_materno}
         onChange={(e) =>

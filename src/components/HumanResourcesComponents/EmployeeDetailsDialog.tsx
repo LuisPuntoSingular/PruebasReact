@@ -12,11 +12,16 @@ import {
 
 // Importar las funciones de API  
 import EmployeeGeneralInfo from "./EmployeesDetails/EmployeeGeneralDetailInfo";
+import EmployeeBossInfo from "./EmployeesDetails/EmployeeBossDetailInfo";
+
 import EmployeePersonalInfo from "./EmployeesDetails/EmployeePersonalDetailInfo";
 import EmployeeAddressInfo from "./EmployeesDetails/EmployeeAddressDetailInfo";
 import EmployeeBeneficiaryInfo from "./EmployeesDetails/EmployeeBeneficiaryDetailInfo";
 
 import { useEmployeeGeneralInfo } from "./EmployeesDetails/ServicesEmployeesDetails/useEmployeeGeneralInfo";
+
+import { useEmployeeBoss } from "./EmployeesDetails/ServicesEmployeesDetails/useEmployeeBoss";
+
 
 import { useEmployeePersonalInfo } from "./EmployeesDetails/ServicesEmployeesDetails/useEmployeePersonalInfo";
 
@@ -26,6 +31,10 @@ import { getEmployeeById } from "./Apis/employeeApi";
 import { getEmployeePersonalInformationById } from "./Apis/employeePersonalInformationApi";
 import { getEmployeeBeneficiaryById } from "./Apis/employeeBeneficiaryApi";
 import { getEmployeeAddressById } from "./Apis/employeeAdressContactApi";
+import { getEmployeeSupervisorById } from "./Apis/employeeBossApi";
+import { EmployeeSupervisor } from "./Apis/employeeBossApi";
+
+
 
 interface EmployeeDetailsDialogProps {
   open: boolean;
@@ -89,6 +98,8 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
   const [addressContact, setAddressContact] = useState<AddressContact | null>(null);
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null);
   const [employeeInfo, setEmployeeInfo] = useState<Employee | null>(null); // Información general del empleado
+  const [bossInfo, setBossInfo] = useState<EmployeeSupervisor | null>(null);
+
   const [loading, setLoading] = useState(true);
 
 
@@ -101,6 +112,8 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
           const addressData: AddressContact = await getEmployeeAddressById(employeeId);
           const beneficiaryData: Beneficiary = await getEmployeeBeneficiaryById(employeeId);
           const generalData: Employee = await getEmployeeById(employeeId);
+          const bossData: EmployeeSupervisor = await getEmployeeSupervisorById(employeeId);
+          setBossInfo(bossData);
 
           setPersonalInfo(personalData);
           setAddressContact(addressData);
@@ -124,6 +137,7 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
 
     const addressHook = useEmployeeAddress(addressContact)
     const beneficiaryHook = useEmployeeBeneficiary(beneficiary);
+    const bossHook = useEmployeeBoss(bossInfo);
 
 
 
@@ -212,6 +226,15 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
             }}
           />
         )}
+
+        {bossHook.boss && (
+  <EmployeeBossInfo
+    bossInfo={bossHook.boss}
+    onUpdate={async (updated) => {
+      await bossHook.updateBoss({ ...updated, employee_id: employeeId });
+    }}
+  />
+)}
         
       </DialogContent>
       <Box

@@ -102,6 +102,8 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [bosses, setBosses] = useState<Boss[]>([]);
   const [selectedBoss, setSelectedBoss] = useState<string>(""); // "0" para "Sin jefe"
+  const [saving, setSaving] = useState(false); // Nuevo estado para controlar el guardado
+
 
   // Estado para controlar la pestaña activa
   const [tabIndex, setTabIndex] = useState(0);
@@ -115,7 +117,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
   const fetchBossesData = async () => {
     try {
       const data: Boss[] = await fetchBosses();
-      console.log("Lista de jefes:", data); // Verifica la lista de jefes obtenida
+    
       setBosses(data); // Usa directamente los datos proporcionados por la API
     } catch (error) {
       console.error("Error al obtener la lista de jefes:", error);
@@ -129,6 +131,8 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
 
 
   const handleSave = async () => {
+    if (saving) return; // Evita doble clic
+    setSaving(true);
     try {
       // Validación de campos obligatorios
 
@@ -137,7 +141,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         !newEmployee.plant_id || // Planta
         !newEmployee.first_name || // Primer Nombre
         !newEmployee.last_name_paterno || // Apellido Paterno
-        !newEmployee.last_name_materno || // Apellido Materno
+       
         !newEmployee.work_area_id || // Puesto
         !newEmployee.salary || // Salario
         !newEmployee.hire_date || // Fecha de Ingreso
@@ -307,6 +311,9 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         "Ocurrió un error inesperado al guardar la información. Por favor, inténtalo de nuevo."
       );
     }
+    finally {
+    setSaving(false);
+    }
   };
 
   const reloadBosses = async () => {
@@ -455,6 +462,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         <Button
           onClick={handleSave}
           variant="contained"
+           disabled={saving} 
           sx={{
             backgroundColor: "#10B981",
             color: "#ffffff",
@@ -493,10 +501,6 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
         >
           Información guardada con éxito.
           <ul>
-      <li>Información General</li>
-      <li>Información Personal</li>
-      <li>Información del Beneficiario</li>
-      <li>Información de Dirección</li>
      
     </ul>
 
