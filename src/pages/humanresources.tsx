@@ -163,16 +163,13 @@ return (
 
     {/* Tabla de empleados */}
     <EmployeeTable
-      filteredEmployees={employees.slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-      )} // Mostrar solo las filas correspondientes a la página actual
-      page={page}
-      rowsPerPage={rowsPerPage}
-      onPageChange={handlePageChange}
-      onRowsPerPageChange={handleRowsPerPageChange}
-      onEmployeeSelect={(employee) => setSelectedEmployee(employee)}
-    />
+  filteredEmployees={employees} // <-- Pasa la lista completa
+  page={page}
+  rowsPerPage={rowsPerPage}
+  onPageChange={handlePageChange}
+  onRowsPerPageChange={handleRowsPerPageChange}
+  onEmployeeSelect={(employee) => setSelectedEmployee(employee)}
+/>
 
     {/* Diálogo para agregar empleado */}
     <AddEmployeeDialog

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
+  Box,
   TableBody,
   TableCell,
   TableContainer,
@@ -19,6 +20,8 @@ import {
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import DescriptionIcon from "@mui/icons-material/Description";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import EmployeeDocumentsDialog from "./EmployeeDocuments/EmployeeDocumentsDialog";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
@@ -88,6 +91,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     setAnchorEl(null);
     setSelectedEmployee(null);
   };
+
+    useEffect(() => {
+    onPageChange({}, 0);
+  }, [searchTerm, statusFilter, filteredEmployees.length]);
 
 
 
@@ -314,23 +321,72 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={filteredAndSearchedEmployees.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={onPageChange}
-        onRowsPerPageChange={onRowsPerPageChange}
-        sx={{
-          "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-            color: "#475569",
-          },
-          "& .MuiTablePagination-actions": {
-            color: "#475569",
-          },
-        }}
-      />
+
+<TablePagination
+  rowsPerPageOptions={[5, 10, 25]}
+  component="div"
+  count={filteredAndSearchedEmployees.length}
+  rowsPerPage={rowsPerPage}
+  page={page}
+  onPageChange={onPageChange}
+  onRowsPerPageChange={onRowsPerPageChange}
+  labelRowsPerPage="Mostrar:"
+  labelDisplayedRows={({ from, to, count }) =>
+    `${from}-${to} de ${count !== -1 ? count : `más de ${to}`}`
+  }
+  nextIconButtonProps={{
+    style: { color: "#1E3A8A" }
+  }}
+  backIconButtonProps={{
+    style: { color: "#1E3A8A" }
+  }}
+  sx={{
+    mt: 2,
+    borderRadius: 2,
+    background: "#F8FAFC",
+    boxShadow: "0 2px 8px 0 rgba(30,41,59,0.04)",
+    "& .MuiTablePagination-toolbar": {
+      minHeight: 48,
+      paddingLeft: 2,
+      paddingRight: 2,
+    },
+    "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+      color: "#334155",
+      fontWeight: 500,
+      fontSize: 15,
+    },
+    "& .MuiTablePagination-actions": {
+      color: "#1E3A8A",
+    },
+    "& .MuiInputBase-root": {
+      borderRadius: 2,
+      background: "#fff",
+      fontWeight: 500,
+    },
+  }}
+  ActionsComponent={(subprops) => (
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <IconButton
+        onClick={(event) => subprops.onPageChange(event, subprops.page - 1)}
+        disabled={subprops.page === 0}
+        aria-label="Página anterior"
+        size="small"
+        sx={{ color: "#1E3A8A" }}
+      >
+        <KeyboardArrowLeft />
+      </IconButton>
+      <IconButton
+        onClick={(event) => subprops.onPageChange(event, subprops.page + 1)}
+        disabled={subprops.page >= Math.ceil(subprops.count / subprops.rowsPerPage) - 1}
+        aria-label="Página siguiente"
+        size="small"
+        sx={{ color: "#1E3A8A" }}
+      >
+        <KeyboardArrowRight />
+      </IconButton>
+    </Box>
+  )}
+/>
       <EmployeeDocumentsDialog
         open={documentDialogOpen}
         onClose={handleDocumentDialogClose}
