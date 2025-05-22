@@ -32,12 +32,7 @@ const formatDate = (dateStr?: string) => {
   return d.toISOString().slice(0, 10);
 };
 
-// Función para capitalizar solo la primera letra de cada palabra
-function toTitleCase(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
+
 
 // Función para permitir solo números
 function onlyNumbers(str: string) {
@@ -60,18 +55,18 @@ export default function EmployeePersonalInfo({ personalInfo, onUpdate }) {
   const numberFields = ["nss"];
 
   // Campos que deben tener buena ortografía (capitalización)
-  const titleCaseFields = ["curp", "rfc"];
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (numberFields.includes(name)) {
-      setForm({ ...form, [name]: onlyNumbers(value) });
-    } else if (titleCaseFields.includes(name)) {
-      setForm({ ...form, [name]: toTitleCase(value) });
-    } else {
-      setForm({ ...form, [name]: value });
-    }
-  };
+
+ const handleChange = (e) => {
+  const { name, value } = e.target;
+  if (numberFields.includes(name)) {
+    setForm({ ...form, [name]: onlyNumbers(value) });
+  } else if (["curp", "rfc"].includes(name)) {
+    setForm({ ...form, [name]: value.toUpperCase() }); // Solo mayúsculas, sin ortografía
+  } else {
+    setForm({ ...form, [name]: value });
+  }
+};
 
   const handleCheckboxChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.checked });

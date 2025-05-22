@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useUserSessionInfo } from "@/context/GlobalApis/UserSessionInfoContext";
-import { fetchEmployee } from "@/context/GlobalApis/UserSessionFunctions/userSessionFunctions";
-import { getEmployeesByWorkAreaAndPlant, getAttendanceCodes, AttendanceCode } from "../components/HumanResourcesComponents/Apis/employeeAssistsApi";
+
+import {  getAttendanceCodes, AttendanceCode } from "../components/HumanResourcesComponents/Apis/employeeAssistsApi";
+import { getEmployees } from "../components/HumanResourcesComponents/Apis/employeeApi";
 import ExcelJS from "exceljs";
 import AttendanceCodesTable from "../components/HumanResourcesComponents/EmployeeAssists/AttendanceCodesTable";
 import WeekSelector from "../components/HumanResourcesComponents/EmployeeAssists/WeekSelector";
-import EmployeeTable from "../components/HumanResourcesComponents/EmployeeAssists/EmployeeTable";
-import { buildAttendanceRecords, sendAttendanceRecords } from "../components/HumanResourcesComponents/EmployeeAssists/attendanceService";
+import EmployeeTable from "../components/HumanResourcesComponents/EmployeeAssists/EmployeeTableAssist";
+import { buildAttendanceRecords, sendAttendanceRecords } from "../components/HumanResourcesComponents/EmployeeAssists/Services/attendanceService";
 import { Box } from "@mui/material";
 
 interface EmployeeRow {
@@ -45,12 +45,15 @@ const getWeekRangeFromMonday = (monday: Date) => {
 };
 
 const UserProfile: React.FC = () => {
-  const { employeeId, isAuthenticated } = useUserSessionInfo();
+ 
   const [employees, setEmployees] = useState<EmployeeRow[]>([]);
   const [attendanceCodes, setAttendanceCodes] = useState<AttendanceCode[]>([]);
   const [selectedWeek, setSelectedWeek] = useState<number>(getCurrentWeekNumber());
   const [startDate, setStartDate] = useState<Date>(() => getMondayOfWeek(new Date()));
   const [weekRange, setWeekRange] = useState<string>(getWeekRangeFromMonday(getMondayOfWeek(new Date())));
+  const endDate = new Date(startDate);
+
+  endDate.setDate(startDate.getDate() + 7);
 
   useEffect(() => {
     setWeekRange(getWeekRangeFromMonday(startDate));
@@ -62,54 +65,45 @@ const UserProfile: React.FC = () => {
     setStartDate(getMondayOfWeek(monday));
   }, [selectedWeek]);
 
-  useEffect(() => {
-    const getEmployeeData = async () => {
-      if (employeeId) {
-        try {
-          const data = await fetchEmployee(employeeId);
-          if (data && data.plant_id && data.work_area_id) {
-            const plantId = typeof data.plant_id === "number" ? data.plant_id : parseInt(data.plant_id, 10);
-            const workAreaId = typeof data.work_area_id === "number" ? data.work_area_id : parseInt(data.work_area_id, 10);
-            const employeesByAreaAndPlant = await getEmployeesByWorkAreaAndPlant(plantId, workAreaId);
-            setEmployees(
-              employeesByAreaAndPlant
-                .filter(employee => employee.id)
-                .map((employee) => ({
-                  id: employee.id,
-                  full_name: `${employee.first_name} ${employee.last_name_paterno} ${employee.last_name_materno}`,
-                  monday: { day: "", extraTime: 0 },
-                  tuesday: { day: "", extraTime: 0 },
-                  wednesday: { day: "", extraTime: 0 },
-                  thursday: { day: "", extraTime: 0 },
-                  friday: { day: "", extraTime: 0 },
-                  saturday: { day: "", extraTime: 0 },
-                  sunday: { day: "", extraTime: 0 },
-                  totalExtraTime: 0,
-                }))
-            );
-          }
-        } catch (error) {
-          console.error("Error al obtener los datos del empleado:", error);
-        }
-      }
-    };
+useEffect(() => {
+  const fetchAllEmployees = async () => {
+    try {
+      const allEmployees = await getEmployees();
+      setEmployees(
+        allEmployees
+          .filter(employee => employee.id)
+          .map((employee) => ({
+            id: employee.id,
+            full_name: `${employee.first_name} ${employee.last_name_paterno} ${employee.last_name_materno}`,
+            monday: { day: "", extraTime: 0 },
+            tuesday: { day: "", extraTime: 0 },
+            wednesday: { day: "", extraTime: 0 },
+            thursday: { day: "", extraTime: 0 },
+            friday: { day: "", extraTime: 0 },
+            saturday: { day: "", extraTime: 0 },
+            sunday: { day: "", extraTime: 0 },
+            totalExtraTime: 0,
+          }))
+      );
+    } catch (error) {
+      console.error("Error al obtener todos los empleados:", error);
+    }
+  };
 
-    const fetchAttendanceCodes = async () => {
-      try {
-        const codes = await getAttendanceCodes();
-        setAttendanceCodes(codes);
-      } catch (error) {
-        console.error("Error al cargar los códigos de asistencia:", error);
-      }
-    };
+  const fetchAttendanceCodes = async () => {
+    try {
+      const codes = await getAttendanceCodes();
+      setAttendanceCodes(codes);
+    } catch (error) {
+      console.error("Error al cargar los códigos de asistencia:", error);
+    }
+  };
 
-    getEmployeeData();
-    fetchAttendanceCodes();
-  }, [employeeId]);
+  fetchAllEmployees();
+  fetchAttendanceCodes();
+}, []);
 
-  if (!isAuthenticated) {
-    return <div>No estás autenticado</div>;
-  }
+ 
 
   // Recibe cambios de semana y fecha
   const handleWeekChange = (week: number, date: Date) => {
@@ -179,6 +173,7 @@ const UserProfile: React.FC = () => {
       // Solo envía los registros con datos capturados (código o horas extra)
       const recordsToSend = buildAttendanceRecords(employees, startDate, selectedWeek)
         .filter(record => (record.code && record.code !== "") || record.overtime_hours > 0);
+       
       await sendAttendanceRecords(recordsToSend);
       alert("Asistencias guardadas correctamente");
     } catch (error) {
@@ -186,6 +181,9 @@ const UserProfile: React.FC = () => {
       alert("Ocurrió un error al guardar las asistencias");
     }
   };
+
+
+  
 
   return (
     <Box sx={{ p: 3 }}>
@@ -197,8 +195,10 @@ const UserProfile: React.FC = () => {
           weekRange={weekRange}
           onChange={handleWeekChange}
           getMondayOfWeek={getMondayOfWeek}
+
         />
       </Box>
+
       <EmployeeTable
         employees={employees}
         attendanceCodes={attendanceCodes}
@@ -206,6 +206,7 @@ const UserProfile: React.FC = () => {
         exportToExcel={exportToExcel}
         handleSubmit={handleSubmit}
         startDate={startDate}
+        endDate={endDate}
       />
     </Box>
   );

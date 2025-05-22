@@ -74,3 +74,34 @@ export const sendAttendanceRecords = async (records: AttendanceRecord[]) => {
       }
     }
   };
+
+
+
+export interface UploadAttendanceExcelResponse {
+  // Ajusta estos campos según la respuesta real de tu backend
+  success?: boolean;
+  error?: string;
+  [key: string]: unknown;
+}
+
+export const uploadAttendanceExcel = async (
+  file: File,
+  fecha_inicio: string,
+  fecha_final: string
+): Promise<UploadAttendanceExcelResponse> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("fecha_inicio", fecha_inicio);
+  formData.append("fecha_final", fecha_final);
+
+  const response = await fetch("http://127.0.0.1:8000/procesar-excel", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data: UploadAttendanceExcelResponse = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Error al procesar el archivo");
+  }
+  return data;
+};
