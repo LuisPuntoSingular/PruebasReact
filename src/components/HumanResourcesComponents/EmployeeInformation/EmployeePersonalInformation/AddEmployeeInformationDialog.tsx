@@ -1,7 +1,7 @@
 import React from "react";
 import { TextField, MenuItem, Box,RadioGroup, FormControlLabel, Radio,FormControl } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker"; // Nuevo componente
+
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { es } from "date-fns/locale";
 
