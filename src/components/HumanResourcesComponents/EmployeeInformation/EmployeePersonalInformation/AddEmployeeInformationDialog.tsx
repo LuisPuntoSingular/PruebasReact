@@ -60,7 +60,7 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
         }}
       >
 
-
+ 
 
 
 {/* ¿Tiene tarjeta y banco? */}
