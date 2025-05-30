@@ -188,30 +188,24 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
 
         {/* Fecha de Nacimiento */}
         <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
-          <DesktopDatePicker
-           
-           
-            value={personalInfo.birth_date ? new Date(personalInfo.birth_date) : null}
-            onChange={(newValue) =>
-              setPersonalInfo({
-                ...personalInfo,
-                birth_date: newValue ? newValue.toISOString().split("T")[0] : "",
-              })
-            }
-            slotProps={{
-              textField: {
-                 label:"Fecha de Nacimiento",
-                 required : true,
-                fullWidth: true,
-                InputLabelProps: {
-                  shrink: true,
-                  style: { color: "#6B7280" },
-                },
-              },
-            }}
-          />
-          
-        </Box>
+  <TextField
+    label="Fecha de Nacimiento"
+    type="date"
+    value={personalInfo.birth_date || ""} // Usar el valor actual o una cadena vacía
+    onChange={(e) =>
+      setPersonalInfo({
+        ...personalInfo,
+        birth_date: e.target.value, // Actualizar el estado con el nuevo valor
+      })
+    }
+    fullWidth
+    InputLabelProps={{
+      shrink: true, // Asegurar que la etiqueta se mantenga arriba
+      style: { color: "#6B7280" },
+    }}
+    required // Campo obligatorio
+  />
+</Box>
 
         {/* NSS */}
         <Box sx={{ flex: "1 1 calc(50% - 16px)" }}>
