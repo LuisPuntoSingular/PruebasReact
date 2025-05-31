@@ -26,6 +26,7 @@ import EmployeeDocumentsDialog from "./EmployeeDocuments/EmployeeDocumentsDialog
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import { SelectChangeEvent } from "@mui/material";
+import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 
 interface Employee {
   id?: number;
@@ -57,6 +58,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   onEmployeeSelect,
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [orderById, setOrderById] = useState<"asc" | "desc">("asc");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [documentDialogOpen, setDocumentDialogOpen] = useState(false);
@@ -103,14 +105,27 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     handleMenuClose();
   };
 
+const sortEmployeesById = (employees: Employee[]) => {
+  return employees.sort((a, b) => {
+    if (orderById === "asc") {
+      return a.id! - b.id!;
+    } else {
+      return b.id! - a.id!;
+    }
+  });
+};
+
+
   // Filtrar empleados por búsqueda y estatus
-  const filteredAndSearchedEmployees = filteredEmployees.filter((employee) => {
+ const filteredAndSearchedEmployees = sortEmployeesById(
+  filteredEmployees.filter((employee) => {
     const fullName = `${employee.first_name} ${employee.second_name} ${employee.last_name_paterno} ${employee.last_name_materno}`.toLowerCase();
     const matchesSearch = fullName.includes(searchTerm.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || (statusFilter === "active" && employee.status) || (statusFilter === "inactive" && !employee.status);
     return matchesSearch && matchesStatus;
-  });
+  })
+);
 
   return (
     <Paper
@@ -144,6 +159,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
             <MenuItem value="inactive">Inactivos</MenuItem>
           </Select>
         </FormControl>
+        
       </div>
 
       <TableContainer>
@@ -154,16 +170,24 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                 backgroundColor: "#1E293B",
               }}
             >
-               <TableCell
-                sx={{
-                  color: "#FFFFFF",
-                  fontWeight: "bold",
-                  fontSize: "16px",
-                  borderBottom: "none",
-                }}
-              >
-                ID
-              </TableCell>
+              <TableCell
+  sx={{
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: "16px",
+    borderBottom: "none",
+    display: "flex",
+    alignItems: "center",
+  }}
+>
+  ID
+  <IconButton
+    onClick={() => setOrderById(orderById === "asc" ? "desc" : "asc")}
+    sx={{ color: "#FFFFFF", marginLeft: "8px" }}
+  >
+    {orderById === "asc" ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+  </IconButton>
+</TableCell>
               <TableCell
                 sx={{
                   color: "#FFFFFF",
