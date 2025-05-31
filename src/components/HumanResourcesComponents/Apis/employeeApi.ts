@@ -78,3 +78,13 @@ export const fetchBosses = async (): Promise<Boss[]> => {
     full_name: boss.full_name, // Usa directamente el campo `full_name` de la API
   }));
 };
+
+export const getEmployeePlantId = async (id: number): Promise<{ plant_id: number }> => {
+  try {
+    const response: AxiosResponse<{ plant_id: number }> = await apiClient.get(`/plant/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error retrieving employee plant_id:", error);
+    throw error;
+  }
+};

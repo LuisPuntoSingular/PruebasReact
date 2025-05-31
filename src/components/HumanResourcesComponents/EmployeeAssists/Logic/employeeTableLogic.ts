@@ -3,11 +3,12 @@ import { EmployeeRow } from "../EmployeeTableAssist";
 export interface ExcelRow {
   ID: number;
   Fecha: string;
-  Code?: string;
+  Entrada?: string | null;
+  Salida?: string | null;
+  Horas?: number;
   HorasExtras?: number;
+  Codigo?: string; // Cambiado de "Code" a "Codigo"
 }
-
-
 
 // Actualiza los empleados con los datos del Excel
 export function updateEmployeesFromExcel(
@@ -17,11 +18,11 @@ export function updateEmployeesFromExcel(
   onChange: (employees: EmployeeRow[]) => void
 ) {
   const dias = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-  const updatedEmployees = localEmployees.map(emp => {
-    const registrosEmpleado = excelData.filter(row => row.ID === emp.id);
+  const updatedEmployees = localEmployees.map((emp) => {
+    const registrosEmpleado = excelData.filter((row) => row.ID === emp.id);
     const empActualizado = { ...emp };
 
-    registrosEmpleado.forEach(reg => {
+    registrosEmpleado.forEach((reg) => {
       const fechaRegistro = reg.Fecha?.slice(0, 10);
       for (let i = 0; i < 7; i++) {
         const fechaDia = new Date(startDate);
@@ -31,16 +32,16 @@ export function updateEmployeesFromExcel(
         if (fechaDiaStr === fechaRegistro) {
           const dia = dias[i];
           empActualizado[dia] = {
-            ...empActualizado[dia],
-            day: reg.Code || "",
-            extraTime: reg.HorasExtras || 0,
+            ...empActualizado[dia], // Preserva los valores manuales existentes
+            day: reg.Codigo || empActualizado[dia]?.day || "", // Usa el valor del Excel o el valor manual
+            extraTime: reg.HorasExtras ?? empActualizado[dia]?.extraTime ?? 0, // Usa el valor del Excel o el valor manual
           };
         }
       }
     });
 
     empActualizado.totalExtraTime = dias
-      .map(d => (empActualizado[d] as { day: string; extraTime: number }).extraTime)
+      .map((d) => (empActualizado[d] as { day: string; extraTime: number }).extraTime)
       .reduce((sum, extraTime) => sum + extraTime, 0);
 
     return empActualizado;
@@ -57,7 +58,6 @@ export function handleExtraTimeChange(
   day: string,
   value: number | string
 ) {
-    
   const updated = prev.map((employee) => {
     if (employee.id === id) {
       const updatedDay = {

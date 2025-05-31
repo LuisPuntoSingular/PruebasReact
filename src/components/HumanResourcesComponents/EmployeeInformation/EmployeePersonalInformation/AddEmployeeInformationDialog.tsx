@@ -17,6 +17,7 @@ interface AddEmployeeInformationDialogProps {
     is_card: boolean;
     cardname: string;
   };
+
   setPersonalInfo: React.Dispatch<
     React.SetStateAction<{
       curp: string;
@@ -61,7 +62,7 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
       >
 
  
- 
+
 
 
 {/* ¿Tiene tarjeta y banco? */}
@@ -206,6 +207,7 @@ const AddEmployeeInformationDialog: React.FC<AddEmployeeInformationDialogProps> 
     }}
     required // Campo obligatorio
   />
+  
 </Box>
 
         {/* NSS */}

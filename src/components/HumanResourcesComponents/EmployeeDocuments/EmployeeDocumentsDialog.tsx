@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EmployeeContractsContent from "./EmployeeDocumentsComponents/EmployeeContractsDocuments"; // Importa el componente
-import EmployeeVacationsContent from "./EmployeeDocumentsComponents/EmployeeVacationsDocuments"; // Importa el componente
+import EmployeeVacationsContent from "./EmployeeDocumentsComponents/EmployeeVacations/EmployeeVacationsDocuments"; // Importa el componente
 import EmployeeCheckListDocuments from "./EmployeeDocumentsComponents/EmployeeCheckListDocuments"; // Importa el componente
 
 interface EmployeeContractsVacationsDialogProps {

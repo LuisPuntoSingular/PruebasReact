@@ -4,7 +4,7 @@ import {
 import React, { useState, useEffect, useRef } from "react";
 import { AttendanceCode } from "./AttendanceCodesTable";
 import { uploadAttendanceExcel } from "./Services/attendanceService";
-import { updateEmployeesFromExcel, handleExtraTimeChange, ExcelRow } from "./Logic/employeeTableLogic";
+import { updateEmployeesFromExcel, handleExtraTimeChange} from "./Logic/employeeTableLogic";
 
 export interface EmployeeRow {
   id: number;
@@ -61,15 +61,22 @@ const EmployeeTable: React.FC<Props> = ({
 
   // Usa la función de lógica para cambios en horas extra/código
 const onExtraTimeChange = (id: number, day: string, value: number | string) => {
-  setLocalEmployees(prev => {
+  setLocalEmployees((prev) => {
     const updated = handleExtraTimeChange(prev, id, day, value);
-    onChange(updated); // Notifica al padre cada vez que hay un cambio manual
-    return updated;
+
+    // Verifica si realmente hay un cambio antes de actualizar el estado
+    const hasChanged = JSON.stringify(prev) !== JSON.stringify(updated);
+    if (hasChanged) {
+      onChange(updated); // Notifica al componente padre solo si hay cambios
+      return updated;
+    }
+
+    return prev; // No actualiza el estado si no hay cambios
   });
 };
 
   // Usa la función de lógica para actualizar desde Excel
- const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
   if (!file) return;
 
@@ -78,35 +85,24 @@ const onExtraTimeChange = (id: number, day: string, value: number | string) => {
 
   setUploading(true);
   try {
+    // Llama a la función que procesa el archivo Excel
     const data = await uploadAttendanceExcel(file, fecha_inicio, fecha_final);
-    alert("Archivo procesado correctamente");
-    console.log("Respuesta del backend:", data);
 
-    // Type guard para asegurar que data.rows es un array
-    if (
-      data &&
-      typeof data === "object" &&
-      "rows" in data &&
-      Array.isArray((data as { rows: unknown }).rows)
-    ) {
-      // Aquí ya sabemos que data.rows es unknown[], pero queremos EmployeeRow[]
-      // Si tienes un tipo más específico, puedes hacer un cast seguro:
-      setLocalEmployees(prev =>
-        updateEmployeesFromExcel(
-          prev,
-          (data as { rows: ExcelRow[] }).rows,
-          startDate,
-          onChange
-        )
+    // Verifica si el backend devolvió un arreglo
+    if (Array.isArray(data)) {
+      // Actualiza los empleados con los datos del Excel
+      setLocalEmployees((prev) =>
+        updateEmployeesFromExcel(prev, data, startDate, onChange)
       );
+      alert("Archivo procesado correctamente");
     } else {
       alert("La respuesta del backend no contiene el formato esperado.");
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      alert("Error al procesar el archivo: " + error.message);
+      alert(`Error al procesar el archivo: ${error.message}`);
     } else {
-      alert("Error al procesar el archivo.");
+      alert("Error desconocido al procesar el archivo.");
     }
   } finally {
     setUploading(false);

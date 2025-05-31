@@ -69,6 +69,7 @@ const AddEmployeeGeneralInformation: React.FC<AddEmployeeGeneralInformationProps
   };
 
   return (
+    
     <Box
       sx={{
         display: "grid",
@@ -165,6 +166,7 @@ const AddEmployeeGeneralInformation: React.FC<AddEmployeeGeneralInformationProps
           style: { color: "#6B7280" },
         }}
       />
+      
       <TextField
         
         label="Apellido Materno"

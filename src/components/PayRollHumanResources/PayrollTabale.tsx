@@ -1,90 +1,301 @@
 import React, { useEffect, useState } from "react";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Box
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Box, Button, ButtonGroup
 } from "@mui/material";
-import { CSVLink } from "react-csv";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import { getProcessedEmployees, handleInputChangeLogic, getTotals } from "./Logic/payrollTableLogic";
+import { saveOrUpdatePayroll, getPayrollByEmployeeWeekYear, EmployeePayroll } from "./Services/PayRollTableService";
+import { getPayrollLockStatus, updatePayrollLockStatus } from "./Services/PayrollLockService";
+
+import { getEmployeePlantId } from "../HumanResourcesComponents/Apis/employeeApi"; // Ajusta la ruta
+
 
 interface Props {
   selectedWeek: number;
   selectedYear: number;
 }
-export interface Employee {
-  id: number;
-  full_name: string;
-  salario: number;
-  monday: string;
-  tuesday: string;
-  wednesday: string;
-  thursday: string;
-  friday: string;
-  saturday: string;
-  sunday: string;
-  total_te: number;
-  importe_te: number;
-  infonavit: string;
-  fonacot: string;
-  total_percepciones: number;
-  debe: string;
-  abono: string;
-  restan: number;
-  otros: string;
-  bono_normal: string;
-  bono_mensual: string;
-  tarjeta: string;
-  efectivo: number;
-  tota: number;
-}
 
-const csvHeaders = [
-  { label: "Nombre", key: "full_name" },
-  { label: "Lun", key: "monday" },
-  { label: "Mar", key: "tuesday" },
-  { label: "Mie", key: "wednesday" },
-  { label: "Jue", key: "thursday" },
-  { label: "Vie", key: "friday" },
-  { label: "Sab", key: "saturday" },
-  { label: "Dom", key: "sunday" },
-  { label: "Total T.E.", key: "total_te" },
-  { label: "Importe de T.E.", key: "importe_te" },
-  { label: "Sueldo", key: "salario" },
-  { label: "INFONAVIT", key: "infonavit" },
-  { label: "FONACOT", key: "fonacot" },
-  { label: "TOTAL PERCEPCIONES", key: "total_percepciones" },
-  { label: "Debe", key: "debe" },
-  { label: "Abono", key: "abono" },
-  { label: "Restan", key: "restan" },
-  { label: "OTROS", key: "otros" },
-  { label: "Bono normal", key: "bono_normal" },
-  { label: "Bono mensual", key: "bono_mensual" },
-  { label: "TARJETA", key: "tarjeta" },
-  { label: "EFECTIVO", key: "efectivo" },
-  { label: "TOTAL", key: "tota" },
-];
+
+
 
 const PayrollTable: React.FC<Props> = ({ selectedWeek, selectedYear }) => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employees, setEmployees] = useState<EmployeePayroll[]>([]);
+const [employeePlants, setEmployeePlants] = useState<{ [id: number]: number }>({});
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const processed = await getProcessedEmployees(selectedWeek, selectedYear);
-        setEmployees(processed);
-      } catch {
-        setEmployees([]);
-      }
-    };
-    fetchData();
-  }, [selectedWeek, selectedYear]);
+const [filter, setFilter] = useState<string>("Todos"); // Estado para el filtro seleccionado
+const [isLocked, setIsLocked] = useState(false);
 
-  const handleInputChange = (id: number, field: string, value: string) => {
-    setEmployees(prev => handleInputChangeLogic(prev, id, field, value));
+// Efecto para obtener los empleados de la nómina por Carton,Madera y Todos
+const filteredEmployees = employees.filter(emp => {
+  if (filter === "Todos") return true;
+  const plantId = employeePlants[emp.employee_id];
+  if (filter === "Madera") return plantId === 1;
+  if (filter === "Cartón") return plantId === 2;
+  return true;
+});
+
+// Efecto para obtener los empleados de la nómina y sus plantas
+useEffect(() => {
+  const fetchEmployeePlants = async () => {
+    // Obtén todos los IDs de empleados de la nómina actual
+    const ids = employees.map(emp => emp.employee_id);
+    const map: { [id: number]: number } = {};
+
+    // Para cada empleado, pide su plant_id
+    await Promise.all(
+      ids.map(async (id) => {
+        try {
+          const { plant_id } = await getEmployeePlantId(id);
+          map[id] = plant_id;
+        } catch (error) {
+          map[id] = 0; // O el valor que prefieras si falla
+          console.error(`Error obteniendo plant_id para empleado ${id}:`, error);
+        }
+      })
+    );
+    setEmployeePlants(map);
   };
+
+  if (employees.length > 0) {
+    fetchEmployeePlants();
+  }
+}, [employees]);
+
+
+
+const exportToExcel = async () => {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Nómina");
+
+  // Encabezados
+  worksheet.columns = [
+    { header: "ID", key: "employee_id", width: 10 },
+    { header: "Nombre", key: "full_name", width: 25 },
+    { header: "Lun", key: "monday_hours", width: 10 },
+    { header: "T.E. Lun", key: "monday_extra_hours", width: 12 },
+    { header: "Mar", key: "tuesday_hours", width: 10 },
+    { header: "T.E. Mar", key: "tuesday_extra_hours", width: 12 },
+    { header: "Mie", key: "wednesday_hours", width: 10 },
+    { header: "T.E. Mie", key: "wednesday_extra_hours", width: 12 },
+    { header: "Jue", key: "thursday_hours", width: 10 },
+    { header: "T.E. Jue", key: "thursday_extra_hours", width: 12 },
+    { header: "Vie", key: "friday_hours", width: 10 },
+    { header: "T.E. Vie", key: "friday_extra_hours", width: 12 },
+    { header: "Sab", key: "saturday_hours", width: 10 },
+    { header: "T.E. Sab", key: "saturday_extra_hours", width: 12 },
+    { header: "Dom", key: "sunday_hours", width: 10 },
+    { header: "T.E. Dom", key: "sunday_extra_hours", width: 12 },
+    { header: "Total T.E.", key: "total_extra_hours", width: 12 },
+    { header: "Importe de T.E.", key: "extra_hours_amount", width: 15 },
+    { header: "Sueldo", key: "salary", width: 12 },
+    { header: "INFONAVIT", key: "infonavit", width: 12 },
+    { header: "FONACOT", key: "fonacot", width: 12 },
+    { header: "TOTAL PERCEPCIONES", key: "total_perceptions", width: 18 },
+    { header: "Debe", key: "debt", width: 12 },
+    { header: "Abono", key: "payment", width: 12 },
+    { header: "Restan", key: "remaining", width: 12 },
+    { header: "OTROS", key: "others", width: 12 },
+    { header: "Bono normal", key: "normal_bonus", width: 14 },
+    { header: "Bono mensual", key: "monthly_bonus", width: 14 },
+    { header: "TARJETA", key: "card_payment", width: 12 },
+    { header: "EFECTIVO", key: "cash_payment", width: 12 },
+    { header: "TOTAL", key: "total_payment", width: 12 },
+  ];
+
+  // Agrega los datos
+  filteredEmployees.forEach(emp => {
+    worksheet.addRow(emp);
+  });
+
+  // Estilo de encabezados
+  worksheet.getRow(1).font = { bold: true };
+  worksheet.getRow(1).alignment = { horizontal: "center" };
+
+  // Genera el archivo y lo descarga
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(new Blob([buffer]), `nomina-semana-${selectedWeek}-${selectedYear}.xlsx`);
+};
+
+
+
+// Function to handle saving changes to the payroll
+const handleSaveChanges = async () => {
+  try {
+    for (const employee of employees) {
+      const employeePayroll = {
+  employee_id: employee.employee_id || 0,
+  full_name: employee.full_name,
+  week_number: selectedWeek,
+  year: selectedYear,
+  monday_hours: employee.monday_hours || "",
+  monday_extra_hours: employee.monday_extra_hours || 0,
+  tuesday_hours: employee.tuesday_hours || "",
+  tuesday_extra_hours: employee.tuesday_extra_hours || 0,
+  wednesday_hours: employee.wednesday_hours || "",
+  wednesday_extra_hours: employee.wednesday_extra_hours || 0,
+  thursday_hours: employee.thursday_hours || "",
+  thursday_extra_hours: employee.thursday_extra_hours || 0,
+  friday_hours: employee.friday_hours || "",
+  friday_extra_hours: employee.friday_extra_hours || 0,
+  saturday_hours: employee.saturday_hours || "",
+  saturday_extra_hours: employee.saturday_extra_hours || 0,
+  sunday_hours: employee.sunday_hours || "",
+  sunday_extra_hours: employee.sunday_extra_hours || 0,
+  total_extra_hours: Number(employee.total_extra_hours) || 0,
+  extra_hours_amount: Number(employee.extra_hours_amount) || 0,
+  salary: Number(employee.salary) || 0,
+  infonavit: Number(employee.infonavit),
+  fonacot: Number(employee.fonacot),
+  // Asegúrate de que estos campos sean números o cadenas vacías
+  total_perceptions: Number(employee.total_perceptions) || "",
+  debt: Number(employee.debt) || 0,
+  payment: Number(employee.payment) || 0,
+  remaining: Number(employee.remaining) || 0,
+  others: Number(employee.others) || 0,
+  normal_bonus: Number(employee.normal_bonus) || 0,
+  monthly_bonus: Number(employee.monthly_bonus) || 0,
+  card_payment: Number(employee.card_payment) || 0,
+  cash_payment: Number(employee.cash_payment) || 0,
+  total_payment: Number(employee.total_payment) || 0,
+};
+
+      // Llama a la función para guardar o actualizar la nómina
+      await saveOrUpdatePayroll(employeePayroll);
+    }
+    alert("Cambios guardados exitosamente.");
+  } catch (error) {
+    console.error("Error al guardar los cambios:", error);
+    alert("Ocurrió un error al guardar los cambios. Por favor, revisa los datos.");
+  }
+};
+
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const processed = await getProcessedEmployees(selectedWeek, selectedYear);
+
+      // Iterar sobre los empleados y obtener datos adicionales de la nómina
+      const updatedEmployees = await Promise.all(
+        processed.map(async (employee) => {
+          try {
+            const payrollData = await getPayrollByEmployeeWeekYear(
+              employee.employee_id,
+              selectedWeek,
+              selectedYear
+            );
+
+            // Si se encuentra información, actualiza los campos
+            const updatedEmployee = {
+              ...employee,
+              infonavit: payrollData.infonavit  || 0,
+              fonacot: payrollData.fonacot  || 0,
+              total_perceptions: payrollData.total_perceptions || 0.0,
+              debt: payrollData.debt || 0,
+              payment: payrollData.payment || 0,
+              remaining: payrollData.remaining || 0,
+              others: payrollData.others || 0,
+              normal_bonus: payrollData.normal_bonus || 0,
+              monthly_bonus: payrollData.monthly_bonus || 0,
+              card_payment: payrollData.card_payment || 0,
+              cash_payment: payrollData.cash_payment || 0,
+              total_payment: payrollData.total_payment || 0,
+            };
+
+            // Aplicar lógica de cálculos automáticamente
+            const recalculatedEmployees = handleInputChangeLogic(
+              [updatedEmployee],
+              employee.employee_id,
+              "", // No se necesita un campo específico
+              0   // No se necesita un valor específico
+            );
+
+            return recalculatedEmployees[0]; // Retorna el empleado recalculado
+          } catch (error) {
+            console.warn(`No se encontró nómina para el empleado ${employee.employee_id}:`, error);
+            return {
+              ...employee,
+              infonavit: "",
+              fonacot:"",
+              total_perceptions: 0,
+              debt: 0,
+              payment: 0,
+              remaining: 0,
+              others: 0,
+              normal_bonus: 0,
+              monthly_bonus: 0,
+              card_payment: 0,
+              cash_payment: 0,
+              total_payment: 0,
+            };
+          }
+        })
+      );
+
+      setEmployees(updatedEmployees);
+    } catch (error) {
+      console.error("Error al obtener los datos de los empleados:", error);
+      setEmployees([]);
+    }
+  };
+
+  fetchData();
+}, [selectedWeek, selectedYear]);
+
+
+
+
+const handleInputChange = (id: number, field: string, value: string | number) => {
+  const sanitizedValue = value === "" ? "" : value; // Permitir valores vacíos
+  setEmployees((prev) =>
+    handleInputChangeLogic(prev, id, field, sanitizedValue)
+  );
+};
+
+
+  
+  const handleFilterChange = (filterType: string) => {
+    setFilter(filterType);
+    console.log(`Filtro seleccionado: ${filterType}`);
+  };
+
+  const handleLockPayroll = async () => {
+  const confirmLock = window.confirm('¿Estás seguro de que deseas bloquear la nómina?');
+  if (!confirmLock) return;
+
+  try {
+    await updatePayrollLockStatus(selectedWeek, selectedYear, true); // Bloquear la nómina en el backend
+    setIsLocked(true); // Actualizar el estado local
+    alert('La nómina ha sido bloqueada exitosamente.');
+  } catch (error) {
+    console.error('Error al bloquear la nómina:', error);
+    alert('Ocurrió un error al bloquear la nómina.');
+  }
+};
+useEffect(() => {
+  const fetchLockStatus = async () => {
+    try {
+      const isLocked = await getPayrollLockStatus(selectedWeek, selectedYear); // Consultar el estado de bloqueo
+      setIsLocked(isLocked); // Actualizar el estado local
+    } catch (error) {
+      console.error('Error al consultar el estado de bloqueo:', error);
+    }
+  };
+
+  fetchLockStatus();
+}, [selectedWeek, selectedYear]);
+
+
 
   const { totalTarjeta, totalEfectivo, totalGeneral } = getTotals(employees);
 
+
+
   return (
     <React.Fragment>
+       
+       {/* The little table where you can see the total amount of , tarjet, total,  */}
       <Box display="flex" justifyContent="flex-end" alignItems="flex-start" sx={{ p: 2 }}>
         <table style={{ borderCollapse: "collapse", minWidth: 220, fontSize: 16 }}>
           <tbody>
@@ -112,155 +323,240 @@ const PayrollTable: React.FC<Props> = ({ selectedWeek, selectedYear }) => {
           </tbody>
         </table>
       </Box>
-      <TableContainer component={Paper} elevation={3}>
+
+         {/* Botones de filtro, Nómina Pagada y Guardar Cambios */}
+<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+  <ButtonGroup variant="contained" color="primary">
+    <Button onClick={() => handleFilterChange("Todos")}>Todos</Button>
+    <Button onClick={() => handleFilterChange("Madera")}>Madera</Button>
+    <Button onClick={() => handleFilterChange("Cartón")}>Cartón</Button>
+  </ButtonGroup>
+  <Box sx={{ display: "flex", gap: 2 }}>
+
+    <Button
+  variant="contained"
+  color="success"
+  onClick={handleLockPayroll}
+  disabled={isLocked} // Deshabilitar el botón si la nómina ya está bloqueada
+>
+  Nómina Pagada
+</Button>
+
+    <Button variant="contained" color="secondary" onClick={handleSaveChanges}  disabled={isLocked}>
+      Guardar Cambios
+    </Button>
+
+  </Box>
+</Box>
+
+      <TableContainer component={Paper} elevation={3} sx={{ overflowX: "auto" }}>
         <div style={{ padding: 16 }}>
-          <CSVLink
-            data={employees}
-            headers={csvHeaders}
-            filename={`nomina-semana-${selectedWeek}-${selectedYear}.csv`}
-            className="MuiButton-root MuiButton-contained MuiButton-containedPrimary"
-            style={{
-              marginBottom: 16,
-              textDecoration: "none",
-              color: "#fff",
-              background: "#1976d2",
-              padding: "6px 16px",
-              borderRadius: 4,
-              display: "inline-block"
-            }}
-          >
-            Exportar a Excel
-          </CSVLink>
+          <Button
+  variant="contained"
+  color="primary"
+  onClick={exportToExcel}
+  style={{ marginBottom: 16 }}
+>
+  Exportar a Excel
+</Button>
         </div>
-        <Table size="small">
+        <Table
+          size="small"
+          sx={{
+            minWidth: 1800,
+            border: 1,
+            borderColor: "#ccc",
+            '& td, & th': { border: 1, borderColor: "#ccc" }
+          }}
+        >
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700, fontSize: "1.1rem", background: "#b3d1ee" }}>Nombre</TableCell>
+              <TableCell sx={{ background: "#b3d1ee" }}>ID</TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  fontSize: "1.1rem",
+                  background: "#b3d1ee",
+                  position: "sticky",
+                  left: 0,
+                  zIndex: 2,
+                  border: 1,
+                  borderColor: "#ccc",
+                  backgroundClip: "padding-box"
+                }}
+              >
+                Nombre
+              </TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Lun</TableCell>
+              <TableCell sx={{ background: "#e3f2fd" }}>T.E.</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Mar</TableCell>
+              <TableCell sx={{ background: "#e3f2fd" }}>T.E.</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Mie</TableCell>
+              <TableCell sx={{ background: "#e3f2fd" }}>T.E.</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Jue</TableCell>
+              <TableCell sx={{ background: "#e3f2fd" }}>T.E.</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Vie</TableCell>
+              <TableCell sx={{ background: "#e3f2fd" }}>T.E.</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Sab</TableCell>
+              <TableCell sx={{ background: "#e3f2fd" }}>T.E.</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Dom</TableCell>
+              <TableCell sx={{ background: "#e3f2fd" }}>T.E.</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Total T.E.</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Importe de T.E.</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Sueldo</TableCell>
-              <TableCell sx={{ background: "#b3d1ee" }}>INFONAVIT</TableCell>
-              <TableCell sx={{ background: "#b3d1ee" }}>FONACOT</TableCell>
-              <TableCell sx={{ background: "#b3d1ee" }}>TOTAL PERCEPCIONES</TableCell>
+              <TableCell sx={{ background: "#b3d1ee" }}>Infonavit</TableCell>
+              <TableCell sx={{ background: "#b3d1ee" }}>Fonacot</TableCell>
+              <TableCell sx={{ background: "#b3d1ee" }}>Total Percepciones</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Debe</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Abono</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Restan</TableCell>
-              <TableCell sx={{ background: "#b3d1ee" }}>OTROS</TableCell>
+              <TableCell sx={{ background: "#b3d1ee" }}>Otros</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Bono normal</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>Bono mensual</TableCell>
-              <TableCell sx={{ background: "#b3d1ee" }}>TARJETA</TableCell>
+              <TableCell sx={{ background: "#b3d1ee" }}>Tarjeta</TableCell>
               <TableCell sx={{ background: "#ff4444", color: "#fff", fontWeight: 700 }}>EFECTIVO</TableCell>
               <TableCell sx={{ background: "#b3d1ee" }}>TOTAL</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {employees.map(emp => (
-              <TableRow key={emp.id}>
-                <TableCell>{emp.full_name}</TableCell>
-                <TableCell>{emp.monday}</TableCell>
-                <TableCell>{emp.tuesday}</TableCell>
-                <TableCell>{emp.wednesday}</TableCell>
-                <TableCell>{emp.thursday}</TableCell>
-                <TableCell>{emp.friday}</TableCell>
-                <TableCell>{emp.saturday}</TableCell>
-                <TableCell>{emp.sunday}</TableCell>
-                <TableCell>{emp.total_te}</TableCell>
-                <TableCell>{emp.importe_te}</TableCell>
-                <TableCell>{emp.salario}</TableCell>
-                <TableCell>
-                  <TextField
-                    value={emp.infonavit}
-                    onChange={e => handleInputChange(emp.id, "infonavit", e.target.value)}
-                    variant="standard"
-                    size="small"
-                    type="number"
-                    inputProps={{ style: { width: 60 } }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    value={emp.fonacot}
-                    onChange={e => handleInputChange(emp.id, "fonacot", e.target.value)}
-                    variant="standard"
-                    size="small"
-                    type="number"
-                    inputProps={{ style: { width: 60 } }}
-                  />
-                </TableCell>
-                <TableCell>{emp.total_percepciones}</TableCell>
-                <TableCell>
-                  <TextField
-                    value={emp.debe}
-                    onChange={e => handleInputChange(emp.id, "debe", e.target.value)}
-                    variant="standard"
-                    size="small"
-                    type="number"
-                    inputProps={{ style: { width: 60 } }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    value={emp.abono}
-                    onChange={e => handleInputChange(emp.id, "abono", e.target.value)}
-                    variant="standard"
-                    size="small"
-                    type="number"
-                    inputProps={{ style: { width: 60 } }}
-                  />
-                </TableCell>
-                <TableCell>{emp.restan}</TableCell>
-                <TableCell>
-                  <TextField
-                    value={emp.otros}
-                    onChange={e => handleInputChange(emp.id, "otros", e.target.value)}
-                    variant="standard"
-                    size="small"
-                    type="number"
-                    inputProps={{ style: { width: 60 } }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    value={emp.bono_normal}
-                    onChange={e => handleInputChange(emp.id, "bono_normal", e.target.value)}
-                    variant="standard"
-                    size="small"
-                    type="number"
-                    inputProps={{ style: { width: 60 } }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    value={emp.bono_mensual}
-                    onChange={e => handleInputChange(emp.id, "bono_mensual", e.target.value)}
-                    variant="standard"
-                    size="small"
-                    type="number"
-                    inputProps={{ style: { width: 60 } }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    value={emp.tarjeta}
-                    onChange={e => handleInputChange(emp.id, "tarjeta", e.target.value)}
-                    variant="standard"
-                    size="small"
-                    type="number"
-                    inputProps={{ style: { width: 60 } }}
-                  />
-                </TableCell>
-                <TableCell sx={{ background: "#ff4444", color: "#fff", fontWeight: 700 }}>{emp.efectivo}</TableCell>
-                <TableCell>{emp.tota}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+        <TableBody>
+  {filteredEmployees.map((emp, index) => (
+    <TableRow key={emp.employee_id} sx={{ background: index % 2 === 0 ? "#f9f9f9" : "#ffffff" }}>
+      <TableCell>{emp.employee_id}</TableCell>
+      <TableCell
+        sx={{
+          position: "sticky",
+          left: 0,
+          zIndex: 2,
+          background: index % 2 === 0 ? "#f9f9f9" : "#ffffff", // Fondo para que coincida con las filas
+          fontWeight: 700,
+        }}
+      >
+        {emp.full_name}
+      </TableCell>
+      <TableCell>{emp.monday_hours}</TableCell>
+<TableCell>{emp.monday_extra_hours}</TableCell>
+<TableCell>{emp.tuesday_hours}</TableCell>
+<TableCell>{emp.tuesday_extra_hours}</TableCell>
+<TableCell>{emp.wednesday_hours}</TableCell>
+<TableCell>{emp.wednesday_extra_hours}</TableCell>
+<TableCell>{emp.thursday_hours}</TableCell>
+<TableCell>{emp.thursday_extra_hours}</TableCell>
+<TableCell>{emp.friday_hours}</TableCell>
+<TableCell>{emp.friday_extra_hours}</TableCell>
+<TableCell>{emp.saturday_hours}</TableCell>
+<TableCell>{emp.saturday_extra_hours}</TableCell>
+<TableCell>{emp.sunday_hours}</TableCell>
+<TableCell>{emp.sunday_extra_hours}</TableCell>
+<TableCell>{emp.total_extra_hours}</TableCell>
+<TableCell>{emp.extra_hours_amount}</TableCell>
+<TableCell>{emp.salary}</TableCell>
+      <TableCell>
+        <TextField
+    value={emp.infonavit !== undefined && emp.infonavit !== null ? emp.infonavit : 0} // Mostrar el valor actual o 0
+    onChange={(e) => handleInputChange(emp.employee_id, "infonavit", parseFloat(e.target.value) || "")} // Permitir edición
+    onBlur={(e) => handleInputChange(emp.employee_id, "infonavit", e.target.value === "" ? 0 : parseFloat(e.target.value).toFixed(1))} // Establecer 0 si está vacío
+    variant="standard"
+    size="small"
+    type="number"
+    disabled={isLocked}
+    inputProps={{ style: { width: 60 } }}
+  />
+      </TableCell>
+      <TableCell>
+
+    <TextField
+    value={emp.fonacot !== undefined && emp.fonacot !== null ? emp.fonacot : 0} // Mostrar el valor actual o 0
+    onChange={(e) => handleInputChange(emp.employee_id, "fonacot", parseFloat(e.target.value) || "")} // Permitir edición
+    onBlur={(e) => handleInputChange(emp.employee_id, "fonacot", e.target.value === "" ? 0 : parseFloat(e.target.value).toFixed(1))} // Establecer 0 si está vacío
+    variant="standard"
+    size="small"
+    type="number"
+    disabled={isLocked}
+    inputProps={{ style: { width: 60 } }}
+  />
+
+      </TableCell>
+      <TableCell>{emp.total_perceptions}</TableCell>
+      <TableCell>
+        <TextField
+    value={emp.debt !== undefined && emp.debt !== null ? emp.debt : 0} // Mostrar el valor actual o 0
+    onChange={(e) => handleInputChange(emp.employee_id, "debt", parseFloat(e.target.value) || "")} // Permitir edición
+    onBlur={(e) => handleInputChange(emp.employee_id, "debt", e.target.value === "" ? 0 : parseFloat(e.target.value).toFixed(1))} // Establecer 0 si está vacío
+    variant="standard"
+    size="small"
+    type="number"
+    disabled={isLocked}
+    inputProps={{ style: { width: 80 } }}
+  />
+      </TableCell>
+      <TableCell>
+
+        <TextField
+    value={emp.payment !== undefined && emp.payment !== null ? emp.payment : 0} // Mostrar el valor actual o 0
+    onChange={(e) => handleInputChange(emp.employee_id, "payment", parseFloat(e.target.value) || "")} // Permitir edición
+    onBlur={(e) => handleInputChange(emp.employee_id, "payment", e.target.value === "" ? 0 : parseFloat(e.target.value).toFixed(1))} // Establecer 0 si está vacío
+    variant="standard"
+    size="small"
+    type="number"
+    disabled={isLocked}
+    inputProps={{ style: { width: 80 } }}
+  />
+
+      </TableCell>
+      <TableCell>{emp.remaining}</TableCell>
+      <TableCell>
+        <TextField
+    value={emp.others !== undefined && emp.others !== null ? emp.others : 0} // Mostrar el valor actual o 0
+    onChange={(e) => handleInputChange(emp.employee_id, "others", parseFloat(e.target.value) || "")} // Permitir edición
+    onBlur={(e) => handleInputChange(emp.employee_id, "others", e.target.value === "" ? 0 : parseFloat(e.target.value).toFixed(1))} // Establecer 0 si está vacío
+    variant="standard"
+    size="small"
+    type="number"
+    disabled={isLocked}
+    inputProps={{ style: { width: 80 } }}
+  />
+      </TableCell>
+      <TableCell>
+        <TextField
+    value={emp.normal_bonus !== undefined && emp.normal_bonus !== null ? emp.normal_bonus : 0} // Mostrar el valor actual o 0
+    onChange={(e) => handleInputChange(emp.employee_id, "normal_bonus", parseFloat(e.target.value) || "")} // Permitir edición
+    onBlur={(e) => handleInputChange(emp.employee_id, "normal_bonus", e.target.value === "" ? 0 : parseFloat(e.target.value).toFixed(1))} // Establecer 0 si está vacío
+    variant="standard"
+    size="small"
+    type="number"
+    disabled={isLocked}
+    inputProps={{ style: { width: 80 } }}
+  />
+      </TableCell>
+      <TableCell>
+       <TextField
+    value={emp.monthly_bonus !== undefined && emp.monthly_bonus !== null ? emp.monthly_bonus : 0} // Mostrar el valor actual o 0
+    onChange={(e) => handleInputChange(emp.employee_id, "monthly_bonus", parseFloat(e.target.value) || "")} // Permitir edición
+    onBlur={(e) => handleInputChange(emp.employee_id, "monthly_bonus", e.target.value === "" ? 0 : parseFloat(e.target.value).toFixed(1))} // Establecer 0 si está vacío
+    variant="standard"
+    size="small"
+    type="number"
+    disabled={isLocked}
+    inputProps={{ style: { width: 80 } }}
+  />
+      </TableCell>
+      <TableCell>
+        <TextField
+    value={emp.card_payment !== undefined && emp.card_payment !== null ? emp.card_payment : 0} // Mostrar el valor actual o 0
+    onChange={(e) => handleInputChange(emp.employee_id, "card_payment", parseFloat(e.target.value) || "")} // Permitir edición
+    onBlur={(e) => handleInputChange(emp.employee_id, "card_payment", e.target.value === "" ? 0 : parseFloat(e.target.value).toFixed(1))} // Establecer 0 si está vacío
+    variant="standard"
+    size="small"
+    type="number"
+    disabled={isLocked}
+    inputProps={{ style: { width: 80 } }}
+  />
+      </TableCell>
+      <TableCell sx={{ background: "#ff4444", color: "#fff", fontWeight: 700 }}>{emp.cash_payment}</TableCell>
+      <TableCell>{emp.total_payment}</TableCell>
+    </TableRow>
+  ))}
+</TableBody>
         </Table>
       </TableContainer>
     </React.Fragment>

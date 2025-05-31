@@ -50,7 +50,7 @@ export const buildAttendanceRecords = (
 
 export const sendAttendanceRecords = async (records: AttendanceRecord[]) => {
     for (const record of records) {
-      const res = await fetch("http://localhost:5000/api/attendance", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -98,8 +98,10 @@ export const uploadAttendanceExcel = async (
     method: "POST",
     body: formData,
   });
+  
 
   const data: UploadAttendanceExcelResponse = await response.json();
+  console.log("Respuesta del backend:", data);
   if (!response.ok) {
     throw new Error(data.error || "Error al procesar el archivo");
   }

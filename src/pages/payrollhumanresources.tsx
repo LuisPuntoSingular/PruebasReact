@@ -28,7 +28,7 @@ const PayrollHumanResources: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [startDate, setStartDate] = useState<Date>(() => getMondayOfWeek(new Date()));
   const [weekRange, setWeekRange] = useState<string>(getWeekRangeFromMonday(getMondayOfWeek(new Date())));
- 
+
 
   useEffect(() => {
     setWeekRange(getWeekRangeFromMonday(startDate));
@@ -40,7 +40,7 @@ const PayrollHumanResources: React.FC = () => {
     setStartDate(getMondayOfWeek(monday));
   }, [selectedWeek, selectedYear]);
 
- 
+
 
   return (
     <Box sx={{ p: 3 }}>
@@ -54,10 +54,9 @@ const PayrollHumanResources: React.FC = () => {
         setSelectedYear={setSelectedYear}
         weekRange={weekRange}
       />
-      <PayrollTable
-      selectedWeek={selectedWeek}
-      selectedYear={selectedYear}
-       />
+     
+      {/* Tabla de nómina */}
+      <PayrollTable selectedWeek={selectedWeek} selectedYear={selectedYear} />
     </Box>
   );
 };

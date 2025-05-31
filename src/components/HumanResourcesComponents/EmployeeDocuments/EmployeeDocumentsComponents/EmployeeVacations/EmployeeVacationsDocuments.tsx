@@ -53,12 +53,14 @@ const EmployeeVacationsContent: React.FC = () => {
     setVacationRequests((prev) => [
       ...prev,
       {
+
         year: newRequest.year,
         requestDate,
         startDate: newRequest.startDate,
         endDate: endDate.toISOString().split("T")[0],
         days: newRequest.days,
         approved: false, // Por defecto, no aprobada
+        
       },
     ]);
 
