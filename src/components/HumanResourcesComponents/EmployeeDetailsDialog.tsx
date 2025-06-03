@@ -191,13 +191,12 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
         }}
       >
         {generalInfoHook.employee && (
-    <EmployeeGeneralInfo
-      employeeInfo={generalInfoHook.employee}
-      onUpdate={async (updated) => {
-        // Forzar el id correcto
-        await generalInfoHook.updateGeneralInfo({ ...updated, id: employeeId });
-      }}
-    />
+   <EmployeeGeneralInfo
+  employeeInfo={generalInfoHook.employee}
+  onUpdate={async (updated: Partial<Employee>) => {
+    await generalInfoHook.updateGeneralInfo({ ...updated, id: employeeId });
+  }}
+/>
   )}
 
         <EmployeePersonalInfo
