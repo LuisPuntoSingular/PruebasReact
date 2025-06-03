@@ -197,7 +197,7 @@ const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({ open, onC
     await generalInfoHook.updateGeneralInfo({ ...updated, id: employeeId });
   }}
 />
-  )}
+  )} 
 
         <EmployeePersonalInfo
   personalInfo={personalInfoHook.personalInfo}
