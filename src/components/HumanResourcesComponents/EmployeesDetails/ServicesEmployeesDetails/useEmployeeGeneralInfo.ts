@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { updateEmployee, Employee } from "../../Apis/employeeApi";
+import { patchEmployee, Employee } from "../../Apis/employeeApi";
 
 export function useEmployeeGeneralInfo(initialEmployee: Employee | null) {
   const [employee, setEmployee] = useState<Employee | null>(initialEmployee);
@@ -10,13 +10,13 @@ export function useEmployeeGeneralInfo(initialEmployee: Employee | null) {
     setEmployee(initialEmployee);
   }, [initialEmployee]);
 
-  const updateGeneralInfo = async (updated: Employee) => {
+  const updateGeneralInfo = async (updated: Partial<Employee>) => {
     setLoading(true);
     setError(null);
     try {
       if (!updated.id) throw new Error("El ID del empleado es requerido.");
-      const result = await updateEmployee(updated.id, updated);
-      setEmployee(result);
+      const result = await patchEmployee(updated.id, updated);
+      setEmployee((prev) => ({ ...prev, ...result })); // Actualizar solo los campos modificados
       return result;
     } catch (err: unknown) {
       if (err instanceof Error) {
