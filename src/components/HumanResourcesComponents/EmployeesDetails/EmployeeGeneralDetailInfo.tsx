@@ -30,7 +30,7 @@ export default function EmployeeGeneralInfo({
   onUpdate,
 }: {
   employeeInfo: Employee;
-  onUpdate?: (updated: Employee) => Promise<void>;
+  onUpdate?: (updated: Partial<Employee>) => Promise<void>; // Cambiar a Partial<Employee>
 }) {
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState(employeeInfo);
@@ -76,8 +76,8 @@ export default function EmployeeGeneralInfo({
       !form.last_name_materno?.trim() ||
       !form.work_area_id ||
       !form.salary ||
-      !form.hire_date?.trim() ||
-      !form.nss_date?.trim()
+      !form.hire_date?.trim() 
+    
     ) {
       setError("Por favor, completa todos los campos obligatorios.");
       return false;
@@ -91,12 +91,34 @@ export default function EmployeeGeneralInfo({
     setOpenDialog(true); // Abrir el diálogo de confirmación
   };
 
-  const confirmSave = async () => {
-    await onUpdate(form);
+const confirmSave = async () => {
+  if (!onUpdate) return;
+
+  // Filtrar los campos modificados y excluir `nss_date` si está vacío
+  const updatedFields = Object.keys(form).reduce((acc, key) => {
+    if (key === "nss_date" && !form[key]?.trim()) {
+      // Excluir `nss_date` si está vacío
+      return acc;
+    }
+    if (form[key] !== employeeInfo[key]) {
+      acc[key] = form[key];
+    }
+    return acc;
+  }, {} as Partial<Employee>);
+
+  if (Object.keys(updatedFields).length === 0) {
+    setOpenDialog(false); // Cerrar el diálogo si no hay cambios
+    return;
+  }
+
+  try {
+    await onUpdate({ id: employeeInfo.id, ...updatedFields }); // Usar patchEmployee para enviar solo los campos modificados
     setEditMode(false);
     setOpenDialog(false); // Cerrar el diálogo después de guardar
-  };
-
+  } catch (error) {
+    console.error("Error al guardar los cambios:", error);
+  }
+};
    
  // Utilidad para formatear fecha a YYYY-MM-DD
   const formatDate = (dateStr?: string) => {
@@ -174,7 +196,7 @@ const formatDateForDisplay = (dateStr?: string) => {
                 </TextField>
                 <TextField required label="Salario" name="salary" type="number" value={form.salary} onChange={handleChange} />
                 <TextField required label="Fecha de Ingreso" name="hire_date" type="date" value={form.hire_date} onChange={handleChange} InputLabelProps={{ shrink: true }} />
-                <TextField required label="Fecha de Alta Nss" name="nss_date" type="date" value={form.nss_date || ""} onChange={handleChange} InputLabelProps={{ shrink: true }} />
+                <TextField  label="Fecha de Alta Nss" name="nss_date" type="date" value={form.nss_date || ""} onChange={handleChange} InputLabelProps={{ shrink: true }} />
                 <TextField
                   required
                   select
