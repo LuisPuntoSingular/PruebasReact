@@ -39,7 +39,7 @@ export const getEmployees = async (): Promise<Employee[]> => {
 };
 
 // Obtener un empleado por ID
-export const   getEmployeeById = async (id: number): Promise<Employee> => {
+export const getEmployeeById = async (id: number): Promise<Employee> => {
   try {
     const response: AxiosResponse<Employee> = await apiClient.get(`/${id}`);
     return response.data; // Devuelve la información del empleado
@@ -60,6 +60,17 @@ export const createEmployee = async (employee: Employee): Promise<Employee> => {
 export const updateEmployee = async (id: number, employee: Employee): Promise<Employee> => {
   const response: AxiosResponse<Employee> = await apiClient.put(`/${id}`, employee);
   return response.data;
+};
+
+// Actualizar parcialmente un empleado
+export const patchEmployee = async (id: number, updates: Partial<Employee>): Promise<Employee> => {
+  try {
+    const response: AxiosResponse<Employee> = await apiClient.patch(`/${id}`, updates);
+    return response.data; // Devuelve la información actualizada del empleado
+  } catch (error) {
+    console.error("Error en PATCH /:id:", error);
+    throw error; // Lanza el error para manejarlo en el componente
+  }
 };
 
 // Eliminar un empleado

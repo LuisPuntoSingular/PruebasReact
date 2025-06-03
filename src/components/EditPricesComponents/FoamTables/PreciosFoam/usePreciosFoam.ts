@@ -5,19 +5,18 @@ import { useFoam } from "../Foam/useFoam";
 // Usar la variable de entorno para configurar la URL base
 const API_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/preciosfoam`;
 
-// Define la interfaz para los datos
 interface PreciosFoam {
   id?: number; // Opcional porque no estará presente al crear un nuevo registro
   medidas: string;
   precio: string;
-  idfoam: string;
+  idfoam: string | number;
   ancho_rollo: string;
   largo_rollo: string;
 }
 
 export const usePreciosFoam = () => {
-  const [columns, setColumns] = useState<string[]>([]);
-  const [data, setData] = useState<PreciosFoam[]>([]); // Cambiar `any[]` a `PreciosFoam[]`
+  const [columns, setColumns] = useState<(keyof PreciosFoam)[]>([]);
+  const [data, setData] = useState<PreciosFoam[]>([]);
   const [formData, setFormData] = useState<PreciosFoam>({
     medidas: "",
     precio: "",
@@ -33,11 +32,8 @@ export const usePreciosFoam = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-      
         const response = await axios.get<PreciosFoam[]>(API_URL, {
-          headers: {
-            credentials: "include",
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         });
 
         if (response.data.length > 0) {
@@ -66,11 +62,8 @@ export const usePreciosFoam = () => {
   // Crear un nuevo registro
   const createRecord = async (newRecord: PreciosFoam) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.post<PreciosFoam>(API_URL, newRecord, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData([...data, response.data]); // Agrega el nuevo registro a los datos existentes
       resetForm();
@@ -82,14 +75,11 @@ export const usePreciosFoam = () => {
   // Actualizar un registro existente
   const updateRecord = async (updatedRecord: PreciosFoam) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.put<PreciosFoam>(
-        `${API_URL}/${updatedRecord.id}`, // Asegúrate de que el ID esté presente en la URL
+        `${API_URL}/${updatedRecord.id}`,
         updatedRecord,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         }
       );
 
@@ -103,11 +93,8 @@ export const usePreciosFoam = () => {
   // Eliminar un registro
   const deleteRecord = async (row: PreciosFoam) => {
     try {
-      const token = localStorage.getItem("authToken");
       await axios.delete(`${API_URL}/${row.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData(data.filter((item) => item.id !== row.id));
     } catch (error) {

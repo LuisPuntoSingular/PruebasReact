@@ -16,8 +16,8 @@ interface Resistance {
 }
 
 export const useResistances = () => {
-  const [columns, setColumns] = useState<(keyof Resistance)[]>([]); // Cambiar `any` a `(keyof Resistance)[]`
-  const [data, setData] = useState<Resistance[]>([]); // Cambiar `any[]` a `Resistance[]`
+  const [columns, setColumns] = useState<(keyof Resistance)[]>([]);
+  const [data, setData] = useState<Resistance[]>([]);
   const [formData, setFormData] = useState<Resistance>({
     ect: "",
     flute: "",
@@ -33,11 +33,8 @@ export const useResistances = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-    
         const response = await axios.get<Resistance[]>(API_URL, {
-          headers: {
-          credentials: "include",
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         });
         if (response.data.length > 0) {
           setColumns(Object.keys(response.data[0]) as (keyof Resistance)[]);
@@ -54,11 +51,8 @@ export const useResistances = () => {
   // Crear un nuevo registro
   const createRecord = async (newRecord: Resistance) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.post<Resistance>(API_URL, newRecord, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData([...data, response.data]);
       resetForm();
@@ -70,14 +64,11 @@ export const useResistances = () => {
   // Actualizar un registro existente
   const updateRecord = async (updatedRecord: Resistance) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.put<Resistance>(
         `${API_URL}/${updatedRecord.resistanceid}`,
         updatedRecord,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         }
       );
       setData(data.map((row) => (row.resistanceid === updatedRecord.resistanceid ? response.data : row)));
@@ -90,11 +81,8 @@ export const useResistances = () => {
   // Eliminar un registro
   const deleteRecord = async (row: Resistance) => {
     try {
-      const token = localStorage.getItem("authToken");
       await axios.delete(`${API_URL}/${row.resistanceid}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData(data.filter((item) => item.resistanceid !== row.resistanceid));
     } catch (error) {

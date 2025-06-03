@@ -1,4 +1,4 @@
-import { fetchPayroll, getEmployeeSalaryById } from "../payRollHumanResourcesService";
+import { fetchPayroll, getEmployeeSalaryById } from "../Services/payRollHumanResourcesService";
 import { EmployeePayroll } from "../Services/PayRollTableService";
 
 

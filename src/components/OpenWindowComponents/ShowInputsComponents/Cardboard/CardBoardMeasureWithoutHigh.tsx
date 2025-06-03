@@ -84,7 +84,7 @@ const CardBoardMeasureWithoutHigh: React.FC = () => {
           <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
             {/* Campo para Largo */}
             <TextField
-              label="Largo cm"
+              label="Largo mm"
               type="number"
               fullWidth
               size="small"
@@ -115,7 +115,7 @@ const CardBoardMeasureWithoutHigh: React.FC = () => {
 
             {/* Campo para Ancho */}
             <TextField
-              label="Ancho cm"
+              label="Ancho mm"
               type="number"
               fullWidth
               size="small"

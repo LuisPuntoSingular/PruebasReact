@@ -10,8 +10,8 @@ interface Poliburbuja {
 }
 
 export const usePoliburbuja = () => {
-  const [columns, setColumns] = useState<(keyof Poliburbuja)[]>([]); // Cambiar `any` a `(keyof Poliburbuja)[]`
-  const [data, setData] = useState<Poliburbuja[]>([]); // Cambiar `any[]` a `Poliburbuja[]`
+  const [columns, setColumns] = useState<(keyof Poliburbuja)[]>([]);
+  const [data, setData] = useState<Poliburbuja[]>([]);
   const [formData, setFormData] = useState<Poliburbuja>({
     derivados: "",
   });
@@ -21,11 +21,8 @@ export const usePoliburbuja = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-     
         const response = await axios.get<Poliburbuja[]>(API_URL, {
-          headers: {
-            credentials: "include",
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         });
         if (response.data.length > 0) {
           setColumns(Object.keys(response.data[0]) as (keyof Poliburbuja)[]);
@@ -42,11 +39,8 @@ export const usePoliburbuja = () => {
   // Crear un nuevo registro
   const createRecord = async (newRecord: Poliburbuja) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.post<Poliburbuja>(API_URL, newRecord, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData([...data, response.data]); // Agrega el nuevo registro a los datos existentes
       resetForm();
@@ -58,14 +52,11 @@ export const usePoliburbuja = () => {
   // Actualizar un registro existente
   const updateRecord = async (updatedRecord: Poliburbuja) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.put<Poliburbuja>(
         `${API_URL}/${updatedRecord.id}`,
         updatedRecord,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         }
       );
       setData(data.map((row) => (row.id === updatedRecord.id ? response.data : row))); // Actualiza el registro en los datos existentes
@@ -78,11 +69,8 @@ export const usePoliburbuja = () => {
   // Eliminar un registro
   const deleteRecord = async (row: Poliburbuja) => {
     try {
-      const token = localStorage.getItem("authToken");
       await axios.delete(`${API_URL}/${row.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData(data.filter((item) => item.id !== row.id));
     } catch (error) {

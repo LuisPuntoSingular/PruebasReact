@@ -13,8 +13,8 @@ interface ColoresPrecio {
 }
 
 export const useColoresPrecio = () => {
-  const [columns, setColumns] = useState<(keyof ColoresPrecio)[]>([]); // Cambiar `any` a `(keyof ColoresPrecio)[]`
-  const [data, setData] = useState<ColoresPrecio[]>([]); // Cambiar `any[]` a `ColoresPrecio[]`
+  const [columns, setColumns] = useState<(keyof ColoresPrecio)[]>([]);
+  const [data, setData] = useState<ColoresPrecio[]>([]);
   const [formData, setFormData] = useState<ColoresPrecio>({
     medida: "",
     precio: 0,
@@ -23,16 +23,13 @@ export const useColoresPrecio = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   // Obtener los datos de ColoresFoam
-  const { data: coloresFoamData } = useColoresFoam(); // Obtén los datos de ColoresFoam desde el hook
+  const { data: coloresFoamData } = useColoresFoam();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-      
         const response = await axios.get<ColoresPrecio[]>(API_URL, {
-          headers: {
-            credentials: "include",
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         });
 
         if (response.data.length > 0) {
@@ -44,7 +41,7 @@ export const useColoresPrecio = () => {
           // Transformar los datos para reemplazar idcoloresfoam con el nombre del color
           const transformedData = response.data.map((item) => ({
             ...item,
-            idcoloresfoam: coloresFoamMap.get(Number(item.idcoloresfoam)) || item.idcoloresfoam, // Reemplaza idcoloresfoam con el nombre
+            idcoloresfoam: coloresFoamMap.get(Number(item.idcoloresfoam)) || item.idcoloresfoam,
           }));
 
           setColumns(Object.keys(response.data[0]) as (keyof ColoresPrecio)[]);
@@ -56,16 +53,13 @@ export const useColoresPrecio = () => {
     };
 
     fetchData();
-  }, [coloresFoamData]); // Ejecutar cuando los datos de ColoresFoam cambien
+  }, [coloresFoamData]);
 
   // Crear un nuevo registro
   const createRecord = async (newRecord: ColoresPrecio) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.post<ColoresPrecio>(API_URL, newRecord, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData([...data, response.data]);
       resetForm();
@@ -77,14 +71,11 @@ export const useColoresPrecio = () => {
   // Actualizar un registro existente
   const updateRecord = async (updatedRecord: ColoresPrecio) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.put<ColoresPrecio>(
         `${API_URL}/${updatedRecord.id}`,
         updatedRecord,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         }
       );
       setData(data.map((row) => (row.id === updatedRecord.id ? response.data : row)));
@@ -97,11 +88,8 @@ export const useColoresPrecio = () => {
   // Eliminar un registro
   const deleteRecord = async (row: ColoresPrecio) => {
     try {
-      const token = localStorage.getItem("authToken");
       await axios.delete(`${API_URL}/${row.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData(data.filter((item) => item.id !== row.id));
     } catch (error) {

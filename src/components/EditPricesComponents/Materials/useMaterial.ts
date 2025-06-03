@@ -10,8 +10,8 @@ interface Material {
 }
 
 export const useMaterials = () => {
-  const [columns, setColumns] = useState<(keyof Material)[]>([]); // Cambiar `any` a `(keyof Material)[]`
-  const [data, setData] = useState<Material[]>([]); // Cambiar `any[]` a `Material[]`
+  const [columns, setColumns] = useState<(keyof Material)[]>([]);
+  const [data, setData] = useState<Material[]>([]);
   const [formData, setFormData] = useState<Material>({
     name: "",
   });
@@ -22,7 +22,7 @@ export const useMaterials = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get<Material[]>(API_URL, {
-          withCredentials: true, // Mover esta opción fuera de headers
+          withCredentials: true, // Incluir cookies en la solicitud
         });
         if (response.data.length > 0) {
           setColumns(Object.keys(response.data[0]) as (keyof Material)[]);
@@ -32,18 +32,15 @@ export const useMaterials = () => {
         console.error("Error al cargar los datos:", error);
       }
     };
-  
+
     fetchData();
   }, []);
 
   // Crear un nuevo registro
   const createRecord = async (newRecord: Material) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.post<Material>(API_URL, newRecord, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData([...data, response.data]);
       resetForm();
@@ -55,14 +52,11 @@ export const useMaterials = () => {
   // Actualizar un registro existente
   const updateRecord = async (updatedRecord: Material) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.put<Material>(
         `${API_URL}/${updatedRecord.materialid}`,
         updatedRecord,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         }
       );
       setData(data.map((row) => (row.materialid === updatedRecord.materialid ? response.data : row)));
@@ -75,11 +69,8 @@ export const useMaterials = () => {
   // Eliminar un registro
   const deleteRecord = async (row: Material) => {
     try {
-      const token = localStorage.getItem("authToken");
       await axios.delete(`${API_URL}/${row.materialid}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData(data.filter((item) => item.materialid !== row.materialid));
     } catch (error) {

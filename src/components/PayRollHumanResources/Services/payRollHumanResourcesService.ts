@@ -1,7 +1,5 @@
 import axios, { AxiosResponse } from "axios";
 
-
-
 interface PayrollRecord {
   employee_id: number;
   first_name: string;
@@ -34,7 +32,7 @@ export const fetchPayroll = async (week: number, year: number): Promise<PayrollR
 
 
 
-// Solo devuelve salary
+// Only return the employe's salary by employee ID
 export const getEmployeeSalaryById = async (id: number): Promise<{ salary: number }> => {
     const response: AxiosResponse<{ salary: number }> = await axios.get(`${API_URL}/api/employee/${id}`, {
       withCredentials: true,

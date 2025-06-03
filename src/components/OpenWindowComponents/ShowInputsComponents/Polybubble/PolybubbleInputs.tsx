@@ -40,7 +40,7 @@ const PolybubbleInputs: React.FC = () => {
       });
     }
 
-    console.log("Selected Item:", selectedItem);
+   
   };
   
   // Filtrar precios relacionados con el Poliburbuja seleccionado
@@ -48,9 +48,6 @@ const PolybubbleInputs: React.FC = () => {
     (item: PolybubblePrecio) => item.idpoliburbuja === selectedPoliburbuja
   );
   
-  // Depuración: Verifica los datos
-  console.log("Poliburbujaprecios:", poliburbujaprecios);
-  console.log("Filtered Poliburbujaprecios:", filteredPoliburbujaPrecios);
 
   return (
     <Box sx={{ width: "100%" }}>

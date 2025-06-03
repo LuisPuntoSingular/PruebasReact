@@ -11,8 +11,8 @@ interface Eva {
 }
 
 export const useEva = () => {
-  const [columns, setColumns] = useState<(keyof Eva)[]>([]); // Cambiar `any` a `(keyof Eva)[]`
-  const [data, setData] = useState<Eva[]>([]); // Cambiar `any[]` a `Eva[]`
+  const [columns, setColumns] = useState<(keyof Eva)[]>([]);
+  const [data, setData] = useState<Eva[]>([]);
   const [formData, setFormData] = useState<Eva>({
     medida: "",
     precio: 0,
@@ -23,11 +23,8 @@ export const useEva = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-     
         const response = await axios.get<Eva[]>(API_URL, {
-          headers: {
-           credentials: "include",
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         });
         if (response.data.length > 0) {
           setColumns(Object.keys(response.data[0]) as (keyof Eva)[]);
@@ -44,11 +41,8 @@ export const useEva = () => {
   // Crear un nuevo registro
   const createRecord = async (newRecord: Eva) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.post<Eva>(API_URL, newRecord, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData([...data, response.data]);
       resetForm();
@@ -60,14 +54,11 @@ export const useEva = () => {
   // Actualizar un registro existente
   const updateRecord = async (updatedRecord: Eva) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.put<Eva>(
         `${API_URL}/${updatedRecord.id}`,
         updatedRecord,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         }
       );
       setData(data.map((row) => (row.id === updatedRecord.id ? response.data : row)));
@@ -80,11 +71,8 @@ export const useEva = () => {
   // Eliminar un registro
   const deleteRecord = async (row: Eva) => {
     try {
-      const token = localStorage.getItem("authToken");
       await axios.delete(`${API_URL}/${row.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData(data.filter((item) => item.id !== row.id));
     } catch (error) {

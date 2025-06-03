@@ -23,11 +23,8 @@ export const useDerivatives = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("authToken");
         const response = await axios.get<Derivative[]>(API_URL, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         });
         if (response.data.length > 0) {
           setColumns(Object.keys(response.data[0]) as (keyof Derivative)[]);
@@ -44,11 +41,8 @@ export const useDerivatives = () => {
   // Crear un nuevo registro
   const createRecord = async (newRecord: Derivative) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.post<Derivative>(API_URL, newRecord, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData([...data, response.data]);
       resetForm();
@@ -60,14 +54,11 @@ export const useDerivatives = () => {
   // Actualizar un registro existente
   const updateRecord = async (updatedRecord: Derivative) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.put<Derivative>(
         `${API_URL}/${updatedRecord.derivativeid}`,
         updatedRecord,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         }
       );
       setData(data.map((row) => (row.derivativeid === updatedRecord.derivativeid ? response.data : row)));
@@ -80,11 +71,8 @@ export const useDerivatives = () => {
   // Eliminar un registro
   const deleteRecord = async (row: Derivative) => {
     try {
-      
       await axios.delete(`${API_URL}/${row.derivativeid}`, {
-        headers: {
-         credentials: "include",
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData(data.filter((item) => item.derivativeid !== row.derivativeid));
     } catch (error) {

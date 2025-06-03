@@ -22,11 +22,8 @@ const ResistancesCategoriesTable: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-      
         const response = await axios.get<ResistanceCategory[]>(API_URL, {
-          headers: {
-           credentials: "include",
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         });
         if (response.data.length > 0) {
           setColumns(Object.keys(response.data[0]) as (keyof ResistanceCategory)[]);

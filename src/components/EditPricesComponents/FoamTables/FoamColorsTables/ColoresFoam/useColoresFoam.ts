@@ -26,11 +26,8 @@ export const useColoresFoam = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-  
         const response = await axios.get<ColoresFoam[]>(API_URL, {
-          headers: {
-           credentials: "include",
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         });
         if (response.data.length > 0) {
           // Filtrar las claves para que coincidan con las propiedades de `ColoresFoam`
@@ -48,11 +45,8 @@ export const useColoresFoam = () => {
   // Crear un nuevo registro
   const createRecord = async (newRecord: ColoresFoam) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.post<ColoresFoam>(API_URL, newRecord, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData([...data, response.data]);
       resetForm();
@@ -64,14 +58,11 @@ export const useColoresFoam = () => {
   // Actualizar un registro existente
   const updateRecord = async (updatedRecord: ColoresFoam) => {
     try {
-      const token = localStorage.getItem("authToken");
       const response = await axios.put<ColoresFoam>(
         `${API_URL}/${updatedRecord.id}`,
         updatedRecord,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // Incluir cookies en la solicitud
         }
       );
       setData(data.map((row) => (row.id === updatedRecord.id ? response.data : row)));
@@ -84,11 +75,8 @@ export const useColoresFoam = () => {
   // Eliminar un registro
   const deleteRecord = async (row: ColoresFoam) => {
     try {
-      const token = localStorage.getItem("authToken");
       await axios.delete(`${API_URL}/${row.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true, // Incluir cookies en la solicitud
       });
       setData(data.filter((item) => item.id !== row.id));
     } catch (error) {
