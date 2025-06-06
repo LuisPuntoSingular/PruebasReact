@@ -85,22 +85,25 @@ export async function getProcessedEmployees(
     // Calcular restante
     emp.remaining = (Number((emp.debt) || 0) - (Number(emp.payment) || 0));
 
-    // Calcular tarjeta
-    emp.card_payment = (
-      Number(emp.total_perceptions || 0) -
-        Number(emp.payment || 0) +
-        Number(emp.normal_bonus || 0) +
-        Number(emp.monthly_bonus || 0)
-    );
+    
+    
+       
+       // Asegurarse de que los valores sean números antes de realizar la suma
+       emp.total_perceptions = (
+         (!isNaN(Number(emp.extra_hours_amount)) ? Number(emp.extra_hours_amount) : 0) +
+         (!isNaN(Number(emp.salary)) ? Number(emp.salary) : 0) -
+         (!isNaN(Number(emp.infonavit)) ? Number(emp.infonavit) : 0) -
+         (!isNaN(Number(emp.fonacot)) ? Number(emp.fonacot) : 0)
+       );
 
     // Calcular efectivo
-    emp.cash_payment = (
-      Number(emp.total_perceptions || 0) -
-        (Number(emp.payment || 0) +
-          Number(emp.normal_bonus || 0) +
-          Number(emp.monthly_bonus || 0) +
-          Number(emp.card_payment || 0))
-    );
+       emp.cash_payment = (
+  (!isNaN(Number(emp.total_perceptions)) ? Number(emp.total_perceptions) : 0) +
+  (!isNaN(Number(emp.normal_bonus)) ? Number(emp.normal_bonus) : 0) +
+  (!isNaN(Number(emp.monthly_bonus)) ? Number(emp.monthly_bonus) : 0) -
+  ((!isNaN(Number(emp.payment)) ? Number(emp.payment) : 0) +
+   (!isNaN(Number(emp.card_payment)) ? Number(emp.card_payment) : 0))
+);
 
     // Calcular total
     emp.total_payment = (Number(emp.card_payment || 0) + Number(emp.cash_payment || 0));
@@ -135,15 +138,7 @@ export function handleInputChangeLogic(
       );
     }
 
-    // Actualiza card_payment
-    if (["total_perceptions", "payment", "normal_bonus", "monthly_bonus"].includes(field)) {
-      updated.card_payment = (
-        Number(updated.total_perceptions || 0) -
-          Number(updated.payment || 0) +
-          Number(updated.normal_bonus || 0) +
-          Number(updated.monthly_bonus || 0)
-      );
-    }
+   
 
     // Actualiza cash_payment
     if (
@@ -151,13 +146,13 @@ export function handleInputChangeLogic(
         field
       )
     ) {
-      updated.cash_payment = (
-        Number(updated.total_perceptions || 0) -
-          (Number(updated.payment || 0) +
-            Number(updated.normal_bonus || 0) +
-            Number(updated.monthly_bonus || 0) +
-            Number(updated.card_payment || 0))
-      );
+     updated.cash_payment = (
+  (!isNaN(Number(updated.total_perceptions)) ? Number(updated.total_perceptions) : 0) +
+  (!isNaN(Number(updated.normal_bonus)) ? Number(updated.normal_bonus) : 0) +
+  (!isNaN(Number(updated.monthly_bonus)) ? Number(updated.monthly_bonus) : 0) -
+  ((!isNaN(Number(updated.payment)) ? Number(updated.payment) : 0) +
+   (!isNaN(Number(updated.card_payment)) ? Number(updated.card_payment) : 0))
+);
     }
 
     // Actualiza total_payment

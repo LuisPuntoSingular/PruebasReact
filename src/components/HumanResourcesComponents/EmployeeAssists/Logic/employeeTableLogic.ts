@@ -1,7 +1,7 @@
 import { EmployeeRow } from "../EmployeeTableAssist";
 
 export interface ExcelRow {
-  ID: number;
+  ID: number ;
   Fecha: string;
   Entrada?: string | null;
   Salida?: string | null;
@@ -15,11 +15,11 @@ export function updateEmployeesFromExcel(
   localEmployees: EmployeeRow[],
   excelData: ExcelRow[],
   startDate: Date,
-  onChange: (employees: EmployeeRow[]) => void
+ 
 ) {
   const dias = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
   const updatedEmployees = localEmployees.map((emp) => {
-    const registrosEmpleado = excelData.filter((row) => row.ID === emp.id);
+  const registrosEmpleado = excelData.filter((row) => Number(row.ID) === Number(emp.id));
     const empActualizado = { ...emp };
 
     registrosEmpleado.forEach((reg) => {
@@ -47,7 +47,7 @@ export function updateEmployeesFromExcel(
     return empActualizado;
   });
 
-  onChange(updatedEmployees);
+  
   return updatedEmployees;
 }
 
@@ -76,4 +76,31 @@ export function handleExtraTimeChange(
     return employee;
   });
   return updated;
+}
+
+
+export const dayTranslations: { [key: string]: string } = {
+  monday: "Lunes",
+  tuesday: "Martes",
+  wednesday: "Miércoles",
+  thursday: "Jueves",
+  friday: "Viernes",
+  saturday: "Sábado",
+  sunday: "Domingo",
+};
+
+export const getDayDate = (startDate: Date, dayIndex: number) => {
+  const date = new Date(startDate);
+  date.setDate(startDate.getDate() + dayIndex);
+  return date.toLocaleDateString();
+};
+
+export function hasQuestionMarkOrEmpty(localEmployees: EmployeeRow[]): boolean {
+  return localEmployees.some(emp =>
+    ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+      .some(day => {
+        const code = (emp[day as keyof EmployeeRow] as { day: string }).day;
+        return code === "?" || code === "";
+      })
+  );
 }

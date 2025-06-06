@@ -1,11 +1,22 @@
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Button, Select, MenuItem, TextField, FormControl
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Button, CircularProgress
 } from '@mui/material';
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import ExcelJS from "exceljs";
 import { AttendanceCode } from "./AttendanceCodesTable";
 import { uploadAttendanceExcel } from "./Services/attendanceService";
-import { updateEmployeesFromExcel, handleExtraTimeChange} from "./Logic/employeeTableLogic";
+import {
+  updateEmployeesFromExcel,
+  handleExtraTimeChange,
+  dayTranslations,
+  getDayDate,
+  hasQuestionMarkOrEmpty
+} from "./Logic/employeeTableLogic";
+import EmployeeRowComponent from "./Components/EmployeeRowComponent";
+import { buildAttendanceRecords, sendAttendanceRecords } from "./Services/attendanceService";
+import { getEmployees } from "../Apis/employeeApi";
 
+// Define la interfaz EmployeeRow
 export interface EmployeeRow {
   id: number;
   full_name: string;
@@ -20,128 +31,234 @@ export interface EmployeeRow {
 }
 
 interface Props {
-  employees: EmployeeRow[];
+  selectedWeek: number; // Agregado porque se usa en buildAttendanceRecords
   attendanceCodes: AttendanceCode[];
-  onChange: (employees: EmployeeRow[]) => void;
-  exportToExcel: () => void;
-  handleSubmit: () => void;
   startDate: Date;
   endDate: Date;
+ // Agregado porque se usa en onExtraTimeChange
+                       // Agregado porque se usa en botón exportar
 }
 
 const EmployeeTable: React.FC<Props> = ({
-  employees,
   attendanceCodes,
-  onChange,
-  exportToExcel,
-  handleSubmit,
   startDate,
-  endDate
+  endDate,
+
+  selectedWeek,
+
 }) => {
-  const [localEmployees, setLocalEmployees] = useState<EmployeeRow[]>(employees);
+  const [employees, setEmployees] = useState<EmployeeRow[]>([]);
+  const [localEmployees, setLocalEmployees] = useState<EmployeeRow[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [hasQuestionMark, setHasQuestionMark] = useState(false);
+  const [loadingTable, setLoadingTable] = useState(true);
+  const [, setLoading] = useState(false);
 
- useEffect(() => {
-  // Verifica si hay algún "?" o algún campo vacío en los códigos de asistencia
-  const found = localEmployees.some(emp =>
-    ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-      .some(day => {
-        const code = (emp[day as keyof EmployeeRow] as { day: string }).day;
-        return code === "?" || code === "";
-      })
-  );
-  setHasQuestionMark(found);
-}, [localEmployees]);
+  // Verifica si hay campos vacíos o con "?"
+  const hasQuestionMark = hasQuestionMarkOrEmpty(localEmployees);
 
+
+useEffect(() => {
+  const fetchAllEmployees = async () => {
+    console.time("getEmployees");
+
+    setLoading(true);
+    try {
+      const allEmployees = await getEmployees();
+      console.timeEnd("getEmployees");
+
+      const formatted = allEmployees
+        .filter(employee => employee.id)
+        .map((employee) => ({
+          id: employee.id,
+          full_name: `${employee.first_name} ${employee.last_name_paterno} ${employee.last_name_materno}`,
+          monday: { day: "", extraTime: 0 },
+          tuesday: { day: "", extraTime: 0 },
+          wednesday: { day: "", extraTime: 0 },
+          thursday: { day: "", extraTime: 0 },
+          friday: { day: "", extraTime: 0 },
+          saturday: { day: "", extraTime: 0 },
+          sunday: { day: "", extraTime: 0 },
+          totalExtraTime: 0,
+        }));
+
+      setEmployees(formatted);
+    } catch (error) {
+      console.error("Error al obtener todos los empleados:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchAllEmployees();
+}, []);
+
+useEffect(() => {
+  if (employees.length > 0) {
+    const t0 = performance.now();
+    requestAnimationFrame(() => {
+      const t1 = performance.now();
+      console.log("Tiempo de render de tabla:", t1 - t0, "ms");
+    });
+  }
+}, [employees]);
+
+
+  // Cuando cambian empleados cargados, actualizar localEmployees
   useEffect(() => {
+    setLoadingTable(true);
     setLocalEmployees(employees);
   }, [employees]);
 
-  // Usa la función de lógica para cambios en horas extra/código
-const onExtraTimeChange = (id: number, day: string, value: number | string) => {
-  setLocalEmployees((prev) => {
-    const updated = handleExtraTimeChange(prev, id, day, value);
-
-    // Verifica si realmente hay un cambio antes de actualizar el estado
-    const hasChanged = JSON.stringify(prev) !== JSON.stringify(updated);
-    if (hasChanged) {
-      onChange(updated); // Notifica al componente padre solo si hay cambios
-      return updated;
+  // Cuando localEmployees ya tiene datos, quitar loading tabla
+  useEffect(() => {
+    if (localEmployees.length > 0) {
+      setLoadingTable(false);
     }
+  }, [localEmployees]);
 
-    return prev; // No actualiza el estado si no hay cambios
-  });
-};
+   // Manejar cambio de extraTime o código
+  const onExtraTimeChange = useCallback(
+    (id: number, day: string, value: number | string) => {
+      setLocalEmployees((prev) => {
+        const updated = handleExtraTimeChange(prev, id, day, value);
+        if (JSON.stringify(prev) !== JSON.stringify(updated)) {
+          setEmployees(updated); // Actualiza el estado global interno
+          return updated;
+        }
+        return prev;
+      });
+    },
+    []
+  );
 
-  // Usa la función de lógica para actualizar desde Excel
-const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
-
-  const fecha_inicio = startDate.toISOString().slice(0, 10);
-  const fecha_final = endDate.toISOString().slice(0, 10);
-
-  setUploading(true);
-  try {
-    // Llama a la función que procesa el archivo Excel
-    const data = await uploadAttendanceExcel(file, fecha_inicio, fecha_final);
-
-    // Verifica si el backend devolvió un arreglo
-    if (Array.isArray(data)) {
-      // Actualiza los empleados con los datos del Excel
-      setLocalEmployees((prev) =>
-        updateEmployeesFromExcel(prev, data, startDate, onChange)
-      );
-      alert("Archivo procesado correctamente");
-    } else {
-      alert("La respuesta del backend no contiene el formato esperado.");
+    // Manejo de carga de archivo Excel
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fecha_inicio = startDate.toISOString().slice(0, 10);
+      const fecha_final = endDate.toISOString().slice(0, 10);
+      const data = await uploadAttendanceExcel(file, fecha_inicio, fecha_final);
+      if (Array.isArray(data)) {
+        setLocalEmployees((prev) => {
+          const updated = updateEmployeesFromExcel(prev, data, startDate);
+          setEmployees(updated); // Actualiza el estado global interno
+          return updated;
+        });
+        alert("Archivo procesado correctamente");
+      } else {
+        alert("La respuesta del backend no contiene el formato esperado.");
+      }
+    } catch (error) {
+      alert(`"Error al procesar el archivo. "${error}`,);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      alert(`Error al procesar el archivo: ${error.message}`);
-    } else {
-      alert("Error desconocido al procesar el archivo.");
-    }
-  } finally {
-    setUploading(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }
-};
-
-
-  const dayTranslations: { [key: string]: string } = {
-    monday: "Lunes",
-    tuesday: "Martes",
-    wednesday: "Miércoles",
-    thursday: "Jueves",
-    friday: "Viernes",
-    saturday: "Sábado",
-    sunday: "Domingo",
   };
 
-  const getDayDate = (startDate: Date, dayIndex: number) => {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + dayIndex);
-    return date.toLocaleDateString();
+
+  // Exportar a Excel usando ExcelJS
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Asistencias");
+
+    const headers = [
+      "Nombre Completo",
+      "Lunes Código", "Lunes Horas",
+      "Martes Código", "Martes Horas",
+      "Miércoles Código", "Miércoles Horas",
+      "Jueves Código", "Jueves Horas",
+      "Viernes Código", "Viernes Horas",
+      "Sábado Código", "Sábado Horas",
+      "Domingo Código", "Domingo Horas",
+      "Horas Extra Totales"
+    ];
+    worksheet.addRow(headers);
+
+    employees.forEach(emp => {
+      worksheet.addRow([
+        emp.full_name,
+        emp.monday.day, emp.monday.extraTime,
+        emp.tuesday.day, emp.tuesday.extraTime,
+        emp.wednesday.day, emp.wednesday.extraTime,
+        emp.thursday.day, emp.thursday.extraTime,
+        emp.friday.day, emp.friday.extraTime,
+        emp.saturday.day, emp.saturday.extraTime,
+        emp.sunday.day, emp.sunday.extraTime,
+        emp.totalExtraTime
+      ]);
+    });
+
+    worksheet.columns.forEach(column => {
+      let maxLength = 10;
+      column.eachCell({ includeEmpty: true }, cell => {
+        maxLength = Math.max(maxLength, (cell.value ? cell.value.toString().length : 0));
+      });
+      column.width = maxLength + 2;
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "asistencias.xlsx";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
+
+  // Guardar información en el backend
+  const handleSubmit = async () => {
+    try {
+      // Solo envía los registros con datos capturados (código o horas extra)
+      const recordsToSend = buildAttendanceRecords(employees, startDate, selectedWeek)
+        .filter(record => (record.code && record.code !== "") || record.overtime_hours > 0);
+       
+      await sendAttendanceRecords(recordsToSend);
+      alert("Asistencias guardadas correctamente");
+    } catch (error) {
+      console.error(error);
+      alert("Ocurrió un error al guardar las asistencias");
+    }
+  };
+
+
+
 
   return (
     <Box sx={{ width: "100%", position: "relative", mb: 3 }}>
-      <Box sx={{ position: "absolute", top: -48, right: 0, zIndex: 2, display: "flex", gap: 2 }}>
-        <Button
-          variant="contained"
-          color="success"
-          onClick={exportToExcel}
+      {(loadingTable || uploading) && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            bgcolor: "rgba(255,255,255,0.7)",
+            zIndex: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
         >
+          <CircularProgress />
+        </Box>
+      )}
+      <Box sx={{ position: "absolute", top: -48, right: 0, zIndex: 2, display: "flex", gap: 2 }}>
+        <Button variant="contained" color="success" onClick={exportToExcel}>
           Exportar a Excel
         </Button>
         <Button
           variant="contained"
           color="primary"
           onClick={() => {
-            onChange(localEmployees);
+              // Manejo de carga de archivo Excel
+ 
             handleSubmit();
           }}
           disabled={hasQuestionMark}
@@ -168,11 +285,33 @@ const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         <Table size="small" sx={{ width: "100%" }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 600, background: "#f5f5f5", minWidth: 140, maxWidth: 200, fontSize: "1rem", textAlign: "center", padding: "6px 8px" }}>
+              <TableCell>ID</TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  background: "#f5f5f5",
+                  minWidth: 140,
+                  maxWidth: 200,
+                  fontSize: "1rem",
+                  textAlign: "center",
+                  padding: "6px 8px"
+                }}
+              >
                 Nombre Completo
               </TableCell>
               {Object.keys(dayTranslations).map((day, idx) => (
-                <TableCell key={day} sx={{ fontWeight: 600, background: "#f5f5f5", minWidth: 90, maxWidth: 120, fontSize: "1rem", textAlign: "center", padding: "6px 8px" }}>
+                <TableCell
+                  key={day}
+                  sx={{
+                    fontWeight: 600,
+                    background: "#f5f5f5",
+                    minWidth: 90,
+                    maxWidth: 120,
+                    fontSize: "1rem",
+                    textAlign: "center",
+                    padding: "6px 8px"
+                  }}
+                >
                   {dayTranslations[day]}
                   <br />
                   <span style={{ fontSize: "0.85em", color: "#888" }}>
@@ -180,87 +319,29 @@ const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
                   </span>
                 </TableCell>
               ))}
-              <TableCell sx={{ fontWeight: 600, background: "#f5f5f5", minWidth: 90, maxWidth: 120, fontSize: "1rem", textAlign: "center", padding: "6px 8px" }}>
-                Horas Extra Totales
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  background: "#f5f5f5",
+                  minWidth: 90,
+                  maxWidth: 120,
+                  fontSize: "1rem",
+                  textAlign: "center",
+                  padding: "6px 8px"
+                }}
+              >
+                T.E TOTAL
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {localEmployees.map((emp) => (
-              <TableRow key={emp.id}>
-                <TableCell>{emp.full_name}</TableCell>
-                {Object.keys(dayTranslations).map((day) => (
-                  <TableCell key={day}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "100%",
-                        minWidth: 0,
-                        maxWidth: 120,
-                        p: 0,
-                        gap: 1.5,
-                      }}
-                    >
-                      <FormControl size="small" variant="standard" sx={{ minWidth: 70, maxWidth: 90 }}>
-                        <Select
-  labelId={`select-label-${emp.id}-${day}`}
-  value={(emp[day as keyof EmployeeRow] as { day: string; extraTime: number }).day || ""}
-  onChange={(e) => onExtraTimeChange(emp.id, day, e.target.value)}
-  sx={{
-    background:
-      (emp[day as keyof EmployeeRow] as { day: string }).day === "?" ||
-      (emp[day as keyof EmployeeRow] as { day: string }).day === ""
-        ? "#fff59d" // amarillo si es "?" o ""
-        : "#a5d6a7", // verde si tiene valor válido
-    fontSize: "1.1rem",
-    minWidth: 90,
-    maxWidth: 120,
-    '.MuiSelect-select': { p: '8px 12px' }
-  }}
-  MenuProps={{ PaperProps: { sx: { maxHeight: 180 } } }}
-  displayEmpty
->
-  <MenuItem value=""><em>---</em></MenuItem>
-  {attendanceCodes.map((code) => (
-    <MenuItem key={code.code} value={code.code} sx={{ fontSize: "1.1rem" }}>
-      {code.code}
-    </MenuItem>
-  ))}
-</Select>
-                      </FormControl>
-                      <TextField
-                        type="number"
-                        size="small"
-                        value={(emp[day as keyof EmployeeRow] as { day: string; extraTime: number }).extraTime}
-                        onChange={(e) => onExtraTimeChange(emp.id, day, parseInt(e.target.value, 10))}
-                        inputProps={{
-                          min: 0,
-                          style: {
-                            padding: "8px 8px",
-                            fontSize: "1.1rem",
-                            textAlign: "center",
-                            width: 48,
-                            height: 28,
-                          }
-                        }}
-                        label=""
-                        sx={{
-                          background: "#fff",
-                          minWidth: 48,
-                          maxWidth: 60,
-                          '& .MuiInputBase-input': { p: "8px 8px", textAlign: "center" }
-                        }}
-                      />
-                    </Box>
-                  </TableCell>
-                ))}
-                <TableCell>
-                  <span style={{ fontSize: "1rem" }}>{emp.totalExtraTime}</span>
-                </TableCell>
-              </TableRow>
+              <EmployeeRowComponent
+                key={emp.id}
+                emp={emp}
+                attendanceCodes={attendanceCodes}
+                onExtraTimeChange={onExtraTimeChange}
+              />
             ))}
           </TableBody>
         </Table>
