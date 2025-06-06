@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback,useEffect } from "react";
 import { TableRow, TableCell } from "@mui/material";
 import { dayTranslations } from "../Logic/employeeTableLogic";
-import { EmployeeRow } from "../EmployeeTableAssist";
+import { EmployeeRow } from "../Logic/employeeTableLogic";
 import { AttendanceCode } from "../AttendanceCodesTable";
 import EmployeeDayCell from "./EmployeeDayCell";
 

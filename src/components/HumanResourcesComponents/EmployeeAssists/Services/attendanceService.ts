@@ -1,14 +1,15 @@
 import { format } from "date-fns";
+import axios from "axios";
 
-export interface AttendanceRecord {
-  employee_id: number;
-  date: string;
-  code: string;
-  week_id: number;
-  overtime_hours: number;
-  is_sunday: boolean;
-  is_holiday: boolean;
-  remarks: string | null;
+// Definir la interfaz para un empleado
+export interface EmployeeAssist {
+  id?: number;
+  plant_id: number;
+  first_name: string;
+  second_name: string;
+  last_name_paterno: string;
+  last_name_materno: string;
+  status: boolean;
 }
 
 export interface EmployeeRow {
@@ -20,6 +21,17 @@ export interface EmployeeRow {
   friday: { day: string; extraTime: number };
   saturday: { day: string; extraTime: number };
   sunday: { day: string; extraTime: number };
+}
+
+export interface AttendanceRecord {
+  employee_id: number;
+  date: string;
+  code: string;
+  week_id: number;
+  overtime_hours: number;
+  is_sunday: boolean;
+  is_holiday: boolean;
+  remarks: string | null;
 }
 
 export const buildAttendanceRecords = (
@@ -49,36 +61,36 @@ export const buildAttendanceRecords = (
 };
 
 export const sendAttendanceRecords = async (records: AttendanceRecord[]) => {
-    for (const record of records) {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(record),
-      });
-  
-      if (!res.ok) {
-        // Intenta extraer el mensaje de error del backend
-        let errorMsg = "Error en el registro de asistencia";
-        try {
-          const errorData = await res.json();
-          if (errorData && errorData.message) {
-            errorMsg = errorData.message;
-          }
-        } catch {
-          // Si no es JSON, deja el mensaje por defecto
+  for (const record of records) {
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance`,
+        record,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-        throw new Error(errorMsg);
+      );
+    } catch (error) {
+      let errorMsg = "Error en el registro de asistencia";
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: unknown }).response === "object" &&
+        (error as { response?: { data?: { message?: string } } }).response?.data &&
+        typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
+      ) {
+        errorMsg = (error as { response: { data: { message: string } } }).response.data.message;
       }
+      throw new Error(errorMsg);
     }
-  };
-
-
+  }
+};
 
 export interface UploadAttendanceExcelResponse {
-  // Ajusta estos campos según la respuesta real de tu backend
   success?: boolean;
   error?: string;
   [key: string]: unknown;
@@ -94,17 +106,57 @@ export const uploadAttendanceExcel = async (
   formData.append("fecha_inicio", fecha_inicio);
   formData.append("fecha_final", fecha_final);
 
-  const response = await fetch("https://microserviceexcell-production.up.railway.app/procesar-excel", {
-    method: "POST",
-    body: formData,
-  });
-  
-
-
-  const data: UploadAttendanceExcelResponse = await response.json();
-  console.log("Respuesta del backend:", data);
-  if (!response.ok) {
-    throw new Error(data.error || "Error al procesar el archivo");
+  try {
+    const response = await axios.post(
+      "https://microserviceexcell-production.up.railway.app/procesar-excel",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    let errorMsg = "Error al procesar el archivo";
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: unknown }).response === "object" &&
+      (error as { response?: { data?: { error?: string } } }).response?.data &&
+      typeof (error as { response?: { data?: { error?: string } } }).response?.data?.error === "string"
+    ) {
+      errorMsg = (error as { response: { data: { error: string } } }).response.data.error;
+    }
+    throw new Error(errorMsg);
   }
-  return data;
+};
+
+export const getEmployeesAssist = async (): Promise<EmployeeAssist[]> => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance/getEmployeesAssist`,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    let errorMsg = "Error al obtener los empleados";
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: unknown }).response === "object" &&
+      (error as { response?: { data?: { error?: string } } }).response?.data &&
+      typeof (error as { response?: { data?: { error?: string } } }).response?.data?.error === "string"
+    ) {
+      errorMsg = (error as { response: { data: { error: string } } }).response.data.error;
+    }
+    throw new Error(errorMsg);
+  }
 };

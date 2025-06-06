@@ -1,4 +1,23 @@
-import { EmployeeRow } from "../EmployeeTableAssist";
+
+import ExcelJS from "exceljs";
+
+import { buildAttendanceRecords, sendAttendanceRecords } from "../Services/attendanceService";
+
+
+// Define la interfaz EmployeeRow
+export interface EmployeeRow {
+  id: number;
+  plant_id: number; // Agregado para filtrar por planta
+  full_name: string;
+  monday: { day: string; extraTime: number };
+  tuesday: { day: string; extraTime: number };
+  wednesday: { day: string; extraTime: number };
+  thursday: { day: string; extraTime: number };
+  friday: { day: string; extraTime: number };
+  saturday: { day: string; extraTime: number };
+  sunday: { day: string; extraTime: number };
+  totalExtraTime: number;
+}
 
 export interface ExcelRow {
   ID: number ;
@@ -104,3 +123,75 @@ export function hasQuestionMarkOrEmpty(localEmployees: EmployeeRow[]): boolean {
       })
   );
 }
+
+
+
+
+// ...ya tienes las otras funciones aquí...
+
+export const exportToExcel = async (employees: EmployeeRow[]) => {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Asistencias");
+
+  const headers = [
+    "Nombre Completo",
+    "Lunes Código", "Lunes Horas",
+    "Martes Código", "Martes Horas",
+    "Miércoles Código", "Miércoles Horas",
+    "Jueves Código", "Jueves Horas",
+    "Viernes Código", "Viernes Horas",
+    "Sábado Código", "Sábado Horas",
+    "Domingo Código", "Domingo Horas",
+    "Horas Extra Totales"
+  ];
+  worksheet.addRow(headers);
+
+  employees.forEach(emp => {
+    worksheet.addRow([
+      emp.full_name,
+      emp.monday.day, emp.monday.extraTime,
+      emp.tuesday.day, emp.tuesday.extraTime,
+      emp.wednesday.day, emp.wednesday.extraTime,
+      emp.thursday.day, emp.thursday.extraTime,
+      emp.friday.day, emp.friday.extraTime,
+      emp.saturday.day, emp.saturday.extraTime,
+      emp.sunday.day, emp.sunday.extraTime,
+      emp.totalExtraTime
+    ]);
+  });
+
+  worksheet.columns.forEach(column => {
+    let maxLength = 10;
+    column.eachCell({ includeEmpty: true }, cell => {
+      maxLength = Math.max(maxLength, (cell.value ? cell.value.toString().length : 0));
+    });
+    column.width = maxLength + 2;
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "asistencias.xlsx";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
+
+export const handleSubmitLogic = async (
+  employees: EmployeeRow[],
+  startDate: Date,
+  selectedWeek: number
+) => {
+  try {
+    const recordsToSend = buildAttendanceRecords(employees, startDate, selectedWeek)
+      .filter(record => (record.code && record.code !== "") || record.overtime_hours > 0);
+
+    await sendAttendanceRecords(recordsToSend);
+    alert("Asistencias guardadas correctamente");
+  } catch (error) {
+    console.error(error);
+    alert("Ocurrió un error al guardar las asistencias");
+  }
+};
