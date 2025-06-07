@@ -11,6 +11,7 @@ interface PayrollRecord {
   code: string;
   overtime_hours: number;
   salary: number;
+
 }
  
 

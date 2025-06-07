@@ -93,10 +93,30 @@ export async function getPayrollByEmployeeWeekYear(
     });
     return response.data;
   } catch (error) {
-    console.error("Error al obtener la nómina:", error);
-    if (error.response && error.response.status === 404) {
-      throw new Error("Nómina no encontrada para los parámetros especificados");
+    // Si es 404, simplemente regresa un objeto vacío con valores por defecto
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      (error as { response?: { status?: number } }).response?.status === 404
+    ) {
+      return {
+        infonavit: 0,
+        fonacot: 0,
+        total_perceptions: 0,
+        debt: 0,
+        payment: 0,
+        remaining: 0,
+        others: 0,
+        normal_bonus: 0,
+        monthly_bonus: 0,
+        card_payment: 0,
+        cash_payment: 0,
+        total_payment: 0,
+      };
     }
+    // Otros errores sí los lanzamos
+    console.error("Error al obtener la nómina:", error);
     throw new Error("Error al obtener la nómina");
   }
 }

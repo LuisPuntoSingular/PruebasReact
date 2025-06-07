@@ -87,14 +87,7 @@ export async function getProcessedEmployees(
 
     
     
-       
-       // Asegurarse de que los valores sean números antes de realizar la suma
-       emp.total_perceptions = (
-         (!isNaN(Number(emp.extra_hours_amount)) ? Number(emp.extra_hours_amount) : 0) +
-         (!isNaN(Number(emp.salary)) ? Number(emp.salary) : 0) -
-         (!isNaN(Number(emp.infonavit)) ? Number(emp.infonavit) : 0) -
-         (!isNaN(Number(emp.fonacot)) ? Number(emp.fonacot) : 0)
-       );
+      
 
     // Calcular efectivo
        emp.cash_payment = (
@@ -129,14 +122,14 @@ export function handleInputChangeLogic(
     }
 
     // Actualiza total_perceptions
-    if (["infonavit", "fonacot", "extra_hours_amount", "salary"].includes(field)) {
-      updated.total_perceptions = (
-        Number(updated.extra_hours_amount || 0) +
-          Number(updated.salary || 0) -
-          Number(updated.infonavit || 0) -
-          Number(updated.fonacot || 0)
-      );
-    }
+   if (["infonavit", "fonacot", "extra_hours_amount", "salary"].includes(field)) {
+  updated.total_perceptions = (
+    Number(updated.extra_hours_amount || 0) +
+    Number(updated.salary || 0) -
+    Number(updated.infonavit || 0) -
+    Number(updated.fonacot || 0)
+  );
+}
 
    
 
@@ -168,8 +161,14 @@ export function handleInputChangeLogic(
 
 // Lógica para totales
 export function getTotals(employees: EmployeePayroll[]) {
-  const totalTarjeta = employees.reduce((acc, emp) => acc + Number(emp.card_payment || 0), 0);
-  const totalEfectivo = employees.reduce((acc, emp) => acc + Number(emp.cash_payment || 0), 0);
+  const totalTarjeta = employees.reduce(
+    (acc, emp) => acc + Number(emp?.card_payment ?? 0),
+    0
+  );
+  const totalEfectivo = employees.reduce(
+    (acc, emp) => acc + Number(emp?.cash_payment ?? 0),
+    0
+  );
   const totalGeneral = totalTarjeta + totalEfectivo;
   return { totalTarjeta, totalEfectivo, totalGeneral };
 }

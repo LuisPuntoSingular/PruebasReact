@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Box, Button, ButtonGroup
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Box, Button, ButtonGroup,
+  InputAdornment
 } from "@mui/material";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
@@ -177,61 +178,52 @@ useEffect(() => {
       const processed = await getProcessedEmployees(selectedWeek, selectedYear);
 
       // Iterar sobre los empleados y obtener datos adicionales de la nómina
-      const updatedEmployees = await Promise.all(
-        processed.map(async (employee) => {
-          try {
-            const payrollData = await getPayrollByEmployeeWeekYear(
-              employee.employee_id,
-              selectedWeek,
-              selectedYear
-            );
-
-            // Si se encuentra información, actualiza los campos
-            const updatedEmployee = {
-              ...employee,
-              infonavit: payrollData.infonavit  || 0,
-              fonacot: payrollData.fonacot  || 0,
-              total_perceptions: payrollData.total_perceptions || 0.0,
-              debt: payrollData.debt || 0,
-              payment: payrollData.payment || 0,
-              remaining: payrollData.remaining || 0,
-              others: payrollData.others || 0,
-              normal_bonus: payrollData.normal_bonus || 0,
-              monthly_bonus: payrollData.monthly_bonus || 0,
-              card_payment: payrollData.card_payment || 0,
-              cash_payment: payrollData.cash_payment || 0,
-              total_payment: payrollData.total_payment || 0,
-            };
-
-            // Aplicar lógica de cálculos automáticamente
-            const recalculatedEmployees = handleInputChangeLogic(
-              [updatedEmployee],
-              employee.employee_id,
-              "", // No se necesita un campo específico
-              0   // No se necesita un valor específico
-            );
-
-            return recalculatedEmployees[0]; // Retorna el empleado recalculado
-          } catch (error) {
-            console.warn(`No se encontró nómina para el empleado ${employee.employee_id}:`, error);
-            return {
-              ...employee,
-              infonavit: "",
-              fonacot:"",
-              total_perceptions: 0,
-              debt: 0,
-              payment: 0,
-              remaining: 0,
-              others: 0,
-              normal_bonus: 0,
-              monthly_bonus: 0,
-              card_payment: 0,
-              cash_payment: 0,
-              total_payment: 0,
-            };
-          }
-        })
+     const updatedEmployees = await Promise.all(
+  processed.map(async (employee) => {
+    try {
+      const payrollData = await getPayrollByEmployeeWeekYear(
+        employee.employee_id,
+        selectedWeek,
+        selectedYear
       );
+      return {
+        ...employee,
+        infonavit: payrollData.infonavit ,
+        fonacot: payrollData.fonacot,
+        total_perceptions: payrollData.total_perceptions,
+        debt: payrollData.debt ,
+        payment: payrollData.payment,
+        remaining: payrollData.remaining,
+        others: payrollData.others ,
+        normal_bonus: payrollData.normal_bonus,
+        monthly_bonus: payrollData.monthly_bonus,
+        card_payment: payrollData.card_payment ,
+        cash_payment: payrollData.cash_payment ,
+        total_payment: payrollData.total_payment,
+      };
+    } catch (error) {
+      console.warn(`No se encontró nómina para el empleado ${employee.employee_id}:`, error);
+      return {
+        ...employee,
+        infonavit: "",
+        fonacot: "",
+        total_perceptions: 0,
+        debt: 0,
+        payment: 0,
+        remaining: 0,
+        others: 0,
+        normal_bonus: 0,
+        monthly_bonus: 0,
+        card_payment: 0,
+        cash_payment: 0,
+        total_payment: 0,
+      };
+    }
+  })
+);
+
+// Filtra cualquier valor undefined o nulo
+setEmployees(updatedEmployees.filter(emp => emp && typeof emp.employee_id !== "undefined"));
 
       setEmployees(updatedEmployees);
     } catch (error) {
@@ -448,8 +440,8 @@ useEffect(() => {
 <TableCell>{emp.sunday_hours}</TableCell>
 <TableCell>{emp.sunday_extra_hours}</TableCell>
 <TableCell>{emp.total_extra_hours}</TableCell>
-<TableCell>{emp.extra_hours_amount}</TableCell>
-<TableCell>{emp.salary}</TableCell>
+<TableCell>${emp.extra_hours_amount}</TableCell>
+<TableCell>${emp.salary}</TableCell>
       <TableCell>
         <TextField
     value={emp.infonavit !== undefined && emp.infonavit !== null ? emp.infonavit : 0} // Mostrar el valor actual o 0
@@ -460,6 +452,9 @@ useEffect(() => {
     type="number"
     disabled={isLocked}
     inputProps={{ style: { width: 60 } }}
+     InputProps={{
+    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+  }}
   />
       </TableCell>
       <TableCell>
@@ -473,10 +468,13 @@ useEffect(() => {
     type="number"
     disabled={isLocked}
     inputProps={{ style: { width: 60 } }}
+     InputProps={{
+    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+  }}
   />
 
       </TableCell>
-      <TableCell>{emp.total_perceptions}</TableCell>
+      <TableCell>${emp.total_perceptions}</TableCell>
       <TableCell>
         <TextField
     value={emp.debt !== undefined && emp.debt !== null ? emp.debt : 0} // Mostrar el valor actual o 0
@@ -487,6 +485,9 @@ useEffect(() => {
     type="number"
     disabled={isLocked}
     inputProps={{ style: { width: 80 } }}
+     InputProps={{
+    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+  }}
   />
       </TableCell>
       <TableCell>
@@ -500,6 +501,9 @@ useEffect(() => {
     type="number"
     disabled={isLocked}
     inputProps={{ style: { width: 80 } }}
+     InputProps={{
+    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+  }}
   />
 
       </TableCell>
@@ -514,6 +518,9 @@ useEffect(() => {
     type="number"
     disabled={isLocked}
     inputProps={{ style: { width: 80 } }}
+     InputProps={{
+    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+  }}
   />
       </TableCell>
       <TableCell>
@@ -526,6 +533,9 @@ useEffect(() => {
     type="number"
     disabled={isLocked}
     inputProps={{ style: { width: 80 } }}
+     InputProps={{
+    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+  }}
   />
       </TableCell>
       <TableCell>
@@ -538,8 +548,12 @@ useEffect(() => {
     type="number"
     disabled={isLocked}
     inputProps={{ style: { width: 80 } }}
+     InputProps={{
+    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+  }}
   />
       </TableCell>
+      
       <TableCell>
         <TextField
     value={emp.card_payment !== undefined && emp.card_payment !== null ? emp.card_payment : 0} // Mostrar el valor actual o 0
@@ -550,10 +564,11 @@ useEffect(() => {
     type="number"
     disabled={isLocked}
     inputProps={{ style: { width: 80 } }}
+    
   />
       </TableCell>
-      <TableCell sx={{ background: "#ff4444", color: "#fff", fontWeight: 700 }}>{emp.cash_payment}</TableCell>
-      <TableCell>{emp.total_payment}</TableCell>
+      <TableCell sx={{ background: "#ff4444", color: "#fff", fontWeight: 700 }}>${emp.cash_payment}</TableCell>
+      <TableCell>${emp.total_payment}</TableCell>
     </TableRow>
   ))}
 </TableBody>

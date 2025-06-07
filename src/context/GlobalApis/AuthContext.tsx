@@ -6,7 +6,7 @@ interface User {
   id: number;
   email: string;
   role: string;
-  employee_id?: number; // Opcional si no siempre está presente
+  // Opcional si no siempre está presente
 }
 
 interface AuthContextType {
