@@ -25,7 +25,7 @@ export async function getProcessedEmployees(
 
       employeesMap[empId] = {
         employee_id: empId,
-        full_name: `${rec.first_name ?? ""} ${rec.last_name_paterno ?? ""}`,
+        full_name: `${rec.first_name ?? ""}${rec.last_name_materno ?? ""} ${rec.last_name_paterno ?? ""}`,
         week_number: selectedWeek,
         year: selectedYear,
         monday_hours: "",
@@ -79,8 +79,15 @@ export async function getProcessedEmployees(
   Object.values(employeesMap).forEach((emp) => {
 
   
-    // Calcular importe de horas extras
-    emp.extra_hours_amount = (Number(emp.total_extra_hours || 0) * 50);
+   // Calcular importe de horas extras
+  if (emp.total_extra_hours < 0) {
+    // Descuento: salario / 7 / 8 * horas negativas
+    const valorHora = Number(emp.salary || 0) / 7 / 8;
+    emp.extra_hours_amount = Number((Number(emp.total_extra_hours) * valorHora).toFixed(2));
+  } else {
+    // Pago normal de horas extra
+    emp.extra_hours_amount = Number((Number(emp.total_extra_hours || 0) * 50).toFixed(2));
+  }
 
     // Calcular restante
     emp.remaining = (Number((emp.debt) || 0) - (Number(emp.payment) || 0));
@@ -121,14 +128,14 @@ export function handleInputChangeLogic(
       updated.remaining = ((Number(updated.debt) ) - (Number(updated.payment) ));
     }
 
-    // Actualiza total_perceptions
-   if (["infonavit", "fonacot", "extra_hours_amount", "salary"].includes(field)) {
-  updated.total_perceptions = (
+  // Actualiza total_perceptions
+if (["infonavit", "fonacot", "extra_hours_amount", "salary"].includes(field)) {
+  updated.total_perceptions = Number((
     Number(updated.extra_hours_amount || 0) +
     Number(updated.salary || 0) -
     Number(updated.infonavit || 0) -
     Number(updated.fonacot || 0)
-  );
+  ).toFixed(2));
 }
 
    

@@ -101,8 +101,8 @@ const EmployeeDayCell: React.FC<Props> = ({
         }}
         sx={{
           background: "#fff",
-          minWidth: 48,
-          maxWidth: 60,
+          minWidth: 70,      // <-- opcional: también puedes aumentar minWidth
+    maxWidth: 80, 
           "& .MuiInputBase-input": {
             p: "8px 8px",
             textAlign: "center",
