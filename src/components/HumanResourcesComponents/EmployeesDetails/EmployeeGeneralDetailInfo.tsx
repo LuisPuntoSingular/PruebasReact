@@ -15,8 +15,8 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useState, useEffect } from "react";
-import { Employee } from "../Apis/employeeApi";
-import { getAllWorkAreas, WorkArea } from "../Apis/employeeWorkAreasApi";
+import { Employee } from "../Services/employeeApi";
+import { getAllWorkAreas, WorkArea } from "../Services/employeeWorkAreasApi";
 
 // Función para capitalizar solo la primera letra de cada palabra
 function toTitleCase(str: string) {

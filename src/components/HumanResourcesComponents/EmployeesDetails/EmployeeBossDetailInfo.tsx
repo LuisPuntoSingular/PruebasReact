@@ -15,8 +15,8 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useState, useEffect } from "react";
-import { Boss, fetchBosses } from "../Apis/employeeApi";
-import { EmployeeSupervisor } from "../Apis/employeeBossApi";
+import { Boss, fetchBosses } from "../Services/employeeApi";
+import { EmployeeSupervisor } from "../Services/employeeBossApi";
 
 
 

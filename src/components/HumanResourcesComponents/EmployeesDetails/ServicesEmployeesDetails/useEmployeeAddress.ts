@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { updateEmployeeAddress, AddressContact } from "../../Apis/employeeAdressContactApi";
+import { updateEmployeeAddress, AddressContact } from "../../Services/employeeAdressContactApi";
 
 export function useEmployeeAddress(initialAddress: AddressContact | null) {
   const [address, setAddress] = useState<AddressContact | null>(initialAddress);

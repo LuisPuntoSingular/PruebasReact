@@ -4,7 +4,7 @@ import {
   updateEmployeeSupervisor,
  
   EmployeeSupervisor,
-} from "../../Apis/employeeBossApi";
+} from "../../Services/employeeBossApi";
 
 export function useEmployeeBoss(initialBoss: EmployeeSupervisor | null) {
   const [boss, setBoss] = useState<EmployeeSupervisor | null>(initialBoss);

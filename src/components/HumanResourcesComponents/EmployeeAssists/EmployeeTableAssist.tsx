@@ -3,7 +3,7 @@ import {
 } from '@mui/material';
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { AttendanceCode } from "./AttendanceCodesTable";
-import { uploadAttendanceExcel, getEmployeesAssist } from "./Services/attendanceService";
+import { uploadAttendanceExcel, getEmployeesAssist,getApprovedVacationsByEmployeesAndDateRange } from "./Services/attendanceService";
 import {
   updateEmployeesFromExcel,
   handleExtraTimeChange,
@@ -12,9 +12,11 @@ import {
   hasQuestionMarkOrEmpty,
   exportToExcel,
   handleSubmitLogic,
-  EmployeeRow
+  EmployeeRow,
+  setVacationDays
 } from "./Logic/employeeTableLogic";
 import EmployeeRowComponent from "./Components/EmployeeRowComponent";
+import { getAttendanceByEmployeeAndDateRange } from "./Services/attendanceService";
 
 interface Props {
   selectedWeek: number;
@@ -36,6 +38,7 @@ const EmployeeTable: React.FC<Props> = ({
   const [uploading, setUploading] = useState(false);
   const [loadingTable, setLoadingTable] = useState(true);
   const [, setLoading] = useState(false);
+  const [excelUploaded, setExcelUploaded] = useState(false);
 
   // Filtrar empleados según el filtro seleccionado
   const filteredEmployees = localEmployees.filter(emp => {
@@ -60,7 +63,7 @@ const EmployeeTable: React.FC<Props> = ({
           .map((employee) => ({
             id: employee.id,
             plant_id: employee.plant_id,
-            full_name: `${employee.first_name} ${employee.last_name_paterno} ${employee.last_name_materno}`,
+            full_name: `${employee.first_name} ${employee.second_name} ${employee.last_name_paterno} ${employee.last_name_materno}`,
             monday: { day: "", extraTime: 0 },
             tuesday: { day: "", extraTime: 0 },
             wednesday: { day: "", extraTime: 0 },
@@ -82,6 +85,86 @@ const EmployeeTable: React.FC<Props> = ({
     fetchAllEmployees();
   }, []);
 
+
+// Efecto para cargar asistencia de empleados según el rango de fechas y semana seleccionada
+useEffect(() => {
+  const fetchAndSetAttendance = async () => {
+    if (employees.length === 0) {
+      setLocalEmployees([]);
+      return;
+    }
+
+    // Siempre parte de los empleados base (vacíos)
+   const baseEmployees = employees.map(emp => ({
+      ...emp,
+      monday: { ...emp.monday },
+      tuesday: { ...emp.tuesday },
+      wednesday: { ...emp.wednesday },
+      thursday: { ...emp.thursday },
+      friday: { ...emp.friday },
+      saturday: { ...emp.saturday },
+      sunday: { ...emp.sunday },
+      totalExtraTime: 0,
+    }));
+
+    const startDateStr = startDate.toISOString().slice(0, 10);
+    const endDateStr = endDate.toISOString().slice(0, 10);
+
+    const allAttendance = await Promise.all(
+      employees.map(async (emp) => {
+        try {
+          const records = await getAttendanceByEmployeeAndDateRange(
+            emp.id,
+            startDateStr,
+            endDateStr,
+            selectedWeek
+          );
+          return { empId: emp.id, records };
+        } catch  {
+          return { empId: emp.id, records: [] };
+        }
+      })
+    );
+
+    // Aplica los registros si existen, si no, deja los datos base
+    const updated = baseEmployees.map((emp) => {
+      const found = allAttendance.find((a) => a.empId === emp.id);
+      if (!found || !found.records.length) return emp;
+
+      const dias = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+      const empActualizado = { ...emp };
+
+      found.records.forEach((rec) => {
+        const fechaRegistro = rec.date?.slice(0, 10);
+        for (let i = 0; i < 7; i++) {
+          const fechaDia = new Date(startDate);
+          fechaDia.setDate(startDate.getDate() + i);
+          const fechaDiaStr = fechaDia.toISOString().slice(0, 10);
+
+          if (fechaDiaStr === fechaRegistro) {
+            const dia = dias[i];
+            empActualizado[dia] = {
+              ...empActualizado[dia],
+              day: rec.code || empActualizado[dia]?.day || "",
+              extraTime: Number(rec.overtime_hours ?? empActualizado[dia]?.extraTime ?? 0),
+            };
+          }
+        }
+      });
+
+      empActualizado.totalExtraTime = dias
+        .map((d) => (empActualizado[d] as { day: string; extraTime: number }).extraTime)
+        .reduce((sum, extraTime) => sum + extraTime, 0);
+
+      return empActualizado;
+    });
+
+    setLocalEmployees(updated);
+  };
+
+  fetchAndSetAttendance();
+}, [employees, startDate, endDate, selectedWeek]);
+
   // Cuando cambian empleados cargados, actualizar localEmployees
   useEffect(() => {
     setLoadingTable(true);
@@ -94,6 +177,9 @@ const EmployeeTable: React.FC<Props> = ({
       setLoadingTable(false);
     }
   }, [localEmployees]);
+
+ 
+
 
   // Manejar cambio de extraTime o código
   const onExtraTimeChange = useCallback(
@@ -111,31 +197,69 @@ const EmployeeTable: React.FC<Props> = ({
   );
 
   // Manejo de carga de archivo Excel
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const fecha_inicio = startDate.toISOString().slice(0, 10);
-      const fecha_final = endDate.toISOString().slice(0, 10);
-      const data = await uploadAttendanceExcel(file, fecha_inicio, fecha_final);
-      if (Array.isArray(data)) {
-        setLocalEmployees((prev) => {
-          const updated = updateEmployeesFromExcel(prev, data, startDate);
-          setEmployees(updated); // Actualiza el estado global interno
-          return updated;
-        });
-        alert("Archivo procesado correctamente");
-      } else {
-        alert("La respuesta del backend no contiene el formato esperado.");
-      }
-    } catch (error) {
-      alert(`"Error al procesar el archivo. "${error}`);
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+
+
+const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  setUploading(true);
+  try {
+    const fecha_inicio = startDate.toISOString().slice(0, 10);
+    const fecha_final = endDate.toISOString().slice(0, 10);
+
+    // 1. Obtén vacaciones aprobadas para todos los empleados visibles
+    const employeeIds = localEmployees.map(emp => emp.id);
+    const vacationsByEmployee = await getApprovedVacationsByEmployeesAndDateRange(
+      employeeIds,
+      fecha_inicio,
+      fecha_final
+    );
+
+    // 2. Marca los días de vacaciones en el estado antes de procesar el Excel
+    setLocalEmployees(prev => setVacationDays(prev, vacationsByEmployee, startDate));
+
+    // 3. Procesa el Excel, pero NO sobrescribas los días "V"
+    const data = await uploadAttendanceExcel(file, fecha_inicio, fecha_final);
+    if (Array.isArray(data)) {
+      setLocalEmployees(prev => {
+        const updated = updateEmployeesFromExcel(
+          prev,
+          data,
+          startDate,
+          (oldDay) => oldDay !== "V" // No sobrescribir días de vacaciones
+        );
+        setEmployees(updated);
+        return updated;
+      });
+      setExcelUploaded(true);
+      alert("Archivo procesado correctamente");
+    } else {
+      alert("La respuesta del backend no contiene el formato esperado.");
     }
-  };
+  } catch (error) {
+    alert(`Error al procesar el archivo. ${error}`);
+  } finally {
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+};
+  // Efecto para reiniciar el estado de Excel cargado y limpiar "V" cuando cambian las fechas o la semana seleccionada
+useEffect(() => {
+  setExcelUploaded(false);
+
+  // Limpia las "V" de localEmployees
+  setLocalEmployees(prev =>
+    prev.map(emp => {
+      const cleanEmp = { ...emp };
+      ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"].forEach(day => {
+        if (cleanEmp[day].day === "V") {
+          cleanEmp[day] = { ...cleanEmp[day], day: "" };
+        }
+      });
+      return cleanEmp;
+    })
+  );
+}, [startDate, endDate, selectedWeek]);
 
   // Botón exportar
   const handleExport = () => exportToExcel(employees);
@@ -268,6 +392,7 @@ const EmployeeTable: React.FC<Props> = ({
           <TableBody>
             {filteredEmployees.map((emp) => (
               <EmployeeRowComponent
+               excelUploaded={excelUploaded}
                 key={emp.id}
                 emp={emp}
                 attendanceCodes={attendanceCodes}

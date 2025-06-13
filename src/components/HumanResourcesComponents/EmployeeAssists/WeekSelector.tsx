@@ -52,18 +52,22 @@ const WeekSelector: React.FC<Props> = ({
             inputProps={{ min: 1, max: 53, style: { width: 80, textAlign: "center", fontSize: "1.5rem" } }}
             sx={{ width: 100, '& .MuiInputBase-input': { fontSize: '1.5rem', py: 2 } }}
           />
-          <DesktopDatePicker
-            label="Inicio de semana"
-            value={date}
-            onChange={(d) => d && setDate(getMondayOfWeek(d))}
-            slotProps={{
-              textField: {
-                size: "medium",
-                sx: { minWidth: 180, '& .MuiInputBase-input': { fontSize: '1.2rem', py: 2 } },
-                InputLabelProps: { style: { fontSize: '1.2rem' } }
-              },
-            }}
-          />
+         <DesktopDatePicker
+  label="Inicio de semana"
+  value={date}
+  onChange={(d) => {
+    if (d instanceof Date && !isNaN(d.getTime())) {
+      setDate(getMondayOfWeek(d));
+    }
+  }}
+  slotProps={{
+    textField: {
+      size: "medium",
+      sx: { minWidth: 180, '& .MuiInputBase-input': { fontSize: '1.2rem', py: 2 } },
+      InputLabelProps: { style: { fontSize: '1.2rem' } }
+    },
+  }}
+/>
           <Typography variant="h6" sx={{ color: "#555", fontSize: "1.3rem" }}>
             {weekRange}
           </Typography>

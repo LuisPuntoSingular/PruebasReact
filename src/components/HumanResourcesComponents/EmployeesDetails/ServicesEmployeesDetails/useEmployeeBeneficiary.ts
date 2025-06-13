@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { updateEmployeeBeneficiary, Beneficiary } from "../../Apis/employeeBeneficiaryApi";
+import { updateEmployeeBeneficiary, Beneficiary } from "../../Services/employeeBeneficiaryApi";
 
 export function useEmployeeBeneficiary(initialBeneficiary: Beneficiary | null) {
   const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(initialBeneficiary);

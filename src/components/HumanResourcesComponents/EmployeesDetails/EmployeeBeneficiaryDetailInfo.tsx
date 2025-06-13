@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useState } from "react";
-import { Beneficiary } from "../Apis/employeeBeneficiaryApi";
+import { Beneficiary } from "../Services/employeeBeneficiaryApi";
 
 const RELATIONSHIP_OPTIONS = [
   "Abuela/o",

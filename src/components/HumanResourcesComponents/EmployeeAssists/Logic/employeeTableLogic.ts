@@ -34,11 +34,11 @@ export function updateEmployeesFromExcel(
   localEmployees: EmployeeRow[],
   excelData: ExcelRow[],
   startDate: Date,
- 
+  canOverwriteDay?: (oldDay: string) => boolean // <-- nuevo parámetro
 ) {
   const dias = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
   const updatedEmployees = localEmployees.map((emp) => {
-  const registrosEmpleado = excelData.filter((row) => Number(row.ID) === Number(emp.id));
+    const registrosEmpleado = excelData.filter((row) => Number(row.ID) === Number(emp.id));
     const empActualizado = { ...emp };
 
     registrosEmpleado.forEach((reg) => {
@@ -50,11 +50,14 @@ export function updateEmployeesFromExcel(
 
         if (fechaDiaStr === fechaRegistro) {
           const dia = dias[i];
-          empActualizado[dia] = {
-            ...empActualizado[dia], // Preserva los valores manuales existentes
-            day: reg.Codigo || empActualizado[dia]?.day || "", // Usa el valor del Excel o el valor manual
-            extraTime: reg.HorasExtras ?? empActualizado[dia]?.extraTime ?? 0, // Usa el valor del Excel o el valor manual
-          };
+          // Solo sobrescribe si canOverwriteDay lo permite
+          if (!canOverwriteDay || canOverwriteDay(empActualizado[dia].day)) {
+            empActualizado[dia] = {
+              ...empActualizado[dia],
+              day: reg.Codigo || empActualizado[dia]?.day || "",
+              extraTime: reg.HorasExtras ?? empActualizado[dia]?.extraTime ?? 0,
+            };
+          }
         }
       }
     });
@@ -66,7 +69,6 @@ export function updateEmployeesFromExcel(
     return empActualizado;
   });
 
-  
   return updatedEmployees;
 }
 
@@ -114,6 +116,7 @@ export const getDayDate = (startDate: Date, dayIndex: number) => {
   return date.toLocaleDateString();
 };
 
+// verify if any employee has a question mark or empty string in any day
 export function hasQuestionMarkOrEmpty(localEmployees: EmployeeRow[]): boolean {
   return localEmployees.some(emp =>
     ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
@@ -127,8 +130,8 @@ export function hasQuestionMarkOrEmpty(localEmployees: EmployeeRow[]): boolean {
 
 
 
-// ...ya tienes las otras funciones aquí...
 
+// 
 export const exportToExcel = async (employees: EmployeeRow[]) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("Asistencias");
@@ -194,4 +197,27 @@ export const handleSubmitLogic = async (
     console.error(error);
     alert("Ocurrió un error al guardar las asistencias");
   }
+};
+
+
+// Marca los días de vacaciones aprobadas como "V"
+export const setVacationDays = (
+  employees: EmployeeRow[],
+  vacations: { [empId: number]: string[] },
+  startDate: Date
+): EmployeeRow[] => {
+  const dias = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+  return employees.map(emp => {
+    const empVacDays = vacations[emp.id] || [];
+    const updatedEmp = { ...emp };
+    dias.forEach((dia, idx) => {
+      const fecha = new Date(startDate);
+      fecha.setDate(startDate.getDate() + idx);
+      const fechaStr = fecha.toISOString().slice(0, 10);
+      if (empVacDays.includes(fechaStr)) {
+        updatedEmp[dia] = { ...updatedEmp[dia], day: "V" };
+      }
+    });
+    return updatedEmp;
+  });
 };

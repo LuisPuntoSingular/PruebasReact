@@ -17,6 +17,7 @@ interface Props {
   onExtraTimeChange: (id: number, day: string, value: number | string) => void;
   extraTimeInput: string;
   setExtraTimeInput: (day: string, value: string) => void;
+  excelUploaded: boolean;
 }
 
 const EmployeeDayCell: React.FC<Props> = ({
@@ -27,6 +28,7 @@ const EmployeeDayCell: React.FC<Props> = ({
   onExtraTimeChange,
   extraTimeInput,
   setExtraTimeInput,
+  excelUploaded,
 }) => {
   const handleSelectChange = (e: SelectChangeEvent) => {
     onExtraTimeChange(empId, day, e.target.value);
@@ -59,30 +61,42 @@ const EmployeeDayCell: React.FC<Props> = ({
       }}
     >
       <FormControl size="small" variant="standard" sx={{ minWidth: 70, maxWidth: 90 }}>
-        <Select
-          labelId={`select-label-${empId}-${day}`}
-          value={value.day || ""}
-          onChange={handleSelectChange}
-          sx={{
-            background: value.day === "?" || value.day === "" ? "#fff59d" : "#a5d6a7",
-            fontSize: "1.1rem",
-            minWidth: 90,
-            maxWidth: 120,
-            ".MuiSelect-select": { p: "8px 12px" },
-          }}
-          MenuProps={{ PaperProps: { sx: { maxHeight: 180 } } }}
-          displayEmpty
-        >
-          <MenuItem value="">
-            <em>---</em>
-          </MenuItem>
-          {attendanceCodes.map((code) => (
-            <MenuItem key={code.code} value={code.code} sx={{ fontSize: "1.1rem" }}>
-              {code.code}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+  <Select
+    labelId={`select-label-${empId}-${day}`}
+    value={value.day || ""}
+    onChange={handleSelectChange}
+    disabled={
+      !excelUploaded || value.day === "A" // Bloquea si no hay Excel o si ya tiene "A"
+    }
+    sx={{
+      background: value.day === "?" || value.day === "" ? "#fff59d" : "#a5d6a7",
+      fontSize: "1.1rem",
+      minWidth: 90,
+      maxWidth: 120,
+      ".MuiSelect-select": { p: "8px 12px" },
+    }}
+    MenuProps={{ PaperProps: { sx: { maxHeight: 180 } } }}
+    displayEmpty
+  >
+    <MenuItem value="">
+      <em>---</em>
+    </MenuItem>
+    {attendanceCodes
+      .filter(code => {
+        // Si el campo ya tiene "A", solo muestra "A"
+        if (value.day === "A") return code.code === "A";
+        // Si el campo está vacío ("---"), permite "A" solo si excelUploaded
+        if ((value.day === "" || value.day === undefined) && excelUploaded) return true;
+        // Si no tiene "A", no mostrar "A" como opción
+        return code.code !== "A";
+      })
+      .map((code) => (
+        <MenuItem key={code.code} value={code.code} sx={{ fontSize: "1.1rem" }}>
+          {code.code}
+        </MenuItem>
+      ))}
+  </Select>
+</FormControl>
 
       <TextField
         size="small"

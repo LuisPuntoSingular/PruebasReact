@@ -49,6 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       const data = response.data; // Extrae los datos de la respuesta
+      console.log("Datos del usuario:", data.user); // Verifica los datos del usuario
       setIsAuthenticated(true); // Marca al usuario como autenticado
       setUser(data.user); // Guarda los datos del usuario
       router.push("/dashboard");

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { TextField, Box, MenuItem,Switch, FormControlLabel } from "@mui/material";
-import { getAllWorkAreas, WorkArea,  } from "../../Apis/employeeWorkAreasApi";
-import { getAllPlants } from "../../Apis/employeePlantsApi"; // Importar la función para obtener las plantas
+import { getAllWorkAreas, WorkArea,  } from "../../Services/employeeWorkAreasApi";
+import { getAllPlants } from "../../Services/employeePlantsApi"; // Importar la función para obtener las plantas
 
 
 interface Employee {

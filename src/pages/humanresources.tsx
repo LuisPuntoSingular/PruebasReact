@@ -7,7 +7,7 @@ import EmployeeDetailsDialog from "../components/HumanResourcesComponents/Employ
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import { getEmployees } from "../components/HumanResourcesComponents/Apis/employeeApi";
+import { getEmployees } from "../components/HumanResourcesComponents/Services/employeeApi";
 import RefreshIcon from "@mui/icons-material/Refresh"; // Importar el ícono de refrescar
 
 

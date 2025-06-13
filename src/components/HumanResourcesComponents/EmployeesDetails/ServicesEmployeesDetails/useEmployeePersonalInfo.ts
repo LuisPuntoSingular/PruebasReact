@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { updateEmployeePersonalInformation, PersonalInfo } from "../../Apis/employeePersonalInformationApi";
+import { updateEmployeePersonalInformation, PersonalInfo } from "../../Services/employeePersonalInformationApi";
 
 export function useEmployeePersonalInfo(initialPersonalInfo: PersonalInfo | null) {
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(initialPersonalInfo);

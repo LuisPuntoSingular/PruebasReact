@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { AddressContact } from "../Apis/employeeAdressContactApi";
+import { AddressContact } from "../Services/employeeAdressContactApi";
 import { useState } from "react";
 
 // Función para capitalizar solo la primera letra de cada palabra

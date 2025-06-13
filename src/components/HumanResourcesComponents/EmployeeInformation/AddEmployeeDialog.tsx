@@ -15,18 +15,18 @@ import AddEmployeeInformationDialog from "./EmployeePersonalInformation/AddEmplo
 import AddEmployeeBeneficiaryFields from "./EmployeeBeneficiary/AddEmployeeBeneficiaryDialog";
 import AddEmployeeAddressFields from "./EmployeeAddressContact/AddEmployeeAddressDialog";
 import AddEmployeeBossDialog from "./EmployeeBoss/AddEmployeeBossDialog";
-import { createEmployeeSupervisor } from "../Apis/employeeBossApi";
-import { fetchBosses, Boss } from "../Apis/employeeApi";
+import { createEmployeeSupervisor } from "../Services/employeeBossApi";
+import { fetchBosses, Boss } from "../Services/employeeApi";
 import {
   createEmployeePersonalInformation,
-} from "../Apis/employeePersonalInformationApi";
+} from "../Services/employeePersonalInformationApi";
 import {
   createEmployeeBeneficiary,
-} from "../Apis/employeeBeneficiaryApi";
+} from "../Services/employeeBeneficiaryApi";
 import {
   createEmployeeAddress,
-} from "../Apis/employeeAdressContactApi";
-import { createEmployee } from "../Apis/employeeApi";
+} from "../Services/employeeAdressContactApi";
+import { createEmployee } from "../Services/employeeApi";
 
 
 interface AddEmployeeDialogProps {

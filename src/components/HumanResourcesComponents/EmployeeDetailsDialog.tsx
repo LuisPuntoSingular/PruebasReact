@@ -27,12 +27,12 @@ import { useEmployeePersonalInfo } from "./EmployeesDetails/ServicesEmployeesDet
 
 import { useEmployeeBeneficiary } from "./EmployeesDetails/ServicesEmployeesDetails/useEmployeeBeneficiary";
 import { useEmployeeAddress } from "./EmployeesDetails/ServicesEmployeesDetails/useEmployeeAddress";
-import { getEmployeeById } from "./Apis/employeeApi";
-import { getEmployeePersonalInformationById } from "./Apis/employeePersonalInformationApi";
-import { getEmployeeBeneficiaryById } from "./Apis/employeeBeneficiaryApi";
-import { getEmployeeAddressById } from "./Apis/employeeAdressContactApi";
-import { getEmployeeSupervisorById } from "./Apis/employeeBossApi";
-import { EmployeeSupervisor } from "./Apis/employeeBossApi";
+import { getEmployeeById } from "./Services/employeeApi";
+import { getEmployeePersonalInformationById } from "./Services/employeePersonalInformationApi";
+import { getEmployeeBeneficiaryById } from "./Services/employeeBeneficiaryApi";
+import { getEmployeeAddressById } from "./Services/employeeAdressContactApi";
+import { getEmployeeSupervisorById } from "./Services/employeeBossApi";
+import { EmployeeSupervisor } from "./Services/employeeBossApi";
 
 
 

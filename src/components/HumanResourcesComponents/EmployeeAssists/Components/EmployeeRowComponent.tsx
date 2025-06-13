@@ -9,10 +9,11 @@ interface Props {
   emp: EmployeeRow;
   attendanceCodes: AttendanceCode[];
   onExtraTimeChange: (id: number, day: string, value: number | string) => void;
+   excelUploaded: boolean;
 }
 
 const EmployeeRowComponent: React.FC<Props> = React.memo(
-  ({ emp, attendanceCodes, onExtraTimeChange }) => {
+  ({ emp, attendanceCodes, onExtraTimeChange,excelUploaded }) => {
     const initialExtraTimeInputs = useMemo(() => {
       const initial: { [day: string]: string } = {};
       Object.keys(dayTranslations).forEach((day) => {
@@ -53,6 +54,7 @@ const EmployeeRowComponent: React.FC<Props> = React.memo(
         {Object.keys(dayTranslations).map((day) => (
           <TableCell key={day}>
             <EmployeeDayCell
+              excelUploaded={excelUploaded}
               empId={emp.id}
               day={day}
               value={emp[day as keyof EmployeeRow] as {

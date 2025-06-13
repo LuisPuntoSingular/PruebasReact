@@ -9,7 +9,7 @@ import { getProcessedEmployees, handleInputChangeLogic, getTotals } from "./Logi
 import { saveOrUpdatePayroll, getPayrollByEmployeeWeekYear, EmployeePayroll } from "./Services/PayRollTableService";
 import { getPayrollLockStatus, updatePayrollLockStatus } from "./Services/PayrollLockService";
 
-import { getEmployeePlantId } from "../HumanResourcesComponents/Apis/employeeApi"; // Ajusta la ruta
+import { getEmployeePlantId } from "../HumanResourcesComponents/Services/employeeApi"; // Ajusta la ruta
 
 
 interface Props {

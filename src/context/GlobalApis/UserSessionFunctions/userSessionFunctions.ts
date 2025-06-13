@@ -1,4 +1,4 @@
-import { getEmployeeById,Employee} from "../../../components/HumanResourcesComponents/Apis/employeeApi";
+import { getEmployeeById,Employee} from "../../../components/HumanResourcesComponents/Services/employeeApi";
 
 // Función para obtener los datos del empleado por ID
 export const fetchEmployee = async (employeeId: number): Promise<Employee> => {

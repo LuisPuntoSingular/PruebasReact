@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAttendanceCodes, AttendanceCode } from "../components/HumanResourcesComponents/Apis/employeeAssistsApi";
+import { getAttendanceCodes, AttendanceCode } from "../components/HumanResourcesComponents/Services/employeeAssistsApi";
 
 
 

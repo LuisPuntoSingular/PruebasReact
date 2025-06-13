@@ -1,9 +1,10 @@
 import React from "react";
 import CardboardMeasure from "./ShowInputsComponents/Cardboard/CardboardMeasures";
-import CardBoardMeasureWithoutHigh from "./ShowInputsComponents/Cardboard/CardBoardMeasureWithoutHigh";
+import CardBoardMeasureWithoutHighMm from "./ShowInputsComponents/Cardboard/CardBoardMeasureWithoutHighMm";
+import CardBoardMeasureWithoutHighCm from "./ShowInputsComponents/Cardboard/CardBoardMeasureWithoutHighCm";
 import GridMeasure from "./ShowInputsComponents/Cardboard/GridMeasure";
-import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext"; // Importar el contexto
-import PalletMeasures from "./ShowInputsComponents/Pallets/PalletsMeasures"; // Importar el componente PalletMeasures
+import { useSelectedValues } from "@/context/CardBoardContext/SelectedValuesContext";
+import PalletMeasures from "./ShowInputsComponents/Pallets/PalletsMeasures";
 
 type Row = {
   part: string;
@@ -13,12 +14,12 @@ type Row = {
 };
 
 interface ShowMeasuresProps {
-  rows: Row[]; // Filas para GridMeasure
-  handleInputChangeRejilla: (index: number, field: keyof Row, value: string) => void; // Manejar cambios en GridMeasure
+  rows: Row[];
+  handleInputChangeRejilla: (index: number, field: keyof Row, value: string) => void;
 }
 
 const ShowMeasures: React.FC<ShowMeasuresProps> = ({ }) => {
-  const { selectedMaterial, selectedDerivado } = useSelectedValues(); // Obtener el material seleccionado desde el contexto
+  const { selectedMaterial, selectedDerivado } = useSelectedValues();
 
   return (
     <div>
@@ -30,18 +31,18 @@ const ShowMeasures: React.FC<ShowMeasuresProps> = ({ }) => {
       {/* Renderizar PalletMeasures solo si el material es "Madera" */}
       {selectedMaterial === "Madera" && <PalletMeasures key="pallets" />}
 
-      {/* Renderizar CardBoardMeasureWithoutHigh si el derivado es "Area" o "Separador" */}
-        {/* Renderizar CardBoardMeasureWithoutHigh si el derivado es "Area" o "Separador" */}
-        {(
-  selectedDerivado === "Area" ||
-  selectedDerivado === "Separador" ||
-  selectedMaterial === "Foam" ||
-  selectedMaterial === "Poliburbuja" ||
-  selectedMaterial === "EPE" ||
-  selectedMaterial === "EVA"
-) && (
-  <CardBoardMeasureWithoutHigh key="cardboardWithoutHigh" />
-)}
+      {/* Renderizar CardBoardMeasureWithoutHighMm si el derivado es "Area" o "Separador" */}
+      {(selectedDerivado === "Area" || selectedDerivado === "Separador") && (
+        <CardBoardMeasureWithoutHighMm key="cardboardWithoutHighMm" />
+      )}
+
+      {/* Renderizar CardBoardMeasureWithoutHighCm si el material es Foam, Poliburbuja, EPE o EVA */}
+      {(selectedMaterial === "Foam" ||
+        selectedMaterial === "Poliburbuja" ||
+        selectedMaterial === "EPE" ||
+        selectedMaterial === "EVA") && (
+        <CardBoardMeasureWithoutHighCm key="cardboardWithoutHighCm" />
+      )}
 
       {/* Renderizar CardboardMeasure para los demás derivados */}
       {selectedMaterial === "Carton" &&

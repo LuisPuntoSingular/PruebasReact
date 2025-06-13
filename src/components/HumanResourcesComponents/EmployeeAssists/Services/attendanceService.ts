@@ -34,6 +34,18 @@ export interface AttendanceRecord {
   remarks: string | null;
 }
 
+export interface AttendanceRecordResponse {
+  id: number;
+  employee_id: number;
+  date: string;
+  code: string;
+  week_id: number;
+  overtime_hours: number;
+}
+
+
+
+
 export const buildAttendanceRecords = (
   employees: EmployeeRow[],
   startDate: Date,
@@ -63,7 +75,8 @@ export const buildAttendanceRecords = (
 export const sendAttendanceRecords = async (records: AttendanceRecord[]) => {
   for (const record of records) {
     try {
-      await axios.post(
+      // Intenta actualizar (PUT)
+      await axios.put(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance`,
         record,
         {
@@ -74,18 +87,52 @@ export const sendAttendanceRecords = async (records: AttendanceRecord[]) => {
         }
       );
     } catch (error) {
-      let errorMsg = "Error en el registro de asistencia";
+      // Si es 404, intenta crear (POST)
       if (
         typeof error === "object" &&
         error !== null &&
         "response" in error &&
-        typeof (error as { response?: unknown }).response === "object" &&
-        (error as { response?: { data?: { message?: string } } }).response?.data &&
-        typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
+        (error as { response?: { status?: number } }).response?.status === 404
       ) {
-        errorMsg = (error as { response: { data: { message: string } } }).response.data.message;
+        try {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance`,
+            record,
+            {
+              withCredentials: true,
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+        } catch (postError) {
+          let errorMsg = "Error al crear el registro de asistencia";
+          if (
+            typeof postError === "object" &&
+            postError !== null &&
+            "response" in postError &&
+            typeof (postError as { response?: unknown }).response === "object" &&
+            (postError as { response?: { data?: { message?: string } } }).response?.data &&
+            typeof (postError as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
+          ) {
+            errorMsg = (postError as { response: { data: { message: string } } }).response.data.message;
+          }
+          throw new Error(errorMsg);
+        }
+      } else {
+        let errorMsg = "Error en el registro de asistencia";
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error &&
+          typeof (error as { response?: unknown }).response === "object" &&
+          (error as { response?: { data?: { message?: string } } }).response?.data &&
+          typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
+        ) {
+          errorMsg = (error as { response: { data: { message: string } } }).response.data.message;
+        }
+        throw new Error(errorMsg);
       }
-      throw new Error(errorMsg);
     }
   }
 };
@@ -159,4 +206,81 @@ export const getEmployeesAssist = async (): Promise<EmployeeAssist[]> => {
     }
     throw new Error(errorMsg);
   }
+};
+
+
+export const getAttendanceByEmployeeAndDateRange = async (
+  employee_id: number,
+  start_date: string,
+  end_date: string,
+  week_id: number
+): Promise<AttendanceRecordResponse[]> => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance/by-employee-and-date-range`,
+      {
+        params: {
+          employee_id,
+          start_date,
+          end_date,
+          week_id,
+        },
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    let errorMsg = "Error al obtener registros de asistencia";
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: unknown }).response === "object" &&
+      (error as { response?: { data?: { message?: string } } }).response?.data &&
+      typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === "string"
+    ) {
+      errorMsg = (error as { response: { data: { message: string } } }).response.data.message;
+    }
+    throw new Error(errorMsg);
+  }
+};
+
+
+export const getApprovedVacationsByEmployeeAndDateRange = async (
+  employee_id: number,
+  start_date: string,
+  end_date: string
+): Promise<string[]> => {
+  const { data } = await axios.get(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employeeVacationRequest/approved-days`,
+    {
+      params: { employee_id, start_date, end_date },
+      withCredentials: true,
+    }
+  );
+  // data debe ser un array de fechas ["2025-06-01", ...]
+  return data;
+};
+
+
+export const getApprovedVacationsByEmployeesAndDateRange = async (
+  employeeIds: number[],
+  startDate: string,
+  endDate: string
+): Promise<{ [empId: number]: string[] }> => {
+  const { data } = await axios.get(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/employeeVacationRequest/approved-days-multi`,
+    {
+      params: {
+        employee_ids: employeeIds.join(","),
+        start_date: startDate,
+        end_date: endDate,
+      },
+      withCredentials: true,
+    }
+  );
+  return data;
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { patchEmployee, Employee } from "../../Apis/employeeApi";
+import { patchEmployee, Employee } from "../../Services/employeeApi";
 
 export function useEmployeeGeneralInfo(initialEmployee: Employee | null) {
   const [employee, setEmployee] = useState<Employee | null>(initialEmployee);
